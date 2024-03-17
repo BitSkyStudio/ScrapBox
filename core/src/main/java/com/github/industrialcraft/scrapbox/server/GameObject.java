@@ -3,9 +3,9 @@ package com.github.industrialcraft.scrapbox.server;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.github.industrialcraft.scrapbox.server.net.MessageS2C;
-import com.github.industrialcraft.scrapbox.server.net.msg.AddGameObjectMessage;
-import com.github.industrialcraft.scrapbox.server.net.msg.MoveGameObjectMessage;
+import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
+import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
+import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -1,7 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
-import com.github.industrialcraft.scrapbox.server.net.IServerConnection;
-import com.github.industrialcraft.scrapbox.server.net.MessageS2C;
+import com.github.industrialcraft.scrapbox.common.net.IServerConnection;
+import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 
 import java.util.ArrayList;
 

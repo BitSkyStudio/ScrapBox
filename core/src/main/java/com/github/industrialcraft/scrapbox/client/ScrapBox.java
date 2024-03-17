@@ -6,12 +6,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.github.industrialcraft.scrapbox.server.Server;
-import com.github.industrialcraft.scrapbox.server.net.LocalClientConnection;
-import com.github.industrialcraft.scrapbox.server.net.MessageS2C;
-import com.github.industrialcraft.scrapbox.server.net.msg.AddGameObjectMessage;
-import com.github.industrialcraft.scrapbox.server.net.msg.MoveGameObjectMessage;
+import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
+import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
+import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
+import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
 
 import java.util.HashMap;
 

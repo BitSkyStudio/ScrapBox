@@ -1,4 +1,4 @@
-package com.github.industrialcraft.scrapbox.server.net;
+package com.github.industrialcraft.scrapbox.common.net;
 
 import java.util.ArrayList;
 

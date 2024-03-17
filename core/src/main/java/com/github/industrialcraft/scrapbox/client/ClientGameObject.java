@@ -1,8 +1,8 @@
 package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.math.Vector2;
-import com.github.industrialcraft.scrapbox.server.net.msg.AddGameObjectMessage;
-import com.github.industrialcraft.scrapbox.server.net.msg.MoveGameObjectMessage;
+import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
+import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
 
 public class ClientGameObject {
     public final String type;

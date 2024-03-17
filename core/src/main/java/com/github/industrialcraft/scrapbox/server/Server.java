@@ -3,10 +3,10 @@ package com.github.industrialcraft.scrapbox.server;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
-import com.github.industrialcraft.scrapbox.server.net.LocalClientConnection;
-import com.github.industrialcraft.scrapbox.server.net.LocalServerConnection;
-import com.github.industrialcraft.scrapbox.server.net.MessageC2S;
-import com.github.industrialcraft.scrapbox.server.net.MessageS2C;
+import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
+import com.github.industrialcraft.scrapbox.common.net.LocalServerConnection;
+import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
+import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;

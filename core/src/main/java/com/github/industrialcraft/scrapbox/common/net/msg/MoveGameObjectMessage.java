@@ -1,7 +1,7 @@
-package com.github.industrialcraft.scrapbox.server.net.msg;
+package com.github.industrialcraft.scrapbox.common.net.msg;
 
 import com.badlogic.gdx.math.Vector2;
-import com.github.industrialcraft.scrapbox.server.net.MessageS2C;
+import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 
 public class MoveGameObjectMessage extends MessageS2C {
     public final int id;
