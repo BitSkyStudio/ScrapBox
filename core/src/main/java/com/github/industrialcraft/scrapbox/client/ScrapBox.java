@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.client;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,12 +19,16 @@ import java.util.HashMap;
 public class ScrapBox extends ApplicationAdapter {
     private static final float BOX_TO_PIXELS_RATIO = 100;
     private SpriteBatch batch;
+    private OrthographicCamera camera;
+    private CameraController cameraController;
     private Server server;
     private LocalClientConnection connection;
     private HashMap<Integer,ClientGameObject> gameObjects;
     private HashMap<String, RenderData> renderDataRegistry;
     @Override
     public void create() {
+        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cameraController = new CameraController(camera);
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         batch = new SpriteBatch();
@@ -50,6 +55,9 @@ public class ScrapBox extends ApplicationAdapter {
                 }
             }
         }
+        cameraController.tick();
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
         for(ClientGameObject gameObject : gameObjects.values()){
             RenderData renderData = renderDataRegistry.get(gameObject.type);
@@ -57,7 +65,11 @@ public class ScrapBox extends ApplicationAdapter {
         }
         batch.end();
     }
-
+    @Override
+    public void resize(int width, int height) {
+        this.camera.setToOrtho(false, width, height);
+        camera.position.set(0, 0, 0);
+    }
     @Override
     public void dispose() {
         server.stop();
