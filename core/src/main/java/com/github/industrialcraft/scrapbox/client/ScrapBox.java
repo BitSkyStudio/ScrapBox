@@ -2,10 +2,13 @@ package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
@@ -20,14 +23,17 @@ public class ScrapBox extends ApplicationAdapter {
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private CameraController cameraController;
+    private Box2DDebugRenderer debugRenderer;
     private Server server;
     private LocalClientConnection connection;
     private HashMap<Integer,ClientGameObject> gameObjects;
     private HashMap<String, RenderData> renderDataRegistry;
+    private boolean debugRendering;
     @Override
     public void create() {
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cameraController = new CameraController(camera);
+        debugRenderer = new Box2DDebugRenderer();
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         batch = new SpriteBatch();
@@ -35,6 +41,7 @@ public class ScrapBox extends ApplicationAdapter {
         gameObjects = new HashMap<>();
         connection = server.joinLocalPlayer();
         server.start();
+        debugRendering = false;
     }
 
     @Override
@@ -56,13 +63,21 @@ public class ScrapBox extends ApplicationAdapter {
         }
         cameraController.tick();
         camera.update();
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
+            debugRendering = !debugRendering;
+        }
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        for(ClientGameObject gameObject : gameObjects.values()){
+        for (ClientGameObject gameObject : gameObjects.values()) {
             RenderData renderData = renderDataRegistry.get(gameObject.type);
-            batch.draw(renderData.texture, (gameObject.position.x - renderData.width/2) * BOX_TO_PIXELS_RATIO, (gameObject.position.y - renderData.height/2) * BOX_TO_PIXELS_RATIO, gameObject.position.x * BOX_TO_PIXELS_RATIO, gameObject.position.y * BOX_TO_PIXELS_RATIO, renderData.width * BOX_TO_PIXELS_RATIO, renderData.height * BOX_TO_PIXELS_RATIO, 1, 1, gameObject.rotation);
+            batch.draw(renderData.texture, (gameObject.position.x - renderData.width) * BOX_TO_PIXELS_RATIO, (gameObject.position.y - renderData.height) * BOX_TO_PIXELS_RATIO, renderData.width * BOX_TO_PIXELS_RATIO, renderData.height * BOX_TO_PIXELS_RATIO, renderData.width * BOX_TO_PIXELS_RATIO * 2, renderData.height * BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.rotation));
         }
         batch.end();
+        if(debugRendering){
+            Matrix4 matrix = camera.combined.cpy();
+            debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
+        }
+
     }
     @Override
     public void resize(int width, int height) {

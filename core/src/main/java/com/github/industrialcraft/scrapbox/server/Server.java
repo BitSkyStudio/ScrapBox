@@ -16,15 +16,17 @@ public class Server {
     private final ArrayList<GameObject> gameObjects;
     private final ArrayList<GameObject> newGameObjects;
     public final World physics;
+    public final Terrain terrain;
     private boolean stopped;
     public Server() {
         this.players = new ArrayList<>();
         this.physics = new World(new Vector2(0, -9.81f), true);
+        this.terrain = new Terrain(this);
         this.gameObjects = new ArrayList<>();
         this.newGameObjects = new ArrayList<>();
         this.stopped = false;
 
-        this.spawnGameObject(new Vector2(0, 0), FrameGameObject::new);
+        this.spawnGameObject(new Vector2(1.1f, 3), FrameGameObject::new);
     }
     public LocalClientConnection joinLocalPlayer(){
         ConcurrentLinkedQueue<MessageS2C> server_side = new ConcurrentLinkedQueue<>();

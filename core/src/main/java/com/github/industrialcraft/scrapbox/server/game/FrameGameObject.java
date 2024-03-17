@@ -18,6 +18,7 @@ public class FrameGameObject extends GameObject {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(1, 1);
         fixtureDef.shape = shape;
+        fixtureDef.density = 1;
         this.body.createFixture(fixtureDef);
     }
     @Override
