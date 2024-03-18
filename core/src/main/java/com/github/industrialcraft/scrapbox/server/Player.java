@@ -1,7 +1,5 @@
 package com.github.industrialcraft.scrapbox.server;
 
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.net.IServerConnection;
@@ -59,6 +57,10 @@ public class Player {
                 TakeObject takeObject = (TakeObject) message;
                 GameObject gameObject = server.spawnGameObject(takeObject.position, takeObject.type);
                 connection.send(new TakeObjectResponse(gameObject.id, takeObject.offset));
+            }
+            if(message instanceof PlaceTerrain){
+                PlaceTerrain placeTerrain = (PlaceTerrain) message;
+                server.terrain.place(placeTerrain);
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -11,14 +12,16 @@ import java.util.ArrayList;
 public class ToolBox {
     public final ScrapBox game;
     private int width;
-    private Texture background;
-    private ArrayList<Part> parts;
+    private final Texture background;
+    private final ArrayList<Part> parts;
     private int partScroll;
+    public Tool tool;
     public ToolBox(ScrapBox game) {
         this.game = game;
         this.background = new Texture("toolbox.png");
         this.width = 100;
         this.parts = new ArrayList<>();
+        this.tool = Tool.Hand;
     }
     public void render(SpriteBatch batch){
         batch.draw(background, Gdx.graphics.getWidth()-width, 0, width, Gdx.graphics.getHeight());
@@ -26,8 +29,17 @@ public class ToolBox {
             Part part = this.parts.get(i);
             batch.draw(part.renderData.texture, Gdx.graphics.getWidth()-width, i*width-partScroll, width, width);
         }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+            tool = Tool.Hand;
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
+            tool = Tool.TerrainPlace;
+        }
     }
     public void click(Vector2 position){
+        if(tool != Tool.Hand){
+            return;
+        }
         float x = ((position.x+width-Gdx.graphics.getWidth())/width*2)-1;
         float y = (position.y + partScroll)/width;
         if(this.parts.size() > (int)y){
@@ -54,5 +66,9 @@ public class ToolBox {
             this.type = type;
             this.renderData = renderData;
         }
+    }
+    public enum Tool{
+        Hand,
+        TerrainPlace,
     }
 }
