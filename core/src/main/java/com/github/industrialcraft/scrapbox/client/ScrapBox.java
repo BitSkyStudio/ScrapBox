@@ -144,13 +144,19 @@ public class ScrapBox extends ApplicationAdapter {
         batch.setProjectionMatrix(cameraController.camera.combined);
         batch.begin();
         for (ClientGameObject gameObject : gameObjects.values()) {
-            RenderData renderData = renderDataRegistry.get(gameObject.type);
-            batch.draw(renderData.texture, (gameObject.position.x - renderData.width) * BOX_TO_PIXELS_RATIO, (gameObject.position.y - renderData.height) * BOX_TO_PIXELS_RATIO, renderData.width * BOX_TO_PIXELS_RATIO, renderData.height * BOX_TO_PIXELS_RATIO, renderData.width * BOX_TO_PIXELS_RATIO * 2, renderData.height * BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.rotation));
+            renderDataRegistry.get(gameObject.type).draw(batch, gameObject);
         }
-        batch.end();
-        batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.begin();
+        Matrix4 uiMatrix = new Matrix4();
+        uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.setProjectionMatrix(uiMatrix);
         toolBox.render(batch);
+        if(selected != null){
+            batch.setProjectionMatrix(cameraController.camera.combined);
+            ClientGameObject selectedGameObject = gameObjects.get(selected.id);
+            if(selectedGameObject != null) {
+                renderDataRegistry.get(selectedGameObject.type).draw(batch, selectedGameObject);
+            }
+        }
         batch.end();
         if(debugRendering){
             Matrix4 matrix = cameraController.camera.combined.cpy();
