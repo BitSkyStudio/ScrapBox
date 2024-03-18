@@ -7,10 +7,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.net.IServerConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
-import com.github.industrialcraft.scrapbox.common.net.msg.GameObjectPinch;
-import com.github.industrialcraft.scrapbox.common.net.msg.GameObjectRelease;
-import com.github.industrialcraft.scrapbox.common.net.msg.MouseMoved;
-import com.github.industrialcraft.scrapbox.common.net.msg.ToggleGamePaused;
+import com.github.industrialcraft.scrapbox.common.net.msg.*;
 
 import java.util.ArrayList;
 
@@ -29,6 +26,9 @@ public class Player {
                 server.paused = !server.paused;
             }
             if(message instanceof GameObjectPinch){
+                if(pinching != null){
+                    server.physics.destroyJoint(pinching);
+                }
                 GameObjectPinch gameObjectPinch = (GameObjectPinch) message;
                 GameObject gameObject = server.gameObjects.get(gameObjectPinch.id);
                 MouseJointDef mouseJointDef = new MouseJointDef();
@@ -50,6 +50,15 @@ public class Player {
                 if(pinching != null){
                     pinching.setTarget(mouseMoved.position);
                 }
+            }
+            if(message instanceof TrashObject){
+                TrashObject trashObject = (TrashObject) message;
+                server.gameObjects.get(trashObject.id).remove();
+            }
+            if(message instanceof TakeObject){
+                TakeObject takeObject = (TakeObject) message;
+                GameObject gameObject = server.spawnGameObject(takeObject.position, takeObject.type);
+                connection.send(new TakeObjectResponse(gameObject.id, takeObject.offset));
             }
         }
     }

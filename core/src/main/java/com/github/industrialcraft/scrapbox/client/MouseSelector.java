@@ -29,7 +29,7 @@ public class MouseSelector {
         Vector3 world = game.cameraController.camera.unproject(screen);
         return new Vector2(world.x / ScrapBox.BOX_TO_PIXELS_RATIO, world.y / ScrapBox.BOX_TO_PIXELS_RATIO);
     }
-    public class Selection{
+    public static class Selection{
         public final int id;
         public final float offsetX;
         public final float offsetY;

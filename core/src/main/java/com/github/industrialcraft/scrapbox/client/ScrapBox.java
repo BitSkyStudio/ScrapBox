@@ -25,12 +25,13 @@ public class ScrapBox extends ApplicationAdapter {
     public CameraController cameraController;
     private Box2DDebugRenderer debugRenderer;
     private Server server;
-    private LocalClientConnection connection;
+    public LocalClientConnection connection;
     public HashMap<Integer,ClientGameObject> gameObjects;
     public HashMap<String, RenderData> renderDataRegistry;
-    private MouseSelector mouseSelector;
+    public MouseSelector mouseSelector;
     private boolean debugRendering;
     private MouseSelector.Selection selected;
+    private ToolBox toolBox;
     @Override
     public void create() {
         cameraController = new CameraController(new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -44,6 +45,8 @@ public class ScrapBox extends ApplicationAdapter {
         server.start();
         debugRendering = false;
         mouseSelector = new MouseSelector(this);
+        this.toolBox = new ToolBox(this);
+        renderDataRegistry.forEach((key, value) -> this.toolBox.addPart(key, value));
         Gdx.input.setInputProcessor(new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
@@ -59,9 +62,13 @@ public class ScrapBox extends ApplicationAdapter {
             }
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                selected = mouseSelector.getSelected();
-                if(selected != null){
-                    connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
+                if(!toolBox.isMouseInside()) {
+                    selected = mouseSelector.getSelected();
+                    if (selected != null) {
+                        connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
+                    }
+                } else {
+                    toolBox.click(new Vector2(screenX, Gdx.graphics.getHeight()-screenY));
                 }
                 return false;
             }
@@ -69,6 +76,9 @@ public class ScrapBox extends ApplicationAdapter {
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 if(selected != null){
                     connection.send(new GameObjectRelease());
+                    if(toolBox.isMouseInside()){
+                        connection.send(new TrashObject(selected.id));
+                    }
                 }
                 selected = null;
                 return false;
@@ -87,7 +97,11 @@ public class ScrapBox extends ApplicationAdapter {
             }
             @Override
             public boolean scrolled(float amountX, float amountY) {
-                cameraController.zoom(amountY);
+                if(toolBox.isMouseInside()){
+                    toolBox.scroll((int) amountY);
+                } else {
+                    cameraController.zoom(amountY);
+                }
                 return false;
             }
         });
@@ -95,7 +109,7 @@ public class ScrapBox extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0.15f, 0.15f, 0.2f, 1f);
+        Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         for(MessageS2C message : connection.read()){
             if(message instanceof AddGameObjectMessage){
@@ -108,6 +122,15 @@ public class ScrapBox extends ApplicationAdapter {
                 if(gameObject != null){
                     gameObject.move(moveGameObjectMessage);
                 }
+            }
+            if(message instanceof DeleteGameObject){
+                DeleteGameObject deleteGameObject = (DeleteGameObject) message;
+                gameObjects.remove(deleteGameObject.id);
+            }
+            if(message instanceof TakeObjectResponse){
+                TakeObjectResponse takeObjectResponse = (TakeObjectResponse) message;
+                selected = new MouseSelector.Selection(takeObjectResponse.id, takeObjectResponse.offset.x, takeObjectResponse.offset.y);
+                connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
             }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
@@ -125,6 +148,10 @@ public class ScrapBox extends ApplicationAdapter {
             batch.draw(renderData.texture, (gameObject.position.x - renderData.width) * BOX_TO_PIXELS_RATIO, (gameObject.position.y - renderData.height) * BOX_TO_PIXELS_RATIO, renderData.width * BOX_TO_PIXELS_RATIO, renderData.height * BOX_TO_PIXELS_RATIO, renderData.width * BOX_TO_PIXELS_RATIO * 2, renderData.height * BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.rotation));
         }
         batch.end();
+        batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.begin();
+        toolBox.render(batch);
+        batch.end();
         if(debugRendering){
             Matrix4 matrix = cameraController.camera.combined.cpy();
             debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
@@ -140,5 +167,9 @@ public class ScrapBox extends ApplicationAdapter {
     public void dispose() {
         server.stop();
         batch.dispose();
+        toolBox.dispose();
+        for(RenderData renderData : renderDataRegistry.values()){
+            renderData.dispose();
+        }
     }
 }

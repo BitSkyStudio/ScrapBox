@@ -12,18 +12,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class GameObject {
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
+    public final Server server;
     public final int id;
     public final Body body;
+    private boolean isRemoved;
     protected GameObject(Vector2 position, Server server){
+        this.server = server;
         this.id = idGenerator.addAndGet(1);
         this.body = server.physics.createBody(create_body_def(position));
         this.add_fixtures();
+        this.isRemoved = false;
     }
     protected BodyDef create_body_def(Vector2 position){
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         return bodyDef;
+    }
+    public void remove(){
+        if(!isRemoved){
+            server.physics.destroyBody(this.body);
+        }
+        this.isRemoved = true;
+    }
+    public boolean isRemoved(){
+        return this.isRemoved;
     }
     protected abstract void add_fixtures();
     public abstract String get_type();

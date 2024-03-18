@@ -2,6 +2,7 @@ package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.github.industrialcraft.scrapbox.common.net.msg.DeleteGameObject;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
 import com.github.industrialcraft.scrapbox.common.net.LocalServerConnection;
@@ -36,10 +37,16 @@ public class Server {
         this.addPlayer(new Player(this, new LocalServerConnection(server_side, client_side)));
         return new LocalClientConnection(server_side, client_side);
     }
-    private <T extends GameObject> T spawnGameObject(Vector2 position, GameObject.GameObjectSpawner<T> spawner){
+    public  <T extends GameObject> T spawnGameObject(Vector2 position, GameObject.GameObjectSpawner<T> spawner){
         T gameObject = spawner.spawn(position, this);
         this.newGameObjects.add(gameObject);
         return gameObject;
+    }
+    public GameObject spawnGameObject(Vector2 position, String type){
+        if(type.equals("frame")){
+            return spawnGameObject(position, FrameGameObject::new);
+        }
+        return null;
     }
     private void addPlayer(Player player){
         this.players.add(player);
@@ -54,6 +61,13 @@ public class Server {
         }
         sendNewGameObjects();
         this.newGameObjects.clear();
+        for(GameObject gameObject : this.gameObjects.values()){
+            if(gameObject.isRemoved()){
+                DeleteGameObject deleteGameObject = new DeleteGameObject(gameObject.id);
+                this.players.forEach(player -> player.send(deleteGameObject));
+            }
+        }
+        this.gameObjects.entrySet().removeIf(entry -> entry.getValue().isRemoved());
         if(!paused) {
             this.physics.step(deltaTime, 10, 10);
         }

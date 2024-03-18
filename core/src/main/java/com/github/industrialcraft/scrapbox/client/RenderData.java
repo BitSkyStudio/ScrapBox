@@ -12,4 +12,7 @@ public class RenderData {
         this.width = width;
         this.height = height;
     }
+    public void dispose(){
+        this.texture.getTexture().dispose();
+    }
 }
