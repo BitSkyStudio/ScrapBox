@@ -9,11 +9,12 @@ import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Server {
     private final ArrayList<Player> players;
-    private final ArrayList<GameObject> gameObjects;
+    public final HashMap<Integer,GameObject> gameObjects;
     private final ArrayList<GameObject> newGameObjects;
     public final World physics;
     public final Terrain terrain;
@@ -23,7 +24,7 @@ public class Server {
         this.players = new ArrayList<>();
         this.physics = new World(new Vector2(0, -9.81f), true);
         this.terrain = new Terrain(this);
-        this.gameObjects = new ArrayList<>();
+        this.gameObjects = new HashMap<>();
         this.newGameObjects = new ArrayList<>();
         this.stopped = false;
 
@@ -43,12 +44,14 @@ public class Server {
     private void addPlayer(Player player){
         this.players.add(player);
         ArrayList<MessageS2C> messages = new ArrayList<>();
-        this.gameObjects.forEach(gameObject -> messages.add(gameObject.create_add_message()));
+        this.gameObjects.values().forEach(gameObject -> messages.add(gameObject.create_add_message()));
         this.newGameObjects.forEach(gameObject -> messages.add(gameObject.create_add_message()));
         player.sendAll(messages);
     }
     private void tick(float deltaTime){
-        this.gameObjects.addAll(this.newGameObjects);
+        for(GameObject gameObject : this.newGameObjects){
+            this.gameObjects.put(gameObject.id, gameObject);
+        }
         sendNewGameObjects();
         this.newGameObjects.clear();
         if(!paused) {
@@ -64,7 +67,7 @@ public class Server {
     }
     private void sendUpdatedPositions(){
         ArrayList<MessageS2C> messages = new ArrayList<>();
-        this.gameObjects.forEach(gameObject -> messages.add(gameObject.create_move_message()));
+        this.gameObjects.values().forEach(gameObject -> messages.add(gameObject.create_move_message()));
         this.players.forEach(player -> player.sendAll(messages));
     }
     public void start(){

@@ -11,45 +11,6 @@ public class CameraController {
     public final OrthographicCamera camera;
     public CameraController(OrthographicCamera camera) {
         this.camera = camera;
-        Gdx.input.setInputProcessor(new InputProcessor() {
-            @Override
-            public boolean keyDown(int keycode) {
-                return false;
-            }
-            @Override
-            public boolean keyUp(int keycode) {
-                return false;
-            }
-            @Override
-            public boolean keyTyped(char character) {
-                return false;
-            }
-            @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                return false;
-            }
-            @Override
-            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                return false;
-            }
-            @Override
-            public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-                return false;
-            }
-            @Override
-            public boolean touchDragged(int screenX, int screenY, int pointer) {
-                return false;
-            }
-            @Override
-            public boolean mouseMoved(int screenX, int screenY) {
-                return false;
-            }
-            @Override
-            public boolean scrolled(float amountX, float amountY) {
-                camera.zoom = Math.min(Math.max(camera.zoom + amountY, 1), 10);
-                return false;
-            }
-        });
     }
     public void tick(){
         Vector2 move = new Vector2();
@@ -67,5 +28,8 @@ public class CameraController {
         }
         move.scl(Gdx.graphics.getDeltaTime()*camera.zoom*500);
         camera.position.add(move.x, move.y, 0);
+    }
+    public void zoom(float value){
+        camera.zoom = Math.min(Math.max(camera.zoom + value, 1), 10);
     }
 }
