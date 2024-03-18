@@ -18,6 +18,7 @@ public class Server {
     public final World physics;
     public final Terrain terrain;
     private boolean stopped;
+    public boolean paused;
     public Server() {
         this.players = new ArrayList<>();
         this.physics = new World(new Vector2(0, -9.81f), true);
@@ -31,7 +32,7 @@ public class Server {
     public LocalClientConnection joinLocalPlayer(){
         ConcurrentLinkedQueue<MessageS2C> server_side = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<MessageC2S> client_side = new ConcurrentLinkedQueue<>();
-        this.addPlayer(new Player(new LocalServerConnection(server_side, client_side)));
+        this.addPlayer(new Player(this, new LocalServerConnection(server_side, client_side)));
         return new LocalClientConnection(server_side, client_side);
     }
     private <T extends GameObject> T spawnGameObject(Vector2 position, GameObject.GameObjectSpawner<T> spawner){
@@ -50,7 +51,9 @@ public class Server {
         this.gameObjects.addAll(this.newGameObjects);
         sendNewGameObjects();
         this.newGameObjects.clear();
-        this.physics.step(deltaTime, 10, 10);
+        if(!paused) {
+            this.physics.step(deltaTime, 10, 10);
+        }
         sendUpdatedPositions();
         this.players.forEach(Player::tick);
     }

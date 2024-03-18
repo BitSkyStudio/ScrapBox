@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.github.industrialcraft.scrapbox.common.net.msg.ToggleGamePaused;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
@@ -60,6 +61,9 @@ public class ScrapBox extends ApplicationAdapter {
                     gameObject.move(moveGameObjectMessage);
                 }
             }
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
+            connection.send(new ToggleGamePaused());
         }
         cameraController.tick();
         camera.update();
