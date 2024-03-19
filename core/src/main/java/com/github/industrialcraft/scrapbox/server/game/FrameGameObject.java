@@ -6,6 +6,8 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
+import java.util.HashMap;
+
 public class FrameGameObject extends GameObject {
     public FrameGameObject(Vector2 position, Server server) {
         super(position, server);
@@ -22,5 +24,14 @@ public class FrameGameObject extends GameObject {
     @Override
     public String get_type() {
         return "frame";
+    }
+    @Override
+    public HashMap<String, ConnectionEdge> getConnectionEdges() {
+        HashMap<String, ConnectionEdge> edges = new HashMap<>();
+        edges.put("up", new ConnectionEdge(new Vector2(1, 0), new Vector2(1, 0)));
+        edges.put("down", new ConnectionEdge(new Vector2(-1, 0), new Vector2(-1, 0)));
+        edges.put("left", new ConnectionEdge(new Vector2(0, -1), new Vector2(0, -1)));
+        edges.put("right", new ConnectionEdge(new Vector2(0, 1), new Vector2(0, 1)));
+        return edges;
     }
 }

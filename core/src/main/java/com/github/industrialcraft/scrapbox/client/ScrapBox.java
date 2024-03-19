@@ -50,10 +50,16 @@ public class ScrapBox extends ApplicationAdapter {
         Gdx.input.setInputProcessor(new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
+                if(keycode == Input.Keys.Q && selected != null){
+                    connection.send(new PinchingSetGhost(true));
+                }
                 return false;
             }
             @Override
             public boolean keyUp(int keycode) {
+                if(keycode == Input.Keys.Q && selected != null){
+                    connection.send(new PinchingSetGhost(false));
+                }
                 return false;
             }
             @Override

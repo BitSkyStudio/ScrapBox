@@ -29,6 +29,7 @@ public class Player {
                 }
                 GameObjectPinch gameObjectPinch = (GameObjectPinch) message;
                 GameObject gameObject = server.gameObjects.get(gameObjectPinch.id);
+                gameObject.setRotatable(false);
                 MouseJointDef mouseJointDef = new MouseJointDef();
                 mouseJointDef.bodyA = server.terrain.body;
                 mouseJointDef.bodyB = gameObject.body;
@@ -39,6 +40,9 @@ public class Player {
             }
             if(message instanceof GameObjectRelease){
                 if(pinching != null){
+                    GameObject gameObject = this.getPinching();
+                    gameObject.setGhost(false);
+                    gameObject.setRotatable(true);
                     server.physics.destroyJoint(pinching);
                     pinching = null;
                 }
@@ -62,7 +66,20 @@ public class Player {
                 PlaceTerrain placeTerrain = (PlaceTerrain) message;
                 server.terrain.place(placeTerrain);
             }
+            if(message instanceof PinchingSetGhost){
+                PinchingSetGhost pinchingSetGhost = (PinchingSetGhost) message;
+                GameObject pinching = getPinching();
+                if(pinching != null){
+                    pinching.setGhost(pinchingSetGhost.isGhost);
+                }
+            }
         }
+    }
+    private GameObject getPinching(){
+        if(pinching == null){
+            return null;
+        }
+        return (GameObject) pinching.getBodyB().getUserData();
     }
     public void send(MessageS2C message){
         this.connection.send(message);

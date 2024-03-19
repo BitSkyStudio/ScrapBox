@@ -28,8 +28,6 @@ public class Server {
         this.gameObjects = new HashMap<>();
         this.newGameObjects = new ArrayList<>();
         this.stopped = false;
-
-        this.spawnGameObject(new Vector2(1.1f, 3), FrameGameObject::new);
     }
     public LocalClientConnection joinLocalPlayer(){
         ConcurrentLinkedQueue<MessageS2C> server_side = new ConcurrentLinkedQueue<>();
@@ -62,6 +60,7 @@ public class Server {
         sendNewGameObjects();
         this.newGameObjects.clear();
         for(GameObject gameObject : this.gameObjects.values()){
+            gameObject.tick();
             if(gameObject.isRemoved()){
                 DeleteGameObject deleteGameObject = new DeleteGameObject(gameObject.id);
                 this.players.forEach(player -> player.send(deleteGameObject));
