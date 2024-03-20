@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.github.industrialcraft.scrapbox.common.net.msg.ShowActivePossibleWelds;
 import com.github.industrialcraft.scrapbox.common.net.msg.TakeObject;
 
 import java.util.ArrayList;

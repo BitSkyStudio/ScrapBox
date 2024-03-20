@@ -4,10 +4,12 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -16,6 +18,7 @@ import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -32,6 +35,8 @@ public class ScrapBox extends ApplicationAdapter {
     private boolean debugRendering;
     private MouseSelector.Selection selected;
     private ToolBox toolBox;
+    private ArrayList<ShowActivePossibleWelds.PossibleWeld> weldShowcase;
+    private ShapeRenderer shapeRenderer;
     @Override
     public void create() {
         cameraController = new CameraController(new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -47,6 +52,8 @@ public class ScrapBox extends ApplicationAdapter {
         mouseSelector = new MouseSelector(this);
         this.toolBox = new ToolBox(this);
         renderDataRegistry.forEach((key, value) -> this.toolBox.addPart(key, value));
+        this.weldShowcase = new ArrayList<>();
+        this.shapeRenderer = new ShapeRenderer();
         Gdx.input.setInputProcessor(new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
@@ -141,6 +148,10 @@ public class ScrapBox extends ApplicationAdapter {
                 selected = new MouseSelector.Selection(takeObjectResponse.id, takeObjectResponse.offset.x, takeObjectResponse.offset.y);
                 connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
             }
+            if(message instanceof ShowActivePossibleWelds){
+                ShowActivePossibleWelds showActivePossibleWelds = (ShowActivePossibleWelds) message;
+                this.weldShowcase = showActivePossibleWelds.welds;
+            }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             connection.send(new ToggleGamePaused());
@@ -167,9 +178,20 @@ public class ScrapBox extends ApplicationAdapter {
             }
         }
         batch.end();
+        shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        for(ShowActivePossibleWelds.PossibleWeld weld: weldShowcase){
+            shapeRenderer.setColor(Color.GREEN);
+            shapeRenderer.rectLine(weld.first.cpy().scl(BOX_TO_PIXELS_RATIO), weld.second.cpy().scl(BOX_TO_PIXELS_RATIO), 5);
+        }
+        shapeRenderer.end();
         if(debugRendering){
             Matrix4 matrix = cameraController.camera.combined.cpy();
             debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
+            connection.send(new CommitWeld());
         }
         connection.send(new MouseMoved(mouseSelector.getWorldMousePosition()));
     }

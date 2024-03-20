@@ -1,7 +1,10 @@
 package com.github.industrialcraft.scrapbox.server;
 
+import com.badlogic.gdx.physics.box2d.JointDef;
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.net.IServerConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
@@ -34,7 +37,7 @@ public class Player {
                 mouseJointDef.bodyA = server.terrain.body;
                 mouseJointDef.bodyB = gameObject.body;
                 mouseJointDef.target.set(gameObjectPinch.offset.add(gameObject.body.getPosition()));
-                mouseJointDef.maxForce = 1000000;
+                mouseJointDef.maxForce = 10000;
                 mouseJointDef.collideConnected = true;
                 pinching = (MouseJoint) server.physics.createJoint(mouseJointDef);
             }
@@ -45,12 +48,19 @@ public class Player {
                     gameObject.setRotatable(true);
                     server.physics.destroyJoint(pinching);
                     pinching = null;
+                    this.send(new ShowActivePossibleWelds(new ArrayList<>()));
                 }
             }
             if(message instanceof MouseMoved){
                 MouseMoved mouseMoved = (MouseMoved) message;
                 if(pinching != null){
                     pinching.setTarget(mouseMoved.position);
+                    GameObject gameObject = (GameObject) pinching.getBodyB().getUserData();
+                    ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
+                    for(GameObject.WeldCandidate weld : gameObject.getPossibleWelds()){
+                        welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition(), weld.second.getPosition()));
+                    }
+                    this.send(new ShowActivePossibleWelds(welds));
                 }
             }
             if(message instanceof TrashObject){
@@ -71,6 +81,26 @@ public class Player {
                 GameObject pinching = getPinching();
                 if(pinching != null){
                     pinching.setGhost(pinchingSetGhost.isGhost);
+                }
+            }
+            if(message instanceof CommitWeld){
+                GameObject pinching = getPinching();
+                if(pinching != null){
+                    for(GameObject.WeldCandidate weldCandidate : pinching.getPossibleWelds()){
+                        RevoluteJointDef joint = new RevoluteJointDef();
+                        joint.bodyA = weldCandidate.first.gameObject.body;
+                        joint.bodyB = weldCandidate.second.gameObject.body;
+                        joint.localAnchorA.set(weldCandidate.first.connectionEdge.offset);
+                        joint.localAnchorB.set(weldCandidate.second.connectionEdge.offset);
+                        joint.enableLimit = true;
+                        //System.out.println(weldCandidate.angle);
+                        //joint.referenceAngle = (float) -weldCandidate.angle;
+                        //joint.referenceAngle = (float) Math.PI;
+                        joint.referenceAngle = 0;
+                        joint.lowerAngle = -0.01f;
+                        joint.upperAngle = 0.01f;
+                        this.server.physics.createJoint(joint);
+                    }
                 }
             }
         }

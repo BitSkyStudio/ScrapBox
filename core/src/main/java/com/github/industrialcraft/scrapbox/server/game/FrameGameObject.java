@@ -28,10 +28,10 @@ public class FrameGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("up", new ConnectionEdge(new Vector2(1, 0), new Vector2(1, 0)));
-        edges.put("down", new ConnectionEdge(new Vector2(-1, 0), new Vector2(-1, 0)));
-        edges.put("left", new ConnectionEdge(new Vector2(0, -1), new Vector2(0, -1)));
-        edges.put("right", new ConnectionEdge(new Vector2(0, 1), new Vector2(0, 1)));
+        edges.put("up", new ConnectionEdge(new Vector2(0, 1), (float) (Math.PI/2*3)));
+        edges.put("down", new ConnectionEdge(new Vector2(0, -1), (float) (Math.PI/2*1)));
+        edges.put("left", new ConnectionEdge(new Vector2(-1, 0), (float) (Math.PI/2*2)));
+        edges.put("right", new ConnectionEdge(new Vector2(1, 0), (float) (Math.PI/2*0)));
         return edges;
     }
 }

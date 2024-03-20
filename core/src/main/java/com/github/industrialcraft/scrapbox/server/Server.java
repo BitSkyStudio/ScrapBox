@@ -68,7 +68,9 @@ public class Server {
         }
         this.gameObjects.entrySet().removeIf(entry -> entry.getValue().isRemoved());
         if(!paused) {
-            this.physics.step(deltaTime, 10, 10);
+            for(int i = 0;i < 10;i++) {
+                this.physics.step(deltaTime / 10, 10, 10);
+            }
         }
         sendUpdatedPositions();
         this.players.forEach(Player::tick);
