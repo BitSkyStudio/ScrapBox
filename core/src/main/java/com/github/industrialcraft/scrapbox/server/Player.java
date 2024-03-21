@@ -1,7 +1,6 @@
 package com.github.industrialcraft.scrapbox.server;
 
-import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 public class Player {
     public final Server server;
     public final IServerConnection connection;
-    private MouseJoint pinching;
+    private PinchingData pinching;
     public Player(Server server, IServerConnection connection) {
         this.server = server;
         this.connection = connection;
@@ -28,25 +27,24 @@ public class Player {
             }
             if(message instanceof GameObjectPinch){
                 if(pinching != null){
-                    server.physics.destroyJoint(pinching);
+                    server.physics.destroyJoint(pinching.mouseJoint);
                 }
                 GameObjectPinch gameObjectPinch = (GameObjectPinch) message;
                 GameObject gameObject = server.gameObjects.get(gameObjectPinch.id);
-                gameObject.setRotatable(false);
                 MouseJointDef mouseJointDef = new MouseJointDef();
                 mouseJointDef.bodyA = server.terrain.body;
                 mouseJointDef.bodyB = gameObject.body;
-                mouseJointDef.target.set(gameObjectPinch.offset.add(gameObject.body.getPosition()));
+                //mouseJointDef.target.set(/*gameObjectPinch.offset.add(gameObject.body.getPosition())*/gameObject.body.getLocalCenter());
+                mouseJointDef.target.set(gameObject.body.getWorldPoint(gameObject.body.getLocalCenter()));
                 mouseJointDef.maxForce = 10000;
                 mouseJointDef.collideConnected = true;
-                pinching = (MouseJoint) server.physics.createJoint(mouseJointDef);
+                pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), gameObjectPinch.offset);
             }
             if(message instanceof GameObjectRelease){
                 if(pinching != null){
                     GameObject gameObject = this.getPinching();
                     gameObject.setGhost(false);
-                    gameObject.setRotatable(true);
-                    server.physics.destroyJoint(pinching);
+                    server.physics.destroyJoint(pinching.mouseJoint);
                     pinching = null;
                     this.send(new ShowActivePossibleWelds(new ArrayList<>()));
                 }
@@ -54,8 +52,8 @@ public class Player {
             if(message instanceof MouseMoved){
                 MouseMoved mouseMoved = (MouseMoved) message;
                 if(pinching != null){
-                    pinching.setTarget(mouseMoved.position);
-                    GameObject gameObject = (GameObject) pinching.getBodyB().getUserData();
+                    pinching.mouseJoint.setTarget(mouseMoved.position.cpy().sub(pinching.offset));
+                    GameObject gameObject = (GameObject) pinching.mouseJoint.getBodyB().getUserData();
                     ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
                     for(GameObject.WeldCandidate weld : gameObject.getPossibleWelds()){
                         welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition(), weld.second.getPosition()));
@@ -109,7 +107,7 @@ public class Player {
         if(pinching == null){
             return null;
         }
-        return (GameObject) pinching.getBodyB().getUserData();
+        return (GameObject) pinching.mouseJoint.getBodyB().getUserData();
     }
     public void send(MessageS2C message){
         this.connection.send(message);
@@ -117,6 +115,14 @@ public class Player {
     public void sendAll(ArrayList<MessageS2C> messages){
         for(MessageS2C message : messages){
             this.connection.send(message);
+        }
+    }
+    public static class PinchingData{
+        public final MouseJoint mouseJoint;
+        public final Vector2 offset;
+        public PinchingData(MouseJoint mouseJoint, Vector2 offset) {
+            this.mouseJoint = mouseJoint;
+            this.offset = offset;
         }
     }
 }

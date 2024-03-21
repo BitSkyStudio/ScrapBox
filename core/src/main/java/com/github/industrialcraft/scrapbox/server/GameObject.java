@@ -91,10 +91,6 @@ public abstract class GameObject {
         }
         this.body.getFixtureList().forEach(fixture -> fixture.setFilterData(filter));
     }
-    public void setRotatable(boolean isRotatable){
-        this.body.setFixedRotation(!isRotatable);
-    }
-
     public MessageS2C create_add_message(){
         return new AddGameObjectMessage(this.id, this.get_type(), this.body.getPosition(), this.body.getAngle());
     }
