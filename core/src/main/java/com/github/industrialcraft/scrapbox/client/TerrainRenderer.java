@@ -29,18 +29,18 @@ public class TerrainRenderer {
         this.textures.put(type, textureRegion);
     }
     public void loadMessage(TerrainShapeMessage message){
+        this.terrain.clear();
         for(ArrayList<Vector2> path : message.terrain){
             float[] points = new float[path.size()*2];
             for(int i = 0;i < path.size();i++){
-                points[i*2] = path.get(i).x * BOX_TO_PIXELS_RATIO;
-                points[(i*2)+1] = path.get(i).y * BOX_TO_PIXELS_RATIO;
+                points[i*2] = path.get(i).x * 16;
+                points[(i*2)+1] = path.get(i).y * 16;
             }
-            this.terrain.clear();
             this.terrain.add(new PolygonRegion(this.textures.get("dirt"), points, new EarClippingTriangulator().computeTriangles(points).toArray()));
         }
     }
     public void draw(CameraController cameraController){
-        this.polygonSpriteBatch.setProjectionMatrix(cameraController.camera.combined);
+        this.polygonSpriteBatch.setProjectionMatrix(cameraController.camera.combined.cpy().scl(BOX_TO_PIXELS_RATIO / 16));
         this.polygonSpriteBatch.begin();
         for(PolygonRegion polygonRegion : this.terrain){
             this.polygonSpriteBatch.draw(polygonRegion, 0, 0);

@@ -8,6 +8,7 @@ import com.github.industrialcraft.scrapbox.common.net.IServerConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
+import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 
 import java.util.ArrayList;
 
@@ -84,19 +85,17 @@ public class Player {
                 GameObject pinching = getPinching();
                 if(pinching != null){
                     for(GameObject.WeldCandidate weldCandidate : pinching.getPossibleWelds()){
-                        RevoluteJointDef joint = new RevoluteJointDef();
-                        joint.bodyA = weldCandidate.first.gameObject.body;
-                        joint.bodyB = weldCandidate.second.gameObject.body;
-                        joint.localAnchorA.set(weldCandidate.first.connectionEdge.offset);
-                        joint.localAnchorB.set(weldCandidate.second.connectionEdge.offset);
-                        joint.enableLimit = true;
-                        //System.out.println(weldCandidate.angle);
-                        //joint.referenceAngle = (float) -weldCandidate.angle;
-                        //joint.referenceAngle = (float) Math.PI;
-                        joint.referenceAngle = weldCandidate.second.gameObject.body.getAngle() - weldCandidate.first.gameObject.body.getAngle();
-                        joint.lowerAngle = 0f;
-                        joint.upperAngle = 0f;
-                        this.server.physics.createJoint(joint);
+                        GameObject.GameObjectConnectionEdge go1 = weldCandidate.first;
+                        GameObject.GameObjectConnectionEdge go2 = weldCandidate.second;
+                        if(go2.gameObject instanceof FrameGameObject){
+                            GameObject.GameObjectConnectionEdge tmp = go1;
+                            go1 = go2;
+                            go2 = tmp;
+                        }
+                        if(!(go1.gameObject instanceof FrameGameObject)){
+                            throw new RuntimeException("one of joined must be frame");
+                        }
+                        go2.gameObject.createJoint(go2, go1);
                         weldCandidate.first.gameObject.vehicle.add(weldCandidate.second.gameObject);
                     }
                 }

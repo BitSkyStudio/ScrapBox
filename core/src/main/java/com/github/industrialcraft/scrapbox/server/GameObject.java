@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
+import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,6 +63,7 @@ public abstract class GameObject {
     public boolean isSideUsed(String name){
         return this.connections.containsKey(name);
     }
+    public abstract void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other);
 
     protected abstract void add_fixtures();
     public abstract String get_type();
