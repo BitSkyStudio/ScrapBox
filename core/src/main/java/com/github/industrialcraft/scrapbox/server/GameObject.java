@@ -21,6 +21,7 @@ public abstract class GameObject {
     public final Body body;
     private boolean isRemoved;
     private HashMap<String,GameObject> connections;
+    public Vehicle vehicle;
     protected GameObject(Vector2 position, Server server){
         this.server = server;
         this.id = idGenerator.addAndGet(1);
@@ -29,12 +30,20 @@ public abstract class GameObject {
         this.add_fixtures();
         this.isRemoved = false;
         this.connections = new HashMap<>();
+        new Vehicle().add(this);
     }
     protected BodyDef create_body_def(Vector2 position){
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         return bodyDef;
+    }
+    public void setLocked(boolean isStatic){
+        if(isStatic) {
+            this.body.setType(BodyDef.BodyType.StaticBody);
+        } else {
+            this.body.setType(BodyDef.BodyType.DynamicBody);
+        }
     }
     public void remove(){
         if(!isRemoved){
@@ -49,6 +58,9 @@ public abstract class GameObject {
         if(this.body.getPosition().y < -100){
             remove();
         }
+    }
+    public boolean isSideUsed(String name){
+        return this.connections.containsKey(name);
     }
 
     protected abstract void add_fixtures();
@@ -74,6 +86,9 @@ public abstract class GameObject {
                     continue;
                 }
                 for(Map.Entry<String, GameObjectConnectionEdge> edge2: other.getOpenConnections().entrySet()){
+                    if(other.isSideUsed(edge2.getKey())){
+                        continue;
+                    }
                     if(edge1.getValue().collides(edge2.getValue())){
                         weldCandidates.add(new WeldCandidate(edge1.getValue(), edge1.getKey(), edge2.getValue(), edge2.getKey()));
                     }

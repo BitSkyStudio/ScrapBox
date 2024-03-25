@@ -8,13 +8,14 @@ import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
 import com.github.industrialcraft.scrapbox.common.net.LocalServerConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
+import com.github.industrialcraft.scrapbox.server.game.WheelGameObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Server {
-    private final ArrayList<Player> players;
+    public final ArrayList<Player> players;
     public final HashMap<Integer,GameObject> gameObjects;
     private final ArrayList<GameObject> newGameObjects;
     public final World physics;
@@ -44,6 +45,9 @@ public class Server {
         if(type.equals("frame")){
             return spawnGameObject(position, FrameGameObject::new);
         }
+        if(type.equals("wheel")){
+            return spawnGameObject(position, WheelGameObject::new);
+        }
         return null;
     }
     private void addPlayer(Player player){
@@ -51,6 +55,7 @@ public class Server {
         ArrayList<MessageS2C> messages = new ArrayList<>();
         this.gameObjects.values().forEach(gameObject -> messages.add(gameObject.create_add_message()));
         this.newGameObjects.forEach(gameObject -> messages.add(gameObject.create_add_message()));
+        player.send(this.terrain.createMessage());
         player.sendAll(messages);
     }
     private void tick(float deltaTime){

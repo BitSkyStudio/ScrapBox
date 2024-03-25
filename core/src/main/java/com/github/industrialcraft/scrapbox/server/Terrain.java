@@ -6,19 +6,23 @@ import clipper2.core.PathD;
 import clipper2.core.PathsD;
 import clipper2.core.PointD;
 import com.badlogic.gdx.math.DelaunayTriangulator;
+import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ShortArray;
 import com.github.industrialcraft.scrapbox.common.net.msg.PlaceTerrain;
+import com.github.industrialcraft.scrapbox.common.net.msg.TerrainShapeMessage;
 
 import java.util.ArrayList;
 import java.util.Vector;
 
 public class Terrain {
+    public final Server server;
     public final Body body;
     private PathsD terrain;
     public Terrain(Server server) {
+        this.server = server;
         this.body = server.physics.createBody(new BodyDef());
 
         /*FixtureDef fixtureDef = new FixtureDef();
@@ -27,13 +31,15 @@ public class Terrain {
         fixtureDef.shape = polygonShape;
         this.body.createFixture(fixtureDef);*/
         PathsD terrain = new PathsD();
-        terrain.add(Clipper.Ellipse(new PointD(0, 0), 1, 1, 20));
-        terrain.add(Clipper.Ellipse(new PointD(0.5, 0), 1, 1, 20));
+        terrain.add(Clipper.Ellipse(new PointD(0, 0), 1, 1, 10));
+        terrain.add(Clipper.Ellipse(new PointD(0.5, 0), 1, 1, 10));
         this.terrain = Clipper.Union(terrain, FillRule.Positive);
         this.rebuild();
     }
     public void place(PlaceTerrain placeTerrain){
-        terrain.add(Clipper.Ellipse(new PointD(placeTerrain.position.x, placeTerrain.position.y), placeTerrain.radius, placeTerrain.radius, 20));
+        float resolution = 0.5f;
+        PointD point = new PointD(Math.floor(placeTerrain.position.x/resolution)*resolution, Math.floor(placeTerrain.position.y/resolution)*resolution);
+        terrain.add(Clipper.Ellipse(point, placeTerrain.radius, placeTerrain.radius, 10));
         this.terrain = Clipper.Union(terrain, FillRule.Positive);
         rebuild();
     }
@@ -45,7 +51,16 @@ public class Terrain {
         for(Fixture fixture : fixtures){
             this.body.destroyFixture(fixture);
         }
+        Clipper.SimplifyPaths(this.terrain, 50);
+        //this.terrain = Clipper.Union(terrain, FillRule.Positive);
+
+        TerrainShapeMessage terrainShapeMessage = this.createMessage();
+        for(Player player : server.players){
+            player.send(terrainShapeMessage);
+        }
+
         for(PathD path : this.terrain){
+            ChainShape shape = new ChainShape();
             ArrayList<Vector2> pathVec = new ArrayList<>();
             float[] points = new float[path.size() * 2];
             for(int i = 0;i < path.size();i++){
@@ -53,7 +68,12 @@ public class Terrain {
                 points[i*2] = (float) path.get(i).x;
                 points[(i*2)+1] = (float) path.get(i).y;
             }
-            ShortArray array = new DelaunayTriangulator().computeTriangles(points, true);
+            System.out.println(points.length);
+            shape.createLoop(points);
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = shape;
+            body.createFixture(fixtureDef);
+            /*ShortArray array = new EarClippingTriangulator().computeTriangles(points);
             for(int i = 0;i < (array.size/3);i++){
                 ArrayList<Vector2> vertices = new ArrayList<>();
                 vertices.add(pathVec.get(array.get((i*3))));
@@ -64,9 +84,27 @@ public class Terrain {
                 polyShape.set(vertices.toArray(Vector2[]::new));
                 fixtureDef.shape = polyShape;
                 body.createFixture(fixtureDef);
+            }*/
+            /*ArrayList<Vector2> points = new ArrayList<>();
+            for(int i = 0;i < path.size();i++) {
+                points.add(new Vector2((float) path.get(i).x, (float) path.get(i).y));
             }
-
-            //Box2DSeparator.separate(this.body, new FixtureDef(), points);
+            try {
+                Box2DSeparator.separate(this.body, new FixtureDef(), points);
+            } catch (Throwable e){
+                System.out.println(Box2DSeparator.validate(points));
+            }*/
         }
+    }
+    public TerrainShapeMessage createMessage(){
+        ArrayList<ArrayList<Vector2>> terrain = new ArrayList<>();
+        for(PathD path : this.terrain){
+            ArrayList<Vector2> messagePath = new ArrayList<>();
+            for(PointD point : path){
+                messagePath.add(new Vector2((float) point.x, (float) point.y));
+            }
+            terrain.add(messagePath);
+        }
+        return new TerrainShapeMessage(terrain);
     }
 }

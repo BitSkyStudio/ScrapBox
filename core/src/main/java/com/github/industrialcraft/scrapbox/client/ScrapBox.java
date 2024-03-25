@@ -8,11 +8,15 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.DelaunayTriangulator;
+import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.utils.ShortArray;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
@@ -37,12 +41,14 @@ public class ScrapBox extends ApplicationAdapter {
     private ToolBox toolBox;
     private ArrayList<ShowActivePossibleWelds.PossibleWeld> weldShowcase;
     private ShapeRenderer shapeRenderer;
+    private TerrainRenderer terrainRenderer;
     @Override
     public void create() {
         cameraController = new CameraController(new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         debugRenderer = new Box2DDebugRenderer();
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
+        renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
         batch = new SpriteBatch();
         server = new Server();
         gameObjects = new HashMap<>();
@@ -54,6 +60,8 @@ public class ScrapBox extends ApplicationAdapter {
         renderDataRegistry.forEach((key, value) -> this.toolBox.addPart(key, value));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
+        this.terrainRenderer = new TerrainRenderer();
+        this.terrainRenderer.addTerrainType("dirt", "dirt.png");
         Gdx.input.setInputProcessor(new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
@@ -152,6 +160,10 @@ public class ScrapBox extends ApplicationAdapter {
                 ShowActivePossibleWelds showActivePossibleWelds = (ShowActivePossibleWelds) message;
                 this.weldShowcase = showActivePossibleWelds.welds;
             }
+            if(message instanceof TerrainShapeMessage){
+                TerrainShapeMessage terrainShapeMessage = (TerrainShapeMessage) message;
+                this.terrainRenderer.loadMessage(terrainShapeMessage);
+            }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             connection.send(new ToggleGamePaused());
@@ -180,6 +192,7 @@ public class ScrapBox extends ApplicationAdapter {
         batch.end();
         shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
         shapeRenderer.setAutoShapeType(true);
+        this.terrainRenderer.draw(this.cameraController);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         for(ShowActivePossibleWelds.PossibleWeld weld: weldShowcase){
             shapeRenderer.setColor(Color.GREEN);
@@ -192,6 +205,9 @@ public class ScrapBox extends ApplicationAdapter {
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
             connection.send(new CommitWeld());
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+            connection.send(new LockGameObject());
         }
         connection.send(new MouseMoved(mouseSelector.getWorldMousePosition()));
     }

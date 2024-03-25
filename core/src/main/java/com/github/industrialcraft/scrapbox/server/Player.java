@@ -21,6 +21,11 @@ public class Player {
         this.pinching = null;
     }
     public void tick(){
+        if(this.pinching != null){
+            if(this.pinching.mouseJoint.getBodyB() == null){
+                this.pinching = null;
+            }
+        }
         for(MessageC2S message : this.connection.read()){
             if(message instanceof ToggleGamePaused){
                 server.paused = !server.paused;
@@ -31,23 +36,17 @@ public class Player {
                 }
                 GameObjectPinch gameObjectPinch = (GameObjectPinch) message;
                 GameObject gameObject = server.gameObjects.get(gameObjectPinch.id);
+                gameObject.setLocked(false);
                 MouseJointDef mouseJointDef = new MouseJointDef();
                 mouseJointDef.bodyA = server.terrain.body;
                 mouseJointDef.bodyB = gameObject.body;
-                //mouseJointDef.target.set(/*gameObjectPinch.offset.add(gameObject.body.getPosition())*/gameObject.body.getLocalCenter());
-                mouseJointDef.target.set(gameObject.body.getWorldPoint(gameObject.body.getLocalCenter()));
+                mouseJointDef.target.set(gameObject.vehicle.getCenterOfMass());
                 mouseJointDef.maxForce = 10000;
                 mouseJointDef.collideConnected = true;
                 pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), gameObjectPinch.offset);
             }
             if(message instanceof GameObjectRelease){
-                if(pinching != null){
-                    GameObject gameObject = this.getPinching();
-                    gameObject.setGhost(false);
-                    server.physics.destroyJoint(pinching.mouseJoint);
-                    pinching = null;
-                    this.send(new ShowActivePossibleWelds(new ArrayList<>()));
-                }
+                clearPinched();
             }
             if(message instanceof MouseMoved){
                 MouseMoved mouseMoved = (MouseMoved) message;
@@ -56,7 +55,7 @@ public class Player {
                     GameObject gameObject = (GameObject) pinching.mouseJoint.getBodyB().getUserData();
                     ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
                     for(GameObject.WeldCandidate weld : gameObject.getPossibleWelds()){
-                        welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition(), weld.second.getPosition()));
+                        welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition().cpy(), weld.second.getPosition().cpy()));
                     }
                     this.send(new ShowActivePossibleWelds(welds));
                 }
@@ -94,13 +93,30 @@ public class Player {
                         //System.out.println(weldCandidate.angle);
                         //joint.referenceAngle = (float) -weldCandidate.angle;
                         //joint.referenceAngle = (float) Math.PI;
-                        joint.referenceAngle = 0;
-                        joint.lowerAngle = -0.01f;
-                        joint.upperAngle = 0.01f;
+                        joint.referenceAngle = weldCandidate.second.gameObject.body.getAngle() - weldCandidate.first.gameObject.body.getAngle();
+                        joint.lowerAngle = 0f;
+                        joint.upperAngle = 0f;
                         this.server.physics.createJoint(joint);
+                        weldCandidate.first.gameObject.vehicle.add(weldCandidate.second.gameObject);
                     }
                 }
             }
+            if(message instanceof LockGameObject){
+                GameObject pinching = getPinching();
+                if(pinching != null){
+                    pinching.setLocked(true);
+                    clearPinched();
+                }
+            }
+        }
+    }
+    private void clearPinched(){
+        if(pinching != null){
+            GameObject gameObject = this.getPinching();
+            gameObject.setGhost(false);
+            server.physics.destroyJoint(pinching.mouseJoint);
+            pinching = null;
+            this.send(new ShowActivePossibleWelds(new ArrayList<>()));
         }
     }
     private GameObject getPinching(){

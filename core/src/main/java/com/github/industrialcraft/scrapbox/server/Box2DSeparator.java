@@ -90,8 +90,8 @@ public class Box2DSeparator {
      * <li>3 if there are overlapping lines <b>and</b> the points are <b>not</b> in clockwise order.</li>
      * </ul>
      */
-    public static int validate(Array<Vector2> verticesVec) {
-        int i, n = verticesVec.size, j, j2, i2, i3;
+    public static int validate(ArrayList<Vector2> verticesVec) {
+        int i, n = verticesVec.size(), j, j2, i2, i3;
         float d;
         int ret = 0;
         boolean fl, fl2 = false;
