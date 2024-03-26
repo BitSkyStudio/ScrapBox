@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
@@ -19,54 +20,74 @@ public abstract class GameObject {
 
     public final Server server;
     public final int id;
-    public final Body body;
+    public final HashMap<String,Body> bodies;
     private boolean isRemoved;
     private HashMap<String,GameObject> connections;
     public Vehicle vehicle;
     protected GameObject(Vector2 position, Server server){
         this.server = server;
         this.id = idGenerator.addAndGet(1);
-        this.body = server.physics.createBody(create_body_def(position));
-        this.body.setUserData(this);
-        this.add_fixtures();
+        this.bodies = new HashMap<>();
         this.isRemoved = false;
         this.connections = new HashMap<>();
         new Vehicle().add(this);
     }
-    protected BodyDef create_body_def(Vector2 position){
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(position);
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        return bodyDef;
-    }
     public void setLocked(boolean isStatic){
         if(isStatic) {
-            this.body.setType(BodyDef.BodyType.StaticBody);
+            this.bodies.forEach((s, body) -> body.setType(BodyDef.BodyType.StaticBody));
         } else {
-            this.body.setType(BodyDef.BodyType.DynamicBody);
+            this.bodies.forEach((s, body) -> body.setType(BodyDef.BodyType.DynamicBody));
         }
     }
     public void remove(){
         if(!isRemoved){
-            server.physics.destroyBody(this.body);
+            this.destroy();
         }
         this.isRemoved = true;
+    }
+    public void destroy(){
+        this.bodies.forEach((s, body) -> server.physics.destroyBody(body));
+        this.server.clientWorldManager.removeObject(this);
+        this.bodies.clear();
     }
     public boolean isRemoved(){
         return this.isRemoved;
     }
     public void tick(){
-        if(this.body.getPosition().y < -100){
+        if(this.getBaseBody().getPosition().y < -100){
             remove();
         }
     }
     public boolean isSideUsed(String name){
         return this.connections.containsKey(name);
     }
-    public abstract void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other);
-
-    protected abstract void add_fixtures();
-    public abstract String get_type();
+    public void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other){
+        RevoluteJointDef joint = new RevoluteJointDef();
+        joint.bodyA = this.getBaseBody();
+        joint.bodyB = other.gameObject.getBaseBody();
+        joint.localAnchorA.set(self.connectionEdge.offset);
+        joint.localAnchorB.set(other.connectionEdge.offset);
+        joint.enableLimit = true;
+        //System.out.println(weldCandidate.angle);
+        //joint.referenceAngle = (float) -weldCandidate.angle;
+        //joint.referenceAngle = (float) Math.PI;
+        joint.referenceAngle = other.gameObject.getBaseBody().getAngle() - this.getBaseBody().getAngle();
+        joint.lowerAngle = 0f;
+        joint.upperAngle = 0f;
+        this.server.physics.createJoint(joint);
+    }
+    public Body getBody(String name){
+        return this.bodies.get(name);
+    }
+    public Body getBaseBody(){
+        return this.bodies.get("base");
+    }
+    public void setBody(String name, String type, Body body){
+        //todo: overwrites
+        this.bodies.put(name, body);
+        body.setUserData(this);
+        server.clientWorldManager.addBody(this, body, type);
+    }
 
     public abstract HashMap<String,ConnectionEdge> getConnectionEdges();
     public HashMap<String,GameObjectConnectionEdge> getOpenConnections(){
@@ -106,13 +127,7 @@ public abstract class GameObject {
             filter.categoryBits = 0;
             filter.maskBits = 0;
         }
-        this.body.getFixtureList().forEach(fixture -> fixture.setFilterData(filter));
-    }
-    public MessageS2C create_add_message(){
-        return new AddGameObjectMessage(this.id, this.get_type(), this.body.getPosition(), this.body.getAngle());
-    }
-    public MessageS2C create_move_message(){
-        return new MoveGameObjectMessage(this.id, this.body.getPosition(), this.body.getAngle());
+        this.bodies.forEach((s, body) -> body.getFixtureList().forEach(fixture -> fixture.setFilterData(filter)));
     }
     @FunctionalInterface
     public interface GameObjectSpawner<T extends GameObject>{
@@ -135,10 +150,10 @@ public abstract class GameObject {
             this.gameObject = gameObject;
         }
         public Vector2 getPosition(){
-            return gameObject.body.getWorldPoint(connectionEdge.offset);
+            return gameObject.getBaseBody().getWorldPoint(connectionEdge.offset);
         }
         public float getAngle(){
-            return this.gameObject.body.getAngle() + connectionEdge.angle;
+            return this.gameObject.getBaseBody().getAngle() + connectionEdge.angle;
         }
         public boolean collides(GameObjectConnectionEdge other){
             final double TWO_PI = Math.PI * 2;

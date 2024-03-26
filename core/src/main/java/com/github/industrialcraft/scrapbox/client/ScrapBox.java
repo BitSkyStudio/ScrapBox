@@ -49,6 +49,7 @@ public class ScrapBox extends ApplicationAdapter {
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
+        renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
         batch = new SpriteBatch();
         server = new Server();
         gameObjects = new HashMap<>();
@@ -57,7 +58,8 @@ public class ScrapBox extends ApplicationAdapter {
         debugRendering = false;
         mouseSelector = new MouseSelector(this);
         this.toolBox = new ToolBox(this);
-        renderDataRegistry.forEach((key, value) -> this.toolBox.addPart(key, value));
+        this.toolBox.addPart("frame", renderDataRegistry.get("frame"));
+        this.toolBox.addPart("wheel", renderDataRegistry.get("wheel"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

@@ -1,6 +1,8 @@
 package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
@@ -12,37 +14,18 @@ import java.util.HashMap;
 public class FrameGameObject extends GameObject {
     public FrameGameObject(Vector2 position, Server server) {
         super(position, server);
-    }
 
-    @Override
-    public void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other) {
-        RevoluteJointDef joint = new RevoluteJointDef();
-        joint.bodyA = this.body;
-        joint.bodyB = other.gameObject.body;
-        joint.localAnchorA.set(self.connectionEdge.offset);
-        joint.localAnchorB.set(other.connectionEdge.offset);
-        joint.enableLimit = true;
-        //System.out.println(weldCandidate.angle);
-        //joint.referenceAngle = (float) -weldCandidate.angle;
-        //joint.referenceAngle = (float) Math.PI;
-        joint.referenceAngle = other.gameObject.body.getAngle() - this.body.getAngle();
-        joint.lowerAngle = 0f;
-        joint.upperAngle = 0f;
-        this.server.physics.createJoint(joint);
-    }
-
-    @Override
-    protected void add_fixtures() {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(position);
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        Body base = server.physics.createBody(bodyDef);
         FixtureDef fixtureDef = new FixtureDef();
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(1, 1);
         fixtureDef.shape = shape;
         fixtureDef.density = 1F;
-        this.body.createFixture(fixtureDef);
-    }
-    @Override
-    public String get_type() {
-        return "frame";
+        base.createFixture(fixtureDef);
+        this.setBody("base", "frame", base);
     }
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {

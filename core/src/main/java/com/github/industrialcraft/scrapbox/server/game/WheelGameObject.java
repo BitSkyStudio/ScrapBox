@@ -1,9 +1,7 @@
 package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WheelJointDef;
@@ -15,38 +13,34 @@ import java.util.HashMap;
 public class WheelGameObject extends GameObject {
     public WheelGameObject(Vector2 position, Server server) {
         super(position, server);
-    }
 
-    @Override
-    public void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other) {
-        /*WheelJointDef joint = new WheelJointDef();
-        joint.bodyA = this.body;
-        joint.bodyB = other.gameObject.body;
-        joint.localAnchorA.set(new Vector2(0, 0));
-        joint.localAnchorB.set(new Vector2(0, -2));
-        joint.localAxisA.set(new Vector2(0, -1));
-        joint.dampingRatio = 1;
-        joint.stiffness = 1000;*/
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(position);
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        Body base = server.physics.createBody(bodyDef);
+        FixtureDef baseFixtureDef = new FixtureDef();
+        PolygonShape baseShape = new PolygonShape();
+        baseShape.set(new Vector2[]{new Vector2(0, 0), new Vector2(1, 1), new Vector2(-1, 1)});
+        baseFixtureDef.shape = baseShape;
+        baseFixtureDef.density = 1F;
+        base.createFixture(baseFixtureDef);
+        this.setBody("base", "wheel_join", base);
+
+
+        Body wheelBody = server.physics.createBody(bodyDef);
+        FixtureDef wheelFixtureDef = new FixtureDef();
+        CircleShape wheelShape = new CircleShape();
+        wheelShape.setRadius(0.8f);
+        wheelFixtureDef.shape = wheelShape;
+        wheelFixtureDef.density = 1F;
+        wheelBody.createFixture(wheelFixtureDef);
         RevoluteJointDef revoluteJoint = new RevoluteJointDef();
-        revoluteJoint.bodyA = other.gameObject.body;
-        revoluteJoint.bodyB = this.body;
-        revoluteJoint.localAnchorA.set(new Vector2(0, -2));
-        revoluteJoint.localAnchorA.set(new Vector2(0, -2));
+        revoluteJoint.bodyA = wheelBody;
+        revoluteJoint.bodyB = base;
+        revoluteJoint.localAnchorA.set(new Vector2(0, 0));
+        revoluteJoint.localAnchorA.set(new Vector2(0, 0));
         this.server.physics.createJoint(revoluteJoint);
-    }
-
-    @Override
-    protected void add_fixtures() {
-        FixtureDef fixtureDef = new FixtureDef();
-        CircleShape shape = new CircleShape();
-        shape.setRadius(1);
-        fixtureDef.shape = shape;
-        fixtureDef.density = 1F;
-        this.body.createFixture(fixtureDef);
-    }
-    @Override
-    public String get_type() {
-        return "wheel";
+        this.setBody("wheel", "wheel", wheelBody);
     }
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {

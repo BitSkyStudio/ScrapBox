@@ -40,7 +40,7 @@ public class Player {
                 gameObject.setLocked(false);
                 MouseJointDef mouseJointDef = new MouseJointDef();
                 mouseJointDef.bodyA = server.terrain.body;
-                mouseJointDef.bodyB = gameObject.body;
+                mouseJointDef.bodyB = gameObject.getBaseBody();
                 mouseJointDef.target.set(gameObject.vehicle.getCenterOfMass());
                 mouseJointDef.maxForce = 10000;
                 mouseJointDef.collideConnected = true;

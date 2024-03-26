@@ -20,6 +20,7 @@ public class Server {
     private final ArrayList<GameObject> newGameObjects;
     public final World physics;
     public final Terrain terrain;
+    public final ClientWorldManager clientWorldManager;
     private boolean stopped;
     public boolean paused;
     public Server() {
@@ -28,6 +29,7 @@ public class Server {
         this.terrain = new Terrain(this);
         this.gameObjects = new HashMap<>();
         this.newGameObjects = new ArrayList<>();
+        this.clientWorldManager = new ClientWorldManager(this);
         this.stopped = false;
     }
     public LocalClientConnection joinLocalPlayer(){
@@ -53,8 +55,7 @@ public class Server {
     private void addPlayer(Player player){
         this.players.add(player);
         ArrayList<MessageS2C> messages = new ArrayList<>();
-        this.gameObjects.values().forEach(gameObject -> messages.add(gameObject.create_add_message()));
-        this.newGameObjects.forEach(gameObject -> messages.add(gameObject.create_add_message()));
+        this.clientWorldManager.addPlayer(player);
         player.send(this.terrain.createMessage());
         player.sendAll(messages);
     }
@@ -62,14 +63,9 @@ public class Server {
         for(GameObject gameObject : this.newGameObjects){
             this.gameObjects.put(gameObject.id, gameObject);
         }
-        sendNewGameObjects();
         this.newGameObjects.clear();
         for(GameObject gameObject : this.gameObjects.values()){
             gameObject.tick();
-            if(gameObject.isRemoved()){
-                DeleteGameObject deleteGameObject = new DeleteGameObject(gameObject.id);
-                this.players.forEach(player -> player.send(deleteGameObject));
-            }
         }
         this.gameObjects.entrySet().removeIf(entry -> entry.getValue().isRemoved());
         if(!paused) {
@@ -77,18 +73,8 @@ public class Server {
                 this.physics.step(deltaTime / 10, 10, 10);
             }
         }
-        sendUpdatedPositions();
+        this.clientWorldManager.updatePositions();
         this.players.forEach(Player::tick);
-    }
-    private void sendNewGameObjects(){
-        ArrayList<MessageS2C> messages = new ArrayList<>();
-        this.newGameObjects.forEach(gameObject -> messages.add(gameObject.create_add_message()));
-        this.players.forEach(player -> player.sendAll(messages));
-    }
-    private void sendUpdatedPositions(){
-        ArrayList<MessageS2C> messages = new ArrayList<>();
-        this.gameObjects.values().forEach(gameObject -> messages.add(gameObject.create_move_message()));
-        this.players.forEach(player -> player.sendAll(messages));
     }
     public void start(){
         new Thread(() -> {
