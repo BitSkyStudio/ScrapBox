@@ -48,7 +48,6 @@ public abstract class GameObject {
     public void destroy(){
         this.bodies.forEach((s, body) -> server.physics.destroyBody(body));
         this.server.clientWorldManager.removeObject(this);
-        this.bodies.clear();
     }
     public boolean isRemoved(){
         return this.isRemoved;
@@ -87,6 +86,22 @@ public abstract class GameObject {
         this.bodies.put(name, body);
         body.setUserData(this);
         server.clientWorldManager.addBody(this, body, type);
+    }
+    public float getMass(){
+        float mass = 0;
+        for(Body body : this.bodies.values()){
+            mass += body.getMass();
+        }
+        return mass;
+    }
+    public Vector2 getCenterOfMass(){
+        float totalMass = this.getMass();
+        Vector2 center = new Vector2();
+        for (Body body : this.bodies.values()) {
+            Vector2 localCenter = body.getWorldCenter();
+            center.add(localCenter.scl(body.getMass() / totalMass));
+        }
+        return center;
     }
 
     public abstract HashMap<String,ConnectionEdge> getConnectionEdges();

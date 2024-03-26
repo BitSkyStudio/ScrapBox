@@ -26,12 +26,12 @@ public class Vehicle {
     public Vector2 getCenterOfMass(){
         float totalMass = 0.f;
         for (GameObject go : this.gameObjects) {
-            totalMass += go.getBaseBody().getMass();
+            totalMass += go.getMass();
         }
         Vector2 center = new Vector2();
         for (GameObject go : this.gameObjects) {
-            Vector2 localCenter = go.getBaseBody().getWorldCenter();
-            center.add(localCenter.scl(go.getBaseBody().getMass() / totalMass));
+            Vector2 localCenter = go.getCenterOfMass();
+            center.add(localCenter.scl(go.getMass() / totalMass));
         }
         return center;
     }
