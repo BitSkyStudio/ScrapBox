@@ -111,7 +111,7 @@ public class Player {
                             throw new RuntimeException("one of joined must be frame");
                         }
                         go2.gameObject.createJoint(go2, go1);
-                        weldCandidate.first.gameObject.vehicle.add(weldCandidate.second.gameObject);
+                        weldCandidate.second.gameObject.vehicle.add(weldCandidate.first.gameObject);
                     }
                 }
             }
