@@ -8,10 +8,12 @@ public class AddGameObjectMessage extends MessageS2C {
     public final String type;
     public final Vector2 position;
     public final float rotation;
-    public AddGameObjectMessage(int id, String type, Vector2 position, float rotation) {
+    public final boolean selectable;
+    public AddGameObjectMessage(int id, String type, Vector2 position, float rotation, boolean selectable) {
         this.id = id;
         this.type = type;
         this.position = position;
         this.rotation = rotation;
+        this.selectable = selectable;
     }
 }

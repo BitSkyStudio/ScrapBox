@@ -61,7 +61,7 @@ public class Server {
     }
     private void tick(float deltaTime){
         for(GameObject gameObject : this.newGameObjects){
-            this.gameObjects.put(gameObject.id, gameObject);
+            this.gameObjects.put(gameObject.getId(), gameObject);
         }
         this.newGameObjects.clear();
         for(GameObject gameObject : this.gameObjects.values()){

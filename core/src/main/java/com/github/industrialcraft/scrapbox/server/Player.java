@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.github.industrialcraft.scrapbox.common.net.EGameObjectMode;
 import com.github.industrialcraft.scrapbox.common.net.IServerConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
@@ -16,10 +17,12 @@ public class Player {
     public final Server server;
     public final IServerConnection connection;
     private PinchingData pinching;
+    private boolean isGhost;
     public Player(Server server, IServerConnection connection) {
         this.server = server;
         this.connection = connection;
         this.pinching = null;
+        this.isGhost = false;
     }
     public void tick(){
         if(this.pinching != null){
@@ -37,7 +40,14 @@ public class Player {
                 }
                 GameObjectPinch gameObjectPinch = (GameObjectPinch) message;
                 GameObject gameObject = server.gameObjects.get(gameObjectPinch.id);
-                gameObject.setLocked(false);
+                if(gameObject == null){
+                    continue;
+                }
+                if(this.isGhost){
+                    gameObject.vehicle.setMode(EGameObjectMode.Ghost);
+                } else {
+                    gameObject.vehicle.setMode(EGameObjectMode.Normal);
+                }
                 MouseJointDef mouseJointDef = new MouseJointDef();
                 mouseJointDef.bodyA = server.terrain.body;
                 mouseJointDef.bodyB = gameObject.getBaseBody();
@@ -68,7 +78,7 @@ public class Player {
             if(message instanceof TakeObject){
                 TakeObject takeObject = (TakeObject) message;
                 GameObject gameObject = server.spawnGameObject(takeObject.position, takeObject.type);
-                connection.send(new TakeObjectResponse(gameObject.id, takeObject.offset));
+                connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
             }
             if(message instanceof PlaceTerrain){
                 PlaceTerrain placeTerrain = (PlaceTerrain) message;
@@ -76,9 +86,14 @@ public class Player {
             }
             if(message instanceof PinchingSetGhost){
                 PinchingSetGhost pinchingSetGhost = (PinchingSetGhost) message;
+                this.isGhost = pinchingSetGhost.isGhost;
                 GameObject pinching = getPinching();
                 if(pinching != null){
-                    pinching.setGhost(pinchingSetGhost.isGhost);
+                    if(pinchingSetGhost.isGhost){
+                        pinching.vehicle.setMode(EGameObjectMode.Ghost);
+                    } else {
+                        pinching.vehicle.setMode(EGameObjectMode.Normal);
+                    }
                 }
             }
             if(message instanceof CommitWeld){
@@ -103,7 +118,7 @@ public class Player {
             if(message instanceof LockGameObject){
                 GameObject pinching = getPinching();
                 if(pinching != null){
-                    pinching.setLocked(true);
+                    pinching.vehicle.setMode(EGameObjectMode.Static);
                     clearPinched();
                 }
             }
@@ -112,7 +127,9 @@ public class Player {
     private void clearPinched(){
         if(pinching != null){
             GameObject gameObject = this.getPinching();
-            gameObject.setGhost(false);
+            if(gameObject.vehicle.getMode() == EGameObjectMode.Ghost){
+                gameObject.vehicle.setMode(EGameObjectMode.Normal);
+            }
             server.physics.destroyJoint(pinching.mouseJoint);
             pinching = null;
             this.send(new ShowActivePossibleWelds(new ArrayList<>()));

@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.github.industrialcraft.scrapbox.common.net.EGameObjectMode;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
@@ -16,28 +17,18 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class GameObject {
-    private static final AtomicInteger idGenerator = new AtomicInteger(0);
-
     public final Server server;
-    public final int id;
     public final HashMap<String,Body> bodies;
     private boolean isRemoved;
     private HashMap<String,GameObject> connections;
     public Vehicle vehicle;
+    private int baseId;
     protected GameObject(Vector2 position, Server server){
         this.server = server;
-        this.id = idGenerator.addAndGet(1);
         this.bodies = new HashMap<>();
         this.isRemoved = false;
         this.connections = new HashMap<>();
         new Vehicle().add(this);
-    }
-    public void setLocked(boolean isStatic){
-        if(isStatic) {
-            this.bodies.forEach((s, body) -> body.setType(BodyDef.BodyType.StaticBody));
-        } else {
-            this.bodies.forEach((s, body) -> body.setType(BodyDef.BodyType.DynamicBody));
-        }
     }
     public void remove(){
         if(!isRemoved){
@@ -85,7 +76,14 @@ public abstract class GameObject {
         //todo: overwrites
         this.bodies.put(name, body);
         body.setUserData(this);
-        server.clientWorldManager.addBody(this, body, type);
+        boolean base = name.equals("base");
+        int id = server.clientWorldManager.addBody(this, body, type, base);
+        if(base){
+            this.baseId = id;
+        }
+    }
+    public int getId(){
+        return this.baseId;
     }
     public float getMass(){
         float mass = 0;
@@ -135,14 +133,22 @@ public abstract class GameObject {
         }
         return weldCandidates;
     }
-
-    public void setGhost(boolean isGhost){
+    public void setMode(EGameObjectMode mode){
+        BodyDef.BodyType type;
         Filter filter = new Filter();
-        if(isGhost){
-            filter.categoryBits = 0;
-            filter.maskBits = 0;
+        if(mode == EGameObjectMode.Static){
+            type = BodyDef.BodyType.StaticBody;
+        } else {
+            type = BodyDef.BodyType.DynamicBody;
+            if(mode == EGameObjectMode.Ghost){
+                filter.categoryBits = 0;
+                filter.maskBits = 0;
+            }
         }
-        this.bodies.forEach((s, body) -> body.getFixtureList().forEach(fixture -> fixture.setFilterData(filter)));
+        this.bodies.forEach((s, body) -> {
+            body.setType(type);
+            body.getFixtureList().forEach(fixture -> fixture.setFilterData(filter));
+        });
     }
     @FunctionalInterface
     public interface GameObjectSpawner<T extends GameObject>{

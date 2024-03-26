@@ -16,10 +16,11 @@ public class ClientWorldManager {
         this.bodyIdGenerator = 0;
         this.bodies = new ArrayList<>();
     }
-    public void addBody(GameObject gameObject, Body body, String type){
-        BodyInfo bodyInfo = new BodyInfo(body, type, gameObject, ++this.bodyIdGenerator);
+    public int addBody(GameObject gameObject, Body body, String type, boolean selectable){
+        BodyInfo bodyInfo = new BodyInfo(body, type, gameObject, ++this.bodyIdGenerator, selectable);
         this.bodies.add(bodyInfo);
         server.players.forEach(player -> player.send(bodyInfo.createAddMessage()));
+        return bodyInfo.id;
     }
     public void removeObject(GameObject gameObject){
         this.bodies.removeIf(bodyInfo -> {
@@ -42,17 +43,19 @@ public class ClientWorldManager {
         public final String type;
         public final GameObject gameObject;
         public final int id;
-        private BodyInfo(Body body, String type, GameObject gameObject, int id) {
+        public final boolean selectable;
+        private BodyInfo(Body body, String type, GameObject gameObject, int id, boolean selectable) {
             this.body = body;
             this.type = type;
             this.gameObject = gameObject;
             this.id = id;
+            this.selectable = selectable;
         }
         public AddGameObjectMessage createAddMessage(){
-            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle());
+            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), selectable);
         }
         public MoveGameObjectMessage createMoveMessage(){
-            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle());
+            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.vehicle.getMode());
         }
     }
 }

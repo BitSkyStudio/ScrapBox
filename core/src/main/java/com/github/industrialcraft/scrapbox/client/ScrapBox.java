@@ -67,14 +67,14 @@ public class ScrapBox extends ApplicationAdapter {
         Gdx.input.setInputProcessor(new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
-                if(keycode == Input.Keys.Q && selected != null){
+                if(keycode == Input.Keys.Q){
                     connection.send(new PinchingSetGhost(true));
                 }
                 return false;
             }
             @Override
             public boolean keyUp(int keycode) {
-                if(keycode == Input.Keys.Q && selected != null){
+                if(keycode == Input.Keys.Q){
                     connection.send(new PinchingSetGhost(false));
                 }
                 return false;
@@ -178,8 +178,20 @@ public class ScrapBox extends ApplicationAdapter {
         batch.setProjectionMatrix(cameraController.camera.combined);
         batch.begin();
         for (ClientGameObject gameObject : gameObjects.values()) {
+            switch (gameObject.mode){
+                case Normal:
+                    batch.setColor(Color.WHITE);
+                    break;
+                case Static:
+                    batch.setColor(Color.YELLOW);
+                    break;
+                case Ghost:
+                    batch.setColor(1, 1, 1, 0.7f);
+                    break;
+            }
             renderDataRegistry.get(gameObject.type).draw(batch, gameObject);
         }
+        batch.setColor(Color.WHITE);
         Matrix4 uiMatrix = new Matrix4();
         uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.setProjectionMatrix(uiMatrix);
