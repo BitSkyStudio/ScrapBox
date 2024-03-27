@@ -5,16 +5,11 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.github.industrialcraft.scrapbox.common.net.EGameObjectMode;
-import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
-import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
-import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
-import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
+import com.github.industrialcraft.scrapbox.common.net.EObjectInteractionMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class GameObject {
     public final Server server;
@@ -133,14 +128,14 @@ public abstract class GameObject {
         }
         return weldCandidates;
     }
-    public void setMode(EGameObjectMode mode){
+    public void setMode(EObjectInteractionMode mode){
         BodyDef.BodyType type;
         Filter filter = new Filter();
-        if(mode == EGameObjectMode.Static){
+        if(mode == EObjectInteractionMode.Static){
             type = BodyDef.BodyType.StaticBody;
         } else {
             type = BodyDef.BodyType.DynamicBody;
-            if(mode == EGameObjectMode.Ghost){
+            if(mode == EObjectInteractionMode.Ghost){
                 filter.categoryBits = 0;
                 filter.maskBits = 0;
             }

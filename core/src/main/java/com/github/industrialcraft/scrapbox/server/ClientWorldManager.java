@@ -35,7 +35,7 @@ public class ClientWorldManager {
         this.bodies.forEach(bodyInfo -> player.send(bodyInfo.createAddMessage()));
     }
     public void updatePositions(){
-        this.bodies.forEach(bodyInfo -> server.players.forEach(player -> player.send(bodyInfo.createMoveMessage())));
+        this.bodies.forEach(bodyInfo -> server.players.forEach(player -> player.send(bodyInfo.createMoveMessage(player))));
     }
 
     private static class BodyInfo{
@@ -54,8 +54,15 @@ public class ClientWorldManager {
         public AddGameObjectMessage createAddMessage(){
             return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), selectable);
         }
-        public MoveGameObjectMessage createMoveMessage(){
-            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.vehicle.getMode());
+        public MoveGameObjectMessage createMoveMessage(Player player){
+            GameObject pinching = player.getPinching();
+            boolean selected = false;
+            if(pinching != null){
+                if(pinching.vehicle == this.gameObject.vehicle){
+                    selected = true;
+                }
+            }
+            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.vehicle.getMode(), selected);
         }
     }
 }

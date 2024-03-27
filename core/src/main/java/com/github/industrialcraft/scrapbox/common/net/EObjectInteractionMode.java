@@ -1,6 +1,6 @@
 package com.github.industrialcraft.scrapbox.common.net;
 
-public enum EGameObjectMode {
+public enum EObjectInteractionMode {
     Normal,
     Static,
     Ghost

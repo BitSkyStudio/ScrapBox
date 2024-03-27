@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.scrapbox.common.net.msg.TakeObject;
@@ -23,7 +24,7 @@ public class ToolBox {
         this.parts = new ArrayList<>();
         this.tool = Tool.Hand;
     }
-    public void render(SpriteBatch batch){
+    public void render(Batch batch){
         batch.draw(background, Gdx.graphics.getWidth()-width, 0, width, Gdx.graphics.getHeight());
         for(int i = 0;i < this.parts.size();i++){
             Part part = this.parts.get(i);

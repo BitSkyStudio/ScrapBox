@@ -1,16 +1,16 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
-import com.github.industrialcraft.scrapbox.common.net.EGameObjectMode;
+import com.github.industrialcraft.scrapbox.common.net.EObjectInteractionMode;
 
 import java.util.ArrayList;
 
 public class Vehicle {
-    private final ArrayList<GameObject> gameObjects;
-    private EGameObjectMode mode;
+    public final ArrayList<GameObject> gameObjects;
+    private EObjectInteractionMode mode;
     public Vehicle() {
         this.gameObjects = new ArrayList<>();
-        this.mode = EGameObjectMode.Normal;
+        this.mode = EObjectInteractionMode.Normal;
     }
     public void add(GameObject gameObject){
         if(gameObject.vehicle == this){
@@ -27,10 +27,10 @@ public class Vehicle {
             }
         }
     }
-    public EGameObjectMode getMode(){
+    public EObjectInteractionMode getMode(){
         return this.mode;
     }
-    public void setMode(EGameObjectMode mode){
+    public void setMode(EObjectInteractionMode mode){
         this.mode = mode;
         for(GameObject go : this.gameObjects){
             go.setMode(mode);

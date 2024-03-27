@@ -3,8 +3,7 @@ package com.github.industrialcraft.scrapbox.server;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.github.industrialcraft.scrapbox.common.net.EGameObjectMode;
+import com.github.industrialcraft.scrapbox.common.net.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.IServerConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
@@ -44,9 +43,9 @@ public class Player {
                     continue;
                 }
                 if(this.isGhost){
-                    gameObject.vehicle.setMode(EGameObjectMode.Ghost);
+                    gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
                 } else {
-                    gameObject.vehicle.setMode(EGameObjectMode.Normal);
+                    gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
                 }
                 MouseJointDef mouseJointDef = new MouseJointDef();
                 mouseJointDef.bodyA = server.terrain.body;
@@ -73,7 +72,7 @@ public class Player {
             }
             if(message instanceof TrashObject){
                 TrashObject trashObject = (TrashObject) message;
-                server.gameObjects.get(trashObject.id).remove();
+                server.gameObjects.get(trashObject.id).vehicle.gameObjects.forEach(GameObject::remove);
             }
             if(message instanceof TakeObject){
                 TakeObject takeObject = (TakeObject) message;
@@ -90,9 +89,9 @@ public class Player {
                 GameObject pinching = getPinching();
                 if(pinching != null){
                     if(pinchingSetGhost.isGhost){
-                        pinching.vehicle.setMode(EGameObjectMode.Ghost);
+                        pinching.vehicle.setMode(EObjectInteractionMode.Ghost);
                     } else {
-                        pinching.vehicle.setMode(EGameObjectMode.Normal);
+                        pinching.vehicle.setMode(EObjectInteractionMode.Normal);
                     }
                 }
             }
@@ -118,7 +117,7 @@ public class Player {
             if(message instanceof LockGameObject){
                 GameObject pinching = getPinching();
                 if(pinching != null){
-                    pinching.vehicle.setMode(EGameObjectMode.Static);
+                    pinching.vehicle.setMode(EObjectInteractionMode.Static);
                     clearPinched();
                 }
             }
@@ -127,15 +126,15 @@ public class Player {
     private void clearPinched(){
         if(pinching != null){
             GameObject gameObject = this.getPinching();
-            if(gameObject.vehicle.getMode() == EGameObjectMode.Ghost){
-                gameObject.vehicle.setMode(EGameObjectMode.Normal);
+            if(gameObject.vehicle.getMode() == EObjectInteractionMode.Ghost){
+                gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
             }
             server.physics.destroyJoint(pinching.mouseJoint);
             pinching = null;
             this.send(new ShowActivePossibleWelds(new ArrayList<>()));
         }
     }
-    private GameObject getPinching(){
+    public GameObject getPinching(){
         if(pinching == null){
             return null;
         }

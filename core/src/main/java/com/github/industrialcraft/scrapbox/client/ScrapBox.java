@@ -16,11 +16,13 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.utils.Predicate;
 import com.badlogic.gdx.utils.ShortArray;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
+import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +30,7 @@ import java.util.HashMap;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class ScrapBox extends ApplicationAdapter {
     public static final float BOX_TO_PIXELS_RATIO = 100;
-    private SpriteBatch batch;
+    private ColorfulBatch batch;
     public CameraController cameraController;
     private Box2DDebugRenderer debugRenderer;
     private Server server;
@@ -50,7 +52,7 @@ public class ScrapBox extends ApplicationAdapter {
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
-        batch = new SpriteBatch();
+        batch = new ColorfulBatch();
         server = new Server();
         gameObjects = new HashMap<>();
         connection = server.joinLocalPlayer();
@@ -175,44 +177,29 @@ public class ScrapBox extends ApplicationAdapter {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
             debugRendering = !debugRendering;
         }
-        batch.setProjectionMatrix(cameraController.camera.combined);
-        batch.begin();
-        for (ClientGameObject gameObject : gameObjects.values()) {
-            switch (gameObject.mode){
-                case Normal:
-                    batch.setColor(Color.WHITE);
-                    break;
-                case Static:
-                    batch.setColor(Color.YELLOW);
-                    break;
-                case Ghost:
-                    batch.setColor(1, 1, 1, 0.7f);
-                    break;
-            }
-            renderDataRegistry.get(gameObject.type).draw(batch, gameObject);
-        }
-        batch.setColor(Color.WHITE);
-        Matrix4 uiMatrix = new Matrix4();
-        uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.setProjectionMatrix(uiMatrix);
-        toolBox.render(batch);
-        if(selected != null){
-            batch.setProjectionMatrix(cameraController.camera.combined);
-            ClientGameObject selectedGameObject = gameObjects.get(selected.id);
-            if(selectedGameObject != null) {
-                renderDataRegistry.get(selectedGameObject.type).draw(batch, selectedGameObject);
-            }
-        }
-        batch.end();
+        drawObjects(arg0 -> true);
+
+        this.terrainRenderer.draw(this.cameraController);
+
         shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
         shapeRenderer.setAutoShapeType(true);
-        this.terrainRenderer.draw(this.cameraController);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         for(ShowActivePossibleWelds.PossibleWeld weld: weldShowcase){
             shapeRenderer.setColor(Color.GREEN);
             shapeRenderer.rectLine(weld.first.cpy().scl(BOX_TO_PIXELS_RATIO), weld.second.cpy().scl(BOX_TO_PIXELS_RATIO), 5);
         }
         shapeRenderer.end();
+
+        batch.begin();
+        batch.setColor(0.5f, 0.5f, 0.5f, 1);
+        Matrix4 uiMatrix = new Matrix4();
+        uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.setProjectionMatrix(uiMatrix);
+        toolBox.render(batch);
+        batch.end();
+
+        drawObjects(arg0 -> arg0.selected);
+
         if(debugRendering){
             Matrix4 matrix = cameraController.camera.combined.cpy();
             debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
@@ -224,6 +211,28 @@ public class ScrapBox extends ApplicationAdapter {
             connection.send(new LockGameObject());
         }
         connection.send(new MouseMoved(mouseSelector.getWorldMousePosition()));
+    }
+    public void drawObjects(Predicate<ClientGameObject> predicate){
+        batch.setProjectionMatrix(cameraController.camera.combined);
+        batch.begin();
+        for (ClientGameObject gameObject : gameObjects.values()) {
+            if(!predicate.evaluate(gameObject)){
+                continue;
+            }
+            switch (gameObject.mode){
+                case Normal:
+                    batch.setColor(0.5f, 0.5f, 0.5f, 1);
+                    break;
+                case Static:
+                    batch.setColor(Color.YELLOW);
+                    break;
+                case Ghost:
+                    batch.setColor(0.5f, 0.5f, 0.5f, 0.7f);
+                    break;
+            }
+            renderDataRegistry.get(gameObject.type).draw(batch, gameObject);
+        }
+        batch.end();
     }
     @Override
     public void resize(int width, int height) {
