@@ -31,17 +31,26 @@ public class Terrain {
         fixtureDef.shape = polygonShape;
         this.body.createFixture(fixtureDef);*/
         PathsD terrain = new PathsD();
-        terrain.add(Clipper.Ellipse(new PointD(0, 0), 1, 1, 16));
-        terrain.add(Clipper.Ellipse(new PointD(0.5, 0), 1, 1, 16));
+        terrain.add(Clipper.Ellipse(new PointD(0, 0), 1, 1, 8));
+        terrain.add(Clipper.Ellipse(new PointD(0.5, 0), 1, 1, 8));
         this.terrain = Clipper.Union(terrain, FillRule.Positive);
         this.rebuild();
     }
     public void place(PlaceTerrain placeTerrain){
         float resolution = 0.5f;
         PointD point = new PointD(Math.floor(placeTerrain.position.x/resolution)*resolution, Math.floor(placeTerrain.position.y/resolution)*resolution);
-        terrain.add(Clipper.Ellipse(point, placeTerrain.radius, placeTerrain.radius, 16));
+        terrain.add(createCircle(new Vector2((float) point.x, (float) point.y), placeTerrain.radius));
         this.terrain = Clipper.Union(terrain, FillRule.Positive);
         rebuild();
+    }
+    private PathD createCircle(Vector2 position, float radius){
+        PathD path = new PathD();
+        for(int i = 0;i < 8;i++){
+            float k = i + 0.5f;
+            Vector2 offset = new Vector2((float) Math.cos(2*k*Math.PI/8), (float) Math.sin(2*k*Math.PI/8));
+            path.add(new PointD(position.x + offset.x*radius, position.y + offset.y*radius));
+        }
+        return path;
     }
     public void rebuild(){
         ArrayList<Fixture> fixtures = new ArrayList<>();

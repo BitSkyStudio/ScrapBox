@@ -137,7 +137,7 @@ public class ScrapBox extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
+        Gdx.gl.glClearColor(79f / 255f, 201f / 255f, 232f / 255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         for(MessageS2C message : connection.read()){
             if(message instanceof AddGameObjectMessage){
