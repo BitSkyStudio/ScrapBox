@@ -37,6 +37,7 @@ public class Terrain {
         this.rebuild();
     }
     public void place(PlaceTerrain placeTerrain){
+        //float resolution = (float) (2*placeTerrain.radius*Math.sin(Math.toRadians(22.5)));
         float resolution = 0.5f;
         PointD point = new PointD(Math.floor(placeTerrain.position.x/resolution)*resolution, Math.floor(placeTerrain.position.y/resolution)*resolution);
         terrain.add(createCircle(new Vector2((float) point.x, (float) point.y), placeTerrain.radius));

@@ -2,12 +2,8 @@ package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import com.github.industrialcraft.scrapbox.common.net.msg.DeleteGameObject;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
-import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
-import com.github.industrialcraft.scrapbox.common.net.LocalServerConnection;
-import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
-import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
+import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 import com.github.industrialcraft.scrapbox.server.game.WheelGameObject;
 
 import java.util.ArrayList;
@@ -32,11 +28,11 @@ public class Server {
         this.clientWorldManager = new ClientWorldManager(this);
         this.stopped = false;
     }
-    public LocalClientConnection joinLocalPlayer(){
-        ConcurrentLinkedQueue<MessageS2C> server_side = new ConcurrentLinkedQueue<>();
-        ConcurrentLinkedQueue<MessageC2S> client_side = new ConcurrentLinkedQueue<>();
-        this.addPlayer(new Player(this, new LocalServerConnection(server_side, client_side)));
-        return new LocalClientConnection(server_side, client_side);
+    public LocalConnection joinLocalPlayer(){
+        ConcurrentLinkedQueue<Object> write = new ConcurrentLinkedQueue<>();
+        ConcurrentLinkedQueue<Object> read = new ConcurrentLinkedQueue<>();
+        this.addPlayer(new Player(this, new LocalConnection(write, read)));
+        return new LocalConnection(read, write);
     }
     public  <T extends GameObject> T spawnGameObject(Vector2 position, GameObject.GameObjectSpawner<T> spawner){
         T gameObject = spawner.spawn(position, this);
@@ -54,7 +50,7 @@ public class Server {
     }
     private void addPlayer(Player player){
         this.players.add(player);
-        ArrayList<MessageS2C> messages = new ArrayList<>();
+        ArrayList<Object> messages = new ArrayList<>();
         this.clientWorldManager.addPlayer(player);
         player.send(this.terrain.createMessage());
         player.sendAll(messages);

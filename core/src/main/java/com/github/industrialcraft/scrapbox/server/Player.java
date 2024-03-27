@@ -4,9 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.net.EObjectInteractionMode;
-import com.github.industrialcraft.scrapbox.common.net.IServerConnection;
-import com.github.industrialcraft.scrapbox.common.net.MessageC2S;
-import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
+import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 
@@ -14,10 +12,10 @@ import java.util.ArrayList;
 
 public class Player {
     public final Server server;
-    public final IServerConnection connection;
+    public final IConnection connection;
     private PinchingData pinching;
     private boolean isGhost;
-    public Player(Server server, IServerConnection connection) {
+    public Player(Server server, IConnection connection) {
         this.server = server;
         this.connection = connection;
         this.pinching = null;
@@ -29,7 +27,7 @@ public class Player {
                 this.pinching = null;
             }
         }
-        for(MessageC2S message : this.connection.read()){
+        for(Object message : this.connection.read()){
             if(message instanceof ToggleGamePaused){
                 server.paused = !server.paused;
             }
@@ -121,6 +119,13 @@ public class Player {
                     clearPinched();
                 }
             }
+            if(message instanceof PinchingRotate){
+                PinchingRotate pinchingRotate = (PinchingRotate) message;
+                GameObject pinching = getPinching();
+                if(pinching != null){
+                    pinching.getBaseBody().applyAngularImpulse(-pinchingRotate.rotation*5, true);
+                }
+            }
         }
     }
     private void clearPinched(){
@@ -140,11 +145,11 @@ public class Player {
         }
         return (GameObject) pinching.mouseJoint.getBodyB().getUserData();
     }
-    public void send(MessageS2C message){
+    public void send(Object message){
         this.connection.send(message);
     }
-    public void sendAll(ArrayList<MessageS2C> messages){
-        for(MessageS2C message : messages){
+    public void sendAll(ArrayList<Object> messages){
+        for(Object message : messages){
             this.connection.send(message);
         }
     }

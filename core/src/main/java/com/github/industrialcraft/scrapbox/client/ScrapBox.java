@@ -8,20 +8,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.DelaunayTriangulator;
-import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Predicate;
-import com.badlogic.gdx.utils.ShortArray;
+import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.Server;
-import com.github.industrialcraft.scrapbox.common.net.LocalClientConnection;
-import com.github.industrialcraft.scrapbox.common.net.MessageS2C;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 
 import java.util.ArrayList;
@@ -34,7 +28,7 @@ public class ScrapBox extends ApplicationAdapter {
     public CameraController cameraController;
     private Box2DDebugRenderer debugRenderer;
     private Server server;
-    public LocalClientConnection connection;
+    public IConnection connection;
     public HashMap<Integer,ClientGameObject> gameObjects;
     public HashMap<String, RenderData> renderDataRegistry;
     public MouseSelector mouseSelector;
@@ -125,7 +119,9 @@ public class ScrapBox extends ApplicationAdapter {
             }
             @Override
             public boolean scrolled(float amountX, float amountY) {
-                if(toolBox.isMouseInside()){
+                if(Gdx.input.isKeyPressed(Input.Keys.C)){
+                    connection.send(new PinchingRotate(amountY));
+                } else if(toolBox.isMouseInside()){
                     toolBox.scroll((int) amountY);
                 } else {
                     cameraController.zoom(amountY);
@@ -139,7 +135,7 @@ public class ScrapBox extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(79f / 255f, 201f / 255f, 232f / 255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        for(MessageS2C message : connection.read()){
+        for(Object message : connection.read()){
             if(message instanceof AddGameObjectMessage){
                 AddGameObjectMessage addGameObjectMessage = (AddGameObjectMessage) message;
                 gameObjects.put(addGameObjectMessage.id, new ClientGameObject(addGameObjectMessage));
