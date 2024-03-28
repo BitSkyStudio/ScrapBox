@@ -15,7 +15,7 @@ public class RenderData {
         this.height = height;
     }
     public void draw(Batch batch, ClientGameObject gameObject){
-        batch.draw(this.texture, (gameObject.position.x - this.width) * ScrapBox.BOX_TO_PIXELS_RATIO, (gameObject.position.y - this.height) * ScrapBox.BOX_TO_PIXELS_RATIO, this.width * ScrapBox.BOX_TO_PIXELS_RATIO, this.height * ScrapBox.BOX_TO_PIXELS_RATIO, this.width * ScrapBox.BOX_TO_PIXELS_RATIO * 2, this.height * ScrapBox.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.rotation));
+        batch.draw(this.texture, (gameObject.position.x - this.width) * InGameScene.BOX_TO_PIXELS_RATIO, (gameObject.position.y - this.height) * InGameScene.BOX_TO_PIXELS_RATIO, this.width * InGameScene.BOX_TO_PIXELS_RATIO, this.height * InGameScene.BOX_TO_PIXELS_RATIO, this.width * InGameScene.BOX_TO_PIXELS_RATIO * 2, this.height * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.rotation));
     }
     public void dispose(){
         this.texture.getTexture().dispose();

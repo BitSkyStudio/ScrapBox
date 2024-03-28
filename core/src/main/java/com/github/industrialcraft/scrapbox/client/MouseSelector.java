@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class MouseSelector {
-    public final ScrapBox game;
-    public MouseSelector(ScrapBox game) {
+    public final InGameScene game;
+    public MouseSelector(InGameScene game) {
         this.game = game;
     }
     public Selection getSelected(){
@@ -27,7 +27,7 @@ public class MouseSelector {
     public Vector2 getWorldMousePosition(){
         Vector3 screen = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         Vector3 world = game.cameraController.camera.unproject(screen);
-        return new Vector2(world.x / ScrapBox.BOX_TO_PIXELS_RATIO, world.y / ScrapBox.BOX_TO_PIXELS_RATIO);
+        return new Vector2(world.x / InGameScene.BOX_TO_PIXELS_RATIO, world.y / InGameScene.BOX_TO_PIXELS_RATIO);
     }
     public static class Selection{
         public final int id;

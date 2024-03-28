@@ -15,11 +15,13 @@ public class Player {
     public final IConnection connection;
     private PinchingData pinching;
     private boolean isGhost;
+    private boolean isDisconnected;
     public Player(Server server, IConnection connection) {
         this.server = server;
         this.connection = connection;
         this.pinching = null;
         this.isGhost = false;
+        this.isDisconnected = false;
     }
     public void tick(){
         if(this.pinching != null){
@@ -127,6 +129,13 @@ public class Player {
                 }
             }
         }
+    }
+    public void disconnect(){
+        this.isDisconnected = true;
+        clearPinched();
+    }
+    public boolean isDisconnected() {
+        return isDisconnected;
     }
     private void clearPinched(){
         if(pinching != null){

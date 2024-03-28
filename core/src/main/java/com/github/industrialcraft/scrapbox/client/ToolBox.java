@@ -11,13 +11,13 @@ import com.github.industrialcraft.scrapbox.common.net.msg.TakeObject;
 import java.util.ArrayList;
 
 public class ToolBox {
-    public final ScrapBox game;
+    public final InGameScene game;
     private int width;
     private final Texture background;
     private final ArrayList<Part> parts;
     private int partScroll;
     public Tool tool;
-    public ToolBox(ScrapBox game) {
+    public ToolBox(InGameScene game) {
         this.game = game;
         this.background = new Texture("toolbox.png");
         this.width = 100;

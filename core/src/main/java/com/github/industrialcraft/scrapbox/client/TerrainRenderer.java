@@ -11,8 +11,6 @@ import com.github.industrialcraft.scrapbox.common.net.msg.TerrainShapeMessage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.github.industrialcraft.scrapbox.client.ScrapBox.BOX_TO_PIXELS_RATIO;
-
 public class TerrainRenderer {
     private final HashMap<String, TextureRegion> textures;
     private final PolygonSpriteBatch polygonSpriteBatch;
@@ -40,7 +38,7 @@ public class TerrainRenderer {
         }
     }
     public void draw(CameraController cameraController){
-        this.polygonSpriteBatch.setProjectionMatrix(cameraController.camera.combined.cpy().scl(BOX_TO_PIXELS_RATIO / 16));
+        this.polygonSpriteBatch.setProjectionMatrix(cameraController.camera.combined.cpy().scl(InGameScene.BOX_TO_PIXELS_RATIO / 16));
         this.polygonSpriteBatch.begin();
         for(PolygonRegion polygonRegion : this.terrain){
             this.polygonSpriteBatch.draw(polygonRegion, 0, 0);
