@@ -9,6 +9,7 @@ import com.github.industrialcraft.netx.NetXServer;
 import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
+import com.github.industrialcraft.scrapbox.server.game.BalloonGameObject;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 import com.github.industrialcraft.scrapbox.server.game.WheelGameObject;
@@ -62,6 +63,9 @@ public class Server {
         }
         if(type.equals("wheel")){
             return spawnGameObject(position, WheelGameObject::new);
+        }
+        if(type.equals("balloon")){
+            return spawnGameObject(position, BalloonGameObject::new);
         }
         return null;
     }

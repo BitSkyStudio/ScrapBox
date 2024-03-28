@@ -32,6 +32,7 @@ public class MainMenuScene implements IScene {
             }
         });
         table.add(startGameButton);
+        table.row();
         TextButton serverListButton = new TextButton("Server List", skin);
         serverListButton.addListener(new ClickListener(){
             @Override

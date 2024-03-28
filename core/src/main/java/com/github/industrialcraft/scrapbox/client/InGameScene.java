@@ -51,6 +51,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
+        renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1));
         batch = new ColorfulBatch();
         gameObjects = new HashMap<>();
         debugRendering = false;
@@ -58,6 +59,7 @@ public class InGameScene implements IScene {
         this.toolBox = new ToolBox(this);
         this.toolBox.addPart("frame", renderDataRegistry.get("frame"));
         this.toolBox.addPart("wheel", renderDataRegistry.get("wheel"));
+        this.toolBox.addPart("balloon", renderDataRegistry.get("balloon"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

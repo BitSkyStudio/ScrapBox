@@ -48,8 +48,8 @@ public class ServerJoinScene implements IScene {
         Skin skin = ScrapBox.getInstance().getSkin();
         table.clear();
         for(ServerEntry entry : entries.values()){
-            Label label = new Label(entry.address + ":" + entry.port, skin);
-            label.addListener(new ClickListener(){
+            TextButton button = new TextButton(entry.address + ":" + entry.port, skin);
+            button.addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     NetXClient client = new NetXClient(entry.address.replace("/", ""), entry.port, MessageRegistryCreator.create());
@@ -57,7 +57,8 @@ public class ServerJoinScene implements IScene {
                     ScrapBox.getInstance().setScene(new ConnectingScene(new ClientNetXConnection(client), client));
                 }
             });
-            table.add(label);
+            table.add(button);
+            table.row();
         }
     }
 
