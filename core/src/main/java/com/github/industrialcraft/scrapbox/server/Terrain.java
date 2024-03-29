@@ -31,14 +31,14 @@ public class Terrain {
         fixtureDef.shape = polygonShape;
         this.body.createFixture(fixtureDef);*/
         PathsD terrain = new PathsD();
-        terrain.add(Clipper.Ellipse(new PointD(0, 0), 1, 1, 8));
-        terrain.add(Clipper.Ellipse(new PointD(0.5, 0), 1, 1, 8));
+        terrain.add(Clipper.Ellipse(new PointD(0, 0), 2, 2, 8));
+        terrain.add(Clipper.Ellipse(new PointD(1, 0), 2, 2, 8));
         this.terrain = Clipper.Union(terrain, FillRule.Positive);
         this.rebuild();
     }
     public void place(PlaceTerrain placeTerrain){
         //float resolution = (float) (2*placeTerrain.radius*Math.sin(Math.toRadians(22.5)));
-        float resolution = 0.5f;
+        float resolution = 1f;
         PointD point = new PointD(Math.floor(placeTerrain.position.x/resolution)*resolution, Math.floor(placeTerrain.position.y/resolution)*resolution);
         terrain.add(createCircle(new Vector2((float) point.x, (float) point.y), placeTerrain.radius));
         this.terrain = Clipper.Union(terrain, FillRule.Positive);

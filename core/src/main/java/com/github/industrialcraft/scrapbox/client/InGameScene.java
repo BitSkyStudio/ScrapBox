@@ -113,7 +113,7 @@ public class InGameScene implements IScene {
             @Override
             public boolean touchDragged(int screenX, int screenY, int pointer) {
                 if(toolBox.tool == ToolBox.Tool.TerrainPlace){
-                    connection.send(new PlaceTerrain(mouseSelector.getWorldMousePosition(), 1));
+                    connection.send(new PlaceTerrain(mouseSelector.getWorldMousePosition(), 2));
                 }
                 return false;
             }

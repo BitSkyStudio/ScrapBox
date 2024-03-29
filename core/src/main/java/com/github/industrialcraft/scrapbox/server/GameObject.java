@@ -56,7 +56,8 @@ public abstract class GameObject {
         //System.out.println(weldCandidate.angle);
         //joint.referenceAngle = (float) -weldCandidate.angle;
         //joint.referenceAngle = (float) Math.PI;
-        joint.referenceAngle = other.gameObject.getBaseBody().getAngle() - this.getBaseBody().getAngle();
+        double HALF_PI = Math.PI / 2;
+        joint.referenceAngle = (float) (Math.round((other.gameObject.getBaseBody().getAngle() - this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
         joint.lowerAngle = 0f;
         joint.upperAngle = 0f;
         this.server.physics.createJoint(joint);
@@ -168,12 +169,8 @@ public abstract class GameObject {
         public Vector2 getPosition(){
             return gameObject.getBaseBody().getWorldPoint(connectionEdge.offset);
         }
-        public float getAngle(){
-            return this.gameObject.getBaseBody().getAngle() + connectionEdge.angle;
-        }
         public boolean collides(GameObjectConnectionEdge other){
-            final double TWO_PI = Math.PI * 2;
-            return this.getPosition().dst(other.getPosition()) < 0.2/* && Math.abs(this.getAngle()-((other.getAngle()+Math.PI)%TWO_PI)+2*TWO_PI)%Math.PI < Math.PI/10*/;
+            return this.getPosition().dst(other.getPosition()) < 0.2;
         }
     }
     public static class WeldCandidate{
