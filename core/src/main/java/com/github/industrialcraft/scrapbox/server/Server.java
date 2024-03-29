@@ -10,6 +10,7 @@ import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
 import com.github.industrialcraft.scrapbox.server.game.BalloonGameObject;
+import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 import com.github.industrialcraft.scrapbox.server.game.WheelGameObject;
@@ -67,7 +68,10 @@ public class Server {
         if(type.equals("balloon")){
             return spawnGameObject(position, BalloonGameObject::new);
         }
-        return null;
+        if(type.equals("controller")){
+            return spawnGameObject(position, ControllerGameObject::new);
+        }
+        throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
         this.players.add(player);

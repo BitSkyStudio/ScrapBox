@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class GameObject {
+    public static final double HALF_PI = Math.PI / 2;
+
     public final Server server;
     public final HashMap<String,Body> bodies;
     private boolean isRemoved;
@@ -56,7 +58,6 @@ public abstract class GameObject {
         //System.out.println(weldCandidate.angle);
         //joint.referenceAngle = (float) -weldCandidate.angle;
         //joint.referenceAngle = (float) Math.PI;
-        double HALF_PI = Math.PI / 2;
         joint.referenceAngle = (float) (Math.round((other.gameObject.getBaseBody().getAngle() - this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
         joint.lowerAngle = 0f;
         joint.upperAngle = 0f;
@@ -152,10 +153,10 @@ public abstract class GameObject {
     }
     public static class ConnectionEdge{
         public final Vector2 offset;
-        public final float angle;
-        public ConnectionEdge(Vector2 offset, float angle) {
+        public final boolean internal;
+        public ConnectionEdge(Vector2 offset, boolean internal) {
             this.offset = offset;
-            this.angle = angle;
+            this.internal = internal;
         }
 
     }
@@ -170,7 +171,7 @@ public abstract class GameObject {
             return gameObject.getBaseBody().getWorldPoint(connectionEdge.offset);
         }
         public boolean collides(GameObjectConnectionEdge other){
-            return this.getPosition().dst(other.getPosition()) < 0.2;
+            return this.getPosition().dst(other.getPosition()) < 0.2 && (this.connectionEdge.internal==other.connectionEdge.internal);
         }
     }
     public static class WeldCandidate{

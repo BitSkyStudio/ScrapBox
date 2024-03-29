@@ -16,6 +16,7 @@ import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.Server;
+import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
         renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1));
+        renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         batch = new ColorfulBatch();
         gameObjects = new HashMap<>();
         debugRendering = false;
@@ -60,6 +62,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("frame", renderDataRegistry.get("frame"));
         this.toolBox.addPart("wheel", renderDataRegistry.get("wheel"));
         this.toolBox.addPart("balloon", renderDataRegistry.get("balloon"));
+        this.toolBox.addPart("controller", renderDataRegistry.get("controller"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

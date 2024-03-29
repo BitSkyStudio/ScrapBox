@@ -44,7 +44,7 @@ public class BalloonGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("down", new ConnectionEdge(new Vector2(0, -1), (float) (Math.PI/2*1)));
+        edges.put("down", new ConnectionEdge(new Vector2(0, -1), false));
         return edges;
     }
 }
