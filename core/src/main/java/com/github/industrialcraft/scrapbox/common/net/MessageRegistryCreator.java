@@ -23,6 +23,8 @@ public class MessageRegistryCreator {
         messageRegistry.register(15, TerrainShapeMessage.createDescriptor());
         messageRegistry.register(16, ToggleGamePaused.createDescriptor());
         messageRegistry.register(17, TrashObject.createDescriptor());
+        messageRegistry.register(18, OpenGameObjectEditUI.createDescriptor());
+        messageRegistry.register(19, SetGameObjectEditUIData.createDescriptor());
         return messageRegistry;
     }
 }

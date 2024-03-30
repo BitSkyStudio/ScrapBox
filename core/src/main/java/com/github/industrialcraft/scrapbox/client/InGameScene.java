@@ -2,6 +2,7 @@ package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Predicate;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
@@ -39,6 +41,8 @@ public class InGameScene implements IScene {
     private ArrayList<ShowActivePossibleWelds.PossibleWeld> weldShowcase;
     private ShapeRenderer shapeRenderer;
     private TerrainRenderer terrainRenderer;
+    private Stage stage;
+    private HashMap<Integer,ClientGameObjectEditor> editors;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -46,6 +50,8 @@ public class InGameScene implements IScene {
     }
     @Override
     public void create() {
+        stage = new Stage();
+        editors = new HashMap<>();
         cameraController = new CameraController(new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         debugRenderer = new Box2DDebugRenderer();
         renderDataRegistry = new HashMap<>();
@@ -67,7 +73,7 @@ public class InGameScene implements IScene {
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
         this.terrainRenderer.addTerrainType("dirt", "dirt.png");
-        Gdx.input.setInputProcessor(new InputProcessor() {
+        Gdx.input.setInputProcessor(new InputMultiplexer(new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
                 if(keycode == Input.Keys.Q){
@@ -135,7 +141,7 @@ public class InGameScene implements IScene {
                 }
                 return false;
             }
-        });
+        }, stage));
     }
 
     @Override
@@ -170,6 +176,17 @@ public class InGameScene implements IScene {
             if(message instanceof TerrainShapeMessage){
                 TerrainShapeMessage terrainShapeMessage = (TerrainShapeMessage) message;
                 this.terrainRenderer.loadMessage(terrainShapeMessage);
+            }
+            if(message instanceof SetGameObjectEditUIData){
+                SetGameObjectEditUIData setGameObjectEditUIData = (SetGameObjectEditUIData) message;
+                ClientGameObjectEditor editor = this.editors.get(setGameObjectEditUIData.id);
+                if(editor == null){
+                    editor = new ClientGameObjectEditor(setGameObjectEditUIData);
+                    stage.addActor(editor.window);
+                    this.editors.put(setGameObjectEditUIData.id, editor);
+                } else {
+                    editor.rebuild(setGameObjectEditUIData);
+                }
             }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
@@ -207,11 +224,18 @@ public class InGameScene implements IScene {
             Matrix4 matrix = cameraController.camera.combined.cpy();
             debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
         }
+
+        stage.act();
+        stage.draw();
+
         if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
             connection.send(new CommitWeld());
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
             connection.send(new LockGameObject());
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.V)){
+            connection.send(new OpenGameObjectEditUI(mouseSelector.getSelected().id));
         }
         connection.send(new MouseMoved(mouseSelector.getWorldMousePosition()));
     }

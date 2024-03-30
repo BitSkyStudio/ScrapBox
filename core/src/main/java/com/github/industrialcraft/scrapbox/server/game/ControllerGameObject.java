@@ -5,7 +5,10 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJoint;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.github.industrialcraft.scrapbox.common.net.msg.OpenGameObjectEditUI;
+import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.GameObject;
+import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.util.HashMap;
@@ -29,6 +32,10 @@ public class ControllerGameObject extends GameObject {
     @Override
     public void tick() {
 
+    }
+    @Override
+    public void requestEditorUI(Player player) {
+        player.send(new SetGameObjectEditUIData(this.getId(), "controller"));
     }
     @Override
     public void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other) {

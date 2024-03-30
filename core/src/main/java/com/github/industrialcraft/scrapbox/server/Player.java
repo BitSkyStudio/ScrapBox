@@ -128,6 +128,10 @@ public class Player {
                     pinching.getBaseBody().applyAngularImpulse(-pinchingRotate.rotation*5, true);
                 }
             }
+            if(message instanceof OpenGameObjectEditUI){
+                OpenGameObjectEditUI openGameObjectEditUI = (OpenGameObjectEditUI) message;
+                server.gameObjects.get(openGameObjectEditUI.id).requestEditorUI(this);
+            }
         }
     }
     public void disconnect(){

@@ -63,6 +63,9 @@ public abstract class GameObject {
         joint.upperAngle = 0f;
         this.server.physics.createJoint(joint);
     }
+    public void requestEditorUI(Player player){
+
+    }
     public Body getBody(String name){
         return this.bodies.get(name);
     }
