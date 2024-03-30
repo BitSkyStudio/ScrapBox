@@ -85,11 +85,11 @@ public class Server {
             this.gameObjects.put(gameObject.getId(), gameObject);
         }
         this.newGameObjects.clear();
-        for(GameObject gameObject : this.gameObjects.values()){
-            gameObject.tick();
-        }
         this.gameObjects.entrySet().removeIf(entry -> entry.getValue().isRemoved());
         if(!paused) {
+            for(GameObject gameObject : this.gameObjects.values()){
+                gameObject.tick();
+            }
             for(int i = 0;i < 10;i++) {
                 this.physics.step(deltaTime / 10, 10, 10);
             }
