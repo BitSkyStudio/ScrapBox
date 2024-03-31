@@ -263,6 +263,8 @@ public class InGameScene implements IScene {
     }
     @Override
     public void resize(int width, int height) {
+        System.out.println("here");
+        this.stage.getViewport().update(width-toolBox.getWidth(), height);
         cameraController.camera.setToOrtho(false, width, height);
         cameraController.camera.position.set(0, 0, 0);
     }

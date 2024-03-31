@@ -24,6 +24,9 @@ public class ToolBox {
         this.parts = new ArrayList<>();
         this.tool = Tool.Hand;
     }
+    public int getWidth() {
+        return width;
+    }
     public void render(Batch batch){
         batch.draw(background, Gdx.graphics.getWidth()-width, 0, width, Gdx.graphics.getHeight());
         for(int i = 0;i < this.parts.size();i++){
