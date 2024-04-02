@@ -9,11 +9,8 @@ import com.github.industrialcraft.netx.NetXServer;
 import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
-import com.github.industrialcraft.scrapbox.server.game.BalloonGameObject;
-import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
-import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
+import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
-import com.github.industrialcraft.scrapbox.server.game.WheelGameObject;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -70,6 +67,9 @@ public class Server {
         }
         if(type.equals("controller")){
             return spawnGameObject(position, ControllerGameObject::new);
+        }
+        if(type.equals("puncher")){
+            return spawnGameObject(position, PunchBoxGameObject::new);
         }
         throw new IllegalArgumentException("unknown type " + type);
     }
