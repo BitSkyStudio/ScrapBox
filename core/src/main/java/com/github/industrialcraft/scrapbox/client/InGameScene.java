@@ -77,7 +77,7 @@ public class InGameScene implements IScene {
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
         this.terrainRenderer.addTerrainType("dirt", "dirt.png");
-        Gdx.input.setInputProcessor(new InputMultiplexer(new InputProcessor() {
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
                 if(keycode == Input.Keys.Q){
@@ -142,7 +142,7 @@ public class InGameScene implements IScene {
                 }
                 return false;
             }
-        }, stage));
+        }));
     }
 
     @Override

@@ -39,7 +39,6 @@ public class EditorUILink extends EditorUIElement{
                 }
                 @Override
                 public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-                    source.getActor().remove();
                     ConnectionData output = (ConnectionData) payload.getObject();
                     ConnectionData input = new ConnectionData(editor.gameObjectID, EditorUILink.this.id);
                     editor.scene.connection.send(new CreateValueConnection(input.gameObject, input.connectionId, output.gameObject, output.connectionId));
