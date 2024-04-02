@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.utils.Predicate;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
+import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
@@ -45,6 +47,7 @@ public class InGameScene implements IScene {
     public Stage stage;
     public HashMap<Integer,ClientGameObjectEditor> editors;
     public DragAndDrop dragAndDrop;
+    private ControllingData controllingData;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -169,7 +172,7 @@ public class InGameScene implements IScene {
             }
             if(message instanceof TakeObjectResponse){
                 TakeObjectResponse takeObjectResponse = (TakeObjectResponse) message;
-                selected = new MouseSelector.Selection(takeObjectResponse.id, takeObjectResponse.offset.x, takeObjectResponse.offset.y);
+                selected = new MouseSelector.Selection(takeObjectResponse.id, takeObjectResponse.offset.x, takeObjectResponse.offset.y, 0);
                 connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
             }
             if(message instanceof ShowActivePossibleWelds){
@@ -195,7 +198,17 @@ public class InGameScene implements IScene {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             connection.send(new ToggleGamePaused());
         }
-        cameraController.tick();
+        if(controllingData != null){
+            ClientGameObject gameObject = gameObjects.get(controllingData.controllingId);
+            if(gameObject == null){
+                cameraController.camera.position.set(controllingData.position.x, controllingData.position.y, 0);
+                controllingData = null;
+            } else {
+                cameraController.camera.position.set(gameObject.position.x * BOX_TO_PIXELS_RATIO, gameObject.position.y * BOX_TO_PIXELS_RATIO, 0);
+            }
+        } else {
+            cameraController.tick();
+        }
         cameraController.camera.update();
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
             debugRendering = !debugRendering;
@@ -239,6 +252,17 @@ public class InGameScene implements IScene {
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.V)){
             connection.send(new OpenGameObjectEditUI(mouseSelector.getSelected().id));
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
+            if(controllingData != null){
+                cameraController.camera.position.set(controllingData.position.x, controllingData.position.y, 0);
+                controllingData = null;
+            } else {
+                MouseSelector.Selection selection = mouseSelector.getSelected();
+                if (selection != null) {
+                    controllingData = new ControllingData(new Vector2(cameraController.camera.position.x, cameraController.camera.position.y), selection.id);
+                }
+            }
         }
         connection.send(new MouseMoved(mouseSelector.getWorldMousePosition()));
     }
@@ -288,6 +312,14 @@ public class InGameScene implements IScene {
         editors.forEach((integer, editor) -> editor.dispose());
         for(RenderData renderData : renderDataRegistry.values()){
             renderData.dispose();
+        }
+    }
+    private static class ControllingData{
+        public final Vector2 position;
+        public final int controllingId;
+        private ControllingData(Vector2 position, int controllingId) {
+            this.position = position;
+            this.controllingId = controllingId;
         }
     }
 }

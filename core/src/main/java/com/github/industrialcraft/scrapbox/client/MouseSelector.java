@@ -11,6 +11,7 @@ public class MouseSelector {
     }
     public Selection getSelected(){
         Vector2 mouse = getWorldMousePosition();
+        Selection selection = null;
         for(int i : game.gameObjects.keySet()){
             ClientGameObject gameObject = game.gameObjects.get(i);
             RenderData renderData = game.renderDataRegistry.get(gameObject.type);
@@ -19,10 +20,13 @@ public class MouseSelector {
             float angle = (float) Math.atan2(xDiff, yDiff) + gameObject.rotation;
             float distance = (float) Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
             if((Math.abs(Math.sin(angle)) * distance < renderData.width) && (Math.abs(Math.cos(angle)) * distance < renderData.height)){
-                return new Selection(i, xDiff, yDiff);
+                Selection newSelection = new Selection(i, xDiff, yDiff, renderData.width * renderData.height);
+                if(selection == null || (newSelection.size < selection.size)){
+                    selection = newSelection;
+                }
             }
         }
-        return null;
+        return selection;
     }
     public Vector2 getWorldMousePosition(){
         Vector3 screen = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -33,10 +37,12 @@ public class MouseSelector {
         public final int id;
         public final float offsetX;
         public final float offsetY;
-        public Selection(int id, float offsetX, float offsetY) {
+        private final float size;
+        public Selection(int id, float offsetX, float offsetY, float size) {
             this.id = id;
             this.offsetX = offsetX;
             this.offsetY = offsetY;
+            this.size = size;
         }
     }
 }
