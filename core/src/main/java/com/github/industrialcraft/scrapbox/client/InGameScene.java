@@ -135,7 +135,7 @@ public class InGameScene implements IScene {
             }
             @Override
             public boolean scrolled(float amountX, float amountY) {
-                if(Gdx.input.isKeyPressed(Input.Keys.C)){
+                if(selected != null){
                     connection.send(new PinchingRotate(amountY));
                 } else if(toolBox.isMouseInside()){
                     toolBox.scroll((int) amountY);
