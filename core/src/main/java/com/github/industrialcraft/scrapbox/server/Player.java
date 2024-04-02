@@ -3,7 +3,7 @@ package com.github.industrialcraft.scrapbox.server;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
-import com.github.industrialcraft.scrapbox.common.net.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
@@ -131,6 +131,12 @@ public class Player {
             if(message instanceof OpenGameObjectEditUI){
                 OpenGameObjectEditUI openGameObjectEditUI = (OpenGameObjectEditUI) message;
                 server.gameObjects.get(openGameObjectEditUI.id).requestEditorUI(this);
+            }
+            if(message instanceof CreateValueConnection){
+                CreateValueConnection createValueConnection = (CreateValueConnection) message;
+                GameObject input = server.gameObjects.get(createValueConnection.inputObjectId);
+                GameObject output = server.gameObjects.get(createValueConnection.outputObjectId);
+                input.createValueConnection(createValueConnection.inputId, new GameObject.ValueConnection(output, createValueConnection.outputObjectId));
             }
         }
     }

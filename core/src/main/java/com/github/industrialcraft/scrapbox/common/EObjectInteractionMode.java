@@ -1,4 +1,4 @@
-package com.github.industrialcraft.scrapbox.common.net;
+package com.github.industrialcraft.scrapbox.common;
 
 public enum EObjectInteractionMode {
     Normal(0),

@@ -2,7 +2,7 @@ package com.github.industrialcraft.scrapbox.common.net.msg;
 
 import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.netx.MessageRegistry;
-import com.github.industrialcraft.scrapbox.common.net.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.github.industrialcraft.scrapbox.common.net.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,7 @@ public abstract class GameObject {
     public final HashMap<String,Body> bodies;
     private boolean isRemoved;
     private HashMap<String,GameObject> connections;
+    private HashMap<Integer,ValueConnection> valueConnections;
     public Vehicle vehicle;
     private int baseId;
     protected GameObject(Vector2 position, Server server){
@@ -25,6 +26,7 @@ public abstract class GameObject {
         this.bodies = new HashMap<>();
         this.isRemoved = false;
         this.connections = new HashMap<>();
+        this.valueConnections = new HashMap<>();
         new Vehicle().add(this);
     }
     public void remove(){
@@ -101,7 +103,22 @@ public abstract class GameObject {
         }
         return center;
     }
-
+    public float getValueOnOutput(int id){
+        return 0;
+    }
+    public float getValueOnInput(int id){
+        ValueConnection connection = valueConnections.get(id);
+        if(connection == null){
+            return 0;
+        }
+        if(connection.gameObject.isRemoved()){
+            return 0;
+        }
+        return connection.get();
+    }
+    public void createValueConnection(int id, ValueConnection connection){
+        this.valueConnections.put(id, connection);
+    }
     public abstract HashMap<String,ConnectionEdge> getConnectionEdges();
     public HashMap<String,GameObjectConnectionEdge> getOpenConnections(){
         HashMap<String,ConnectionEdge> connections = getConnectionEdges();
@@ -187,6 +204,17 @@ public abstract class GameObject {
             this.keyFirst = keyFirst;
             this.second = second;
             this.keySecond = keySecond;
+        }
+    }
+    public static class ValueConnection{
+        public final GameObject gameObject;
+        public final int id;
+        public ValueConnection(GameObject gameObject, int id) {
+            this.gameObject = gameObject;
+            this.id = id;
+        }
+        public float get(){
+            return gameObject.getValueOnOutput(id);
         }
     }
 }

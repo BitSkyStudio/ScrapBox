@@ -5,12 +5,17 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJoint;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
+import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
+import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
+import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.common.net.msg.OpenGameObjectEditUI;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ControllerGameObject extends GameObject {
@@ -31,12 +36,26 @@ public class ControllerGameObject extends GameObject {
     }
     @Override
     public void tick() {
-
+        super.tick();
     }
     @Override
     public void requestEditorUI(Player player) {
-        player.send(new SetGameObjectEditUIData(this.getId(), "controller"));
+        ArrayList<EditorUIRow> rows = new ArrayList<>();
+        for(int i = 0;i < 10;i++){
+            ArrayList<EditorUIElement> row = new ArrayList<>();
+            row.add(new EditorUILabel((i+1)+":"));
+            row.add(new EditorUILink(i, false));
+            rows.add(new EditorUIRow(row));
+        }
+        player.send(new SetGameObjectEditUIData(this.getId(), rows));
     }
+
+    @Override
+    public float getValueOnOutput(int id) {
+        //todo
+        return 1;
+    }
+
     @Override
     public void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other) {
         float rotationOffset = (float) (Math.round((other.gameObject.getBaseBody().getAngle()-this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);

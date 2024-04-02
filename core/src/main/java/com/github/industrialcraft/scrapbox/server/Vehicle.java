@@ -1,7 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
-import com.github.industrialcraft.scrapbox.common.net.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 
 import java.util.ArrayList;
 

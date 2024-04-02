@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Predicate;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
@@ -41,8 +42,9 @@ public class InGameScene implements IScene {
     private ArrayList<ShowActivePossibleWelds.PossibleWeld> weldShowcase;
     private ShapeRenderer shapeRenderer;
     private TerrainRenderer terrainRenderer;
-    private Stage stage;
-    private HashMap<Integer,ClientGameObjectEditor> editors;
+    public Stage stage;
+    public HashMap<Integer,ClientGameObjectEditor> editors;
+    public DragAndDrop dragAndDrop;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -50,6 +52,7 @@ public class InGameScene implements IScene {
     }
     @Override
     public void create() {
+        this.dragAndDrop = new DragAndDrop();
         stage = new Stage();
         editors = new HashMap<>();
         cameraController = new CameraController(new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -181,7 +184,7 @@ public class InGameScene implements IScene {
                 SetGameObjectEditUIData setGameObjectEditUIData = (SetGameObjectEditUIData) message;
                 ClientGameObjectEditor editor = this.editors.get(setGameObjectEditUIData.id);
                 if(editor == null){
-                    editor = new ClientGameObjectEditor(setGameObjectEditUIData);
+                    editor = new ClientGameObjectEditor(setGameObjectEditUIData.id, this, setGameObjectEditUIData);
                     stage.addActor(editor.window);
                     this.editors.put(setGameObjectEditUIData.id, editor);
                 } else {
@@ -239,6 +242,11 @@ public class InGameScene implements IScene {
         }
         connection.send(new MouseMoved(mouseSelector.getWorldMousePosition()));
     }
+    public void closeEditor(ClientGameObjectEditor editor){
+        editors.entrySet().removeIf(entry -> entry.getValue() == editor);
+        editor.window.remove();
+        editor.dispose();
+    }
     public void drawObjects(Predicate<ClientGameObject> predicate){
         batch.setProjectionMatrix(cameraController.camera.combined);
         batch.begin();
@@ -263,8 +271,7 @@ public class InGameScene implements IScene {
     }
     @Override
     public void resize(int width, int height) {
-        System.out.println("here");
-        this.stage.getViewport().update(width-toolBox.getWidth(), height);
+        this.stage.getViewport().update(width, height);
         cameraController.camera.setToOrtho(false, width, height);
         cameraController.camera.position.set(0, 0, 0);
     }
@@ -278,6 +285,7 @@ public class InGameScene implements IScene {
         }
         batch.dispose();
         toolBox.dispose();
+        editors.forEach((integer, editor) -> editor.dispose());
         for(RenderData renderData : renderDataRegistry.values()){
             renderData.dispose();
         }

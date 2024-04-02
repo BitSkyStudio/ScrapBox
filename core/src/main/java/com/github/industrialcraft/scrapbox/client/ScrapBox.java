@@ -13,6 +13,7 @@ public class ScrapBox extends ApplicationAdapter {
         skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
         scene = new MainMenuScene();
         scene.create();
+        scene.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
     @Override
     public void render() {
@@ -31,6 +32,7 @@ public class ScrapBox extends ApplicationAdapter {
         this.scene.dispose();
         this.scene = newScene;
         this.scene.create();
+        this.scene.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
     public Skin getSkin() {
         return skin;
