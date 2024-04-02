@@ -54,10 +54,10 @@ public class WheelGameObject extends GameObject {
     @Override
     public void tick() {
         super.tick();
-        float value = getValueOnInput(0);
+        float value = Math.max(Math.min(getValueOnInput(0),1),-1);
         if(value > 0){
             motor.enableMotor(true);
-            motor.setMotorSpeed(value);
+            motor.setMotorSpeed(value*5);
         } else {
             motor.enableMotor(false);
         }
