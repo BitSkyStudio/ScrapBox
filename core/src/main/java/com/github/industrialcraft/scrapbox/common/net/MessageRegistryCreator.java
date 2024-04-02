@@ -15,7 +15,7 @@ public class MessageRegistryCreator {
         messageRegistry.register(7, MouseMoved.createDescriptor());
         messageRegistry.register(8, MoveGameObjectMessage.createDescriptor());
         messageRegistry.register(9, PinchingRotate.createDescriptor());
-        messageRegistry.register(10, PinchingSetGhost.createDescriptor());
+        messageRegistry.register(10, PinchingGhostToggle.createDescriptor());
         messageRegistry.register(11, PlaceTerrain.createDescriptor());
         messageRegistry.register(12, ShowActivePossibleWelds.createDescriptor());
         messageRegistry.register(13, TakeObject.createDescriptor());

@@ -14,13 +14,11 @@ public class Player {
     public final Server server;
     public final IConnection connection;
     private PinchingData pinching;
-    private boolean isGhost;
     private boolean isDisconnected;
     public Player(Server server, IConnection connection) {
         this.server = server;
         this.connection = connection;
         this.pinching = null;
-        this.isGhost = false;
         this.isDisconnected = false;
     }
     public void tick(){
@@ -42,9 +40,7 @@ public class Player {
                 if(gameObject == null){
                     continue;
                 }
-                if(this.isGhost){
-                    gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
-                } else {
+                if(gameObject.vehicle.getMode() == EObjectInteractionMode.Static){
                     gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
                 }
                 MouseJointDef mouseJointDef = new MouseJointDef();
@@ -77,18 +73,17 @@ public class Player {
             if(message instanceof TakeObject){
                 TakeObject takeObject = (TakeObject) message;
                 GameObject gameObject = server.spawnGameObject(takeObject.position, takeObject.type);
+                gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
                 connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
             }
             if(message instanceof PlaceTerrain){
                 PlaceTerrain placeTerrain = (PlaceTerrain) message;
                 server.terrain.place(placeTerrain);
             }
-            if(message instanceof PinchingSetGhost){
-                PinchingSetGhost pinchingSetGhost = (PinchingSetGhost) message;
-                this.isGhost = pinchingSetGhost.isGhost;
+            if(message instanceof PinchingGhostToggle){
                 GameObject pinching = getPinching();
                 if(pinching != null){
-                    if(pinchingSetGhost.isGhost){
+                    if(pinching.vehicle.getMode() == EObjectInteractionMode.Normal){
                         pinching.vehicle.setMode(EObjectInteractionMode.Ghost);
                     } else {
                         pinching.vehicle.setMode(EObjectInteractionMode.Normal);

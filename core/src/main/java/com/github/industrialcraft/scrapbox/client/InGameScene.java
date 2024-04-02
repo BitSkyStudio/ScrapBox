@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -19,7 +18,6 @@ import com.badlogic.gdx.utils.Predicate;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
-import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
@@ -83,15 +81,12 @@ public class InGameScene implements IScene {
             @Override
             public boolean keyDown(int keycode) {
                 if(keycode == Input.Keys.Q){
-                    connection.send(new PinchingSetGhost(true));
+                    connection.send(new PinchingGhostToggle());
                 }
                 return false;
             }
             @Override
             public boolean keyUp(int keycode) {
-                if(keycode == Input.Keys.Q){
-                    connection.send(new PinchingSetGhost(false));
-                }
                 return false;
             }
             @Override
