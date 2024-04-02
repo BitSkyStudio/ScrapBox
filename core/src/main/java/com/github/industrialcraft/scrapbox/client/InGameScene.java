@@ -83,10 +83,26 @@ public class InGameScene implements IScene {
                 if(keycode == Input.Keys.Q){
                     connection.send(new PinchingGhostToggle());
                 }
+                if(controllingData != null) {
+                    if (keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_9) {
+                        connection.send(new ControllerInput(controllingData.controllingId, keycode - Input.Keys.NUM_1, true));
+                    }
+                    if(keycode == Input.Keys.NUM_0){
+                        connection.send(new ControllerInput(controllingData.controllingId, 9, true));
+                    }
+                }
                 return false;
             }
             @Override
             public boolean keyUp(int keycode) {
+                if(controllingData != null) {
+                    if (keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_9) {
+                        connection.send(new ControllerInput(controllingData.controllingId, keycode - Input.Keys.NUM_1, false));
+                    }
+                    if(keycode == Input.Keys.NUM_0){
+                        connection.send(new ControllerInput(controllingData.controllingId, 9, false));
+                    }
+                }
                 return false;
             }
             @Override

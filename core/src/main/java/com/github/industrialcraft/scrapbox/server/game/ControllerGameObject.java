@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ControllerGameObject extends GameObject {
+    private final boolean[] inputs;
     public ControllerGameObject(Vector2 position, Server server) {
         super(position, server);
 
@@ -33,10 +34,15 @@ public class ControllerGameObject extends GameObject {
         fixtureDef.density = 1F;
         base.createFixture(fixtureDef);
         this.setBody("base", "controller", base);
+
+        this.inputs = new boolean[10];
     }
     @Override
     public void tick() {
         super.tick();
+    }
+    public void input(int key, boolean down){
+        inputs[key] = down;
     }
     @Override
     public void requestEditorUI(Player player) {
@@ -52,8 +58,7 @@ public class ControllerGameObject extends GameObject {
 
     @Override
     public float getValueOnOutput(int id) {
-        //todo
-        return 1;
+        return inputs[id]?1:0;
     }
 
     @Override

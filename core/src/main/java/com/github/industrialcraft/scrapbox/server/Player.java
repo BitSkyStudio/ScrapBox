@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
+import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 
 import java.util.ArrayList;
@@ -131,7 +132,15 @@ public class Player {
                 CreateValueConnection createValueConnection = (CreateValueConnection) message;
                 GameObject input = server.gameObjects.get(createValueConnection.inputObjectId);
                 GameObject output = server.gameObjects.get(createValueConnection.outputObjectId);
-                input.createValueConnection(createValueConnection.inputId, new GameObject.ValueConnection(output, createValueConnection.outputObjectId));
+                input.createValueConnection(createValueConnection.inputId, new GameObject.ValueConnection(output, createValueConnection.outputId));
+            }
+            if(message instanceof ControllerInput){
+                ControllerInput controllerInput = (ControllerInput) message;
+                GameObject gameObject = server.gameObjects.get(controllerInput.gameObjectId);
+                if(gameObject instanceof ControllerGameObject){
+                    ControllerGameObject controller = (ControllerGameObject) gameObject;
+                    controller.input(controllerInput.key, controllerInput.down);
+                }
             }
         }
     }
