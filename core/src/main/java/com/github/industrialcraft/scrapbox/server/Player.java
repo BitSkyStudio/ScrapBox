@@ -123,7 +123,7 @@ public class Player {
                 PinchingRotate pinchingRotate = (PinchingRotate) message;
                 GameObject pinching = getPinching();
                 if(pinching != null){
-                    pinching.getBaseBody().applyAngularImpulse(-pinchingRotate.rotation*5, true);
+                    pinching.getBaseBody().applyAngularImpulse(-pinchingRotate.rotation*pinching.vehicle.getMass(), true);
                 }
             }
             if(message instanceof OpenGameObjectEditUI){
