@@ -63,7 +63,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
         renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1));
-        renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), 1, 1));
+        renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("puncher", new RenderData(new Texture("puncher.png"), 1, 1));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         batch = new ColorfulBatch();
@@ -227,9 +227,8 @@ public class InGameScene implements IScene {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
             debugRendering = !debugRendering;
         }
-        drawObjects(arg0 -> true);
-
         this.terrainRenderer.draw(this.cameraController);
+        drawObjects(arg0 -> true);
 
         shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
         shapeRenderer.setAutoShapeType(true);
@@ -265,7 +264,10 @@ public class InGameScene implements IScene {
             connection.send(new LockGameObject());
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.V)){
-            connection.send(new OpenGameObjectEditUI(mouseSelector.getSelected().id));
+            MouseSelector.Selection selection = mouseSelector.getSelected();
+            if(selection != null) {
+                connection.send(new OpenGameObjectEditUI(selection.id));
+            }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
             if(controllingData != null){

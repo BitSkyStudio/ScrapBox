@@ -97,6 +97,8 @@ public class Player {
                     for(GameObject.WeldCandidate weldCandidate : pinching.getPossibleWelds()){
                         GameObject.GameObjectConnectionEdge go1 = weldCandidate.first;
                         GameObject.GameObjectConnectionEdge go2 = weldCandidate.second;
+                        go1.gameObject.connect(go1.name, go2.gameObject);
+                        go2.gameObject.connect(go2.name, go1.gameObject);
                         if(go2.gameObject instanceof FrameGameObject){
                             GameObject.GameObjectConnectionEdge tmp = go1;
                             go1 = go2;

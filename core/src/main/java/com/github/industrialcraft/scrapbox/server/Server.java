@@ -1,7 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.github.industrialcraft.netx.LANBroadcaster;
@@ -43,6 +43,22 @@ public class Server {
         this.networkServer.start();
         this.stopped = false;
         this.tickCount = 0;
+        this.physics.setContactFilter((fixtureA, fixtureB) -> {
+            Filter filterA = fixtureA.getFilterData();
+            Filter filterB = fixtureB.getFilterData();
+            boolean collide =
+                (filterA.maskBits & filterB.categoryBits) != 0 &&
+                    (filterA.categoryBits & filterB.maskBits) != 0;
+            if(!collide){
+                return false;
+            }
+            Body bodyA = fixtureA.getBody();
+            Body bodyB = fixtureB.getBody();
+            if(bodyA.getUserData() == null || bodyB.getUserData() == null) {
+                return true;
+            }
+            return ((GameObject) bodyA.getUserData()).collidesWith(bodyA, bodyB) && ((GameObject) bodyB.getUserData()).collidesWith(bodyB, bodyA);
+        });
     }
     public LocalConnection joinLocalPlayer(){
         ConcurrentLinkedQueue<Object> write = new ConcurrentLinkedQueue<>();
@@ -119,7 +135,9 @@ public class Server {
                 JsonValue json = new JsonValue(JsonValue.ValueType.object);
                 json.addChild("id", new JsonValue(uuid.toString()));
                 json.addChild("port", new JsonValue(address.getPort()));
-                LANBroadcaster.broadcast(json.toJson(JsonWriter.OutputType.json), InetAddress.getByName("230.1.2.3"), 4321);
+                try {
+                    LANBroadcaster.broadcast(json.toJson(JsonWriter.OutputType.json), InetAddress.getByName("230.1.2.3"), 4321);
+                } catch (Exception ignored){}
             }
         }
     }

@@ -17,7 +17,7 @@ public abstract class GameObject {
     public final Server server;
     public final HashMap<String,Body> bodies;
     private boolean isRemoved;
-    private HashMap<String,GameObject> connections;
+    protected HashMap<String,GameObject> connections;
     private HashMap<Integer,ValueConnection> valueConnections;
     public Vehicle vehicle;
     private int baseId;
@@ -46,6 +46,9 @@ public abstract class GameObject {
         if(this.getBaseBody().getPosition().y < -100){
             remove();
         }
+    }
+    public boolean collidesWith(Body thisBody, Body other){
+        return true;
     }
     public boolean isSideUsed(String name){
         return this.connections.containsKey(name);
@@ -119,6 +122,9 @@ public abstract class GameObject {
     public void createValueConnection(int id, ValueConnection connection){
         this.valueConnections.put(id, connection);
     }
+    public void connect(String id, GameObject gameObject){
+        this.connections.put(id, gameObject);
+    }
     public abstract HashMap<String,ConnectionEdge> getConnectionEdges();
     public HashMap<String,GameObjectConnectionEdge> getOpenConnections(){
         HashMap<String,ConnectionEdge> connections = getConnectionEdges();
@@ -127,7 +133,7 @@ public abstract class GameObject {
         }
         HashMap<String,GameObjectConnectionEdge> output = new HashMap<>();
         for(Map.Entry<String, ConnectionEdge> edge : connections.entrySet()){
-            output.put(edge.getKey(), new GameObjectConnectionEdge(edge.getValue(), this));
+            output.put(edge.getKey(), new GameObjectConnectionEdge(edge.getValue(), edge.getKey(), this));
         }
         return output;
     }
@@ -182,9 +188,11 @@ public abstract class GameObject {
     }
     public static class GameObjectConnectionEdge{
         public final ConnectionEdge connectionEdge;
+        public final String name;
         public final GameObject gameObject;
-        public GameObjectConnectionEdge(ConnectionEdge connectionEdge, GameObject gameObject) {
+        public GameObjectConnectionEdge(ConnectionEdge connectionEdge, String name, GameObject gameObject) {
             this.connectionEdge = connectionEdge;
+            this.name = name;
             this.gameObject = gameObject;
         }
         public Vector2 getPosition(){
