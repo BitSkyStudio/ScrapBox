@@ -144,6 +144,13 @@ public class Player {
                     controller.input(controllerInput.key, controllerInput.down);
                 }
             }
+            if(message instanceof EditorUIInput){
+                EditorUIInput editorUIInput = (EditorUIInput) message;
+                GameObject gameObject = server.gameObjects.get(editorUIInput.gameObjectId);
+                if(gameObject != null){
+                    gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
+                }
+            }
         }
     }
     public void disconnect(){

@@ -22,6 +22,12 @@ public abstract class EditorUIElement {
         if(id == 2){
             return new EditorUILink(stream);
         }
+        if(id == 3){
+            return new EditorUIDropDown(stream);
+        }
+        if(id == 4){
+            return new EditorUIInputBox(stream);
+        }
         return null;
     }
 }

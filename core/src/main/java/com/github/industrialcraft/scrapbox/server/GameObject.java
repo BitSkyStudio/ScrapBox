@@ -71,6 +71,9 @@ public abstract class GameObject {
     public void requestEditorUI(Player player){
 
     }
+    public void handleEditorUIInput(String elementId, String value){
+
+    }
     public Body getBody(String name){
         return this.bodies.get(name);
     }

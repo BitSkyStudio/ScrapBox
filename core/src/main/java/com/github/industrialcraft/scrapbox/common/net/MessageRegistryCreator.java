@@ -27,6 +27,7 @@ public class MessageRegistryCreator {
         messageRegistry.register(19, SetGameObjectEditUIData.createDescriptor());
         messageRegistry.register(20, CreateValueConnection.createDescriptor());
         messageRegistry.register(21, ControllerInput.createDescriptor());
+        messageRegistry.register(22, EditorUIInput.createDescriptor());
         return messageRegistry;
     }
 }
