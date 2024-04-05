@@ -15,6 +15,8 @@ import com.github.industrialcraft.scrapbox.common.net.msg.PlaceTerrain;
 import com.github.industrialcraft.scrapbox.common.net.msg.TerrainShapeMessage;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Vector;
 
 public class Terrain {
@@ -40,8 +42,13 @@ public class Terrain {
         //float resolution = (float) (2*placeTerrain.radius*Math.sin(Math.toRadians(22.5)));
         float resolution = 1f;
         PointD point = new PointD(Math.floor(placeTerrain.position.x/resolution)*resolution, Math.floor(placeTerrain.position.y/resolution)*resolution);
-        terrain.add(createCircle(new Vector2((float) point.x, (float) point.y), placeTerrain.radius));
-        this.terrain = Clipper.Union(terrain, FillRule.Positive);
+        PathD circle = createCircle(new Vector2((float) point.x, (float) point.y), placeTerrain.radius);
+        if(placeTerrain.type.equals("dirt")) {
+            terrain.add(circle);
+            this.terrain = Clipper.Union(terrain, FillRule.Positive);
+        } else {
+            this.terrain = Clipper.Difference(terrain, new PathsD(Collections.singletonList(circle)), FillRule.Positive);
+        }
         rebuild();
     }
     private PathD createCircle(Vector2 position, float radius){

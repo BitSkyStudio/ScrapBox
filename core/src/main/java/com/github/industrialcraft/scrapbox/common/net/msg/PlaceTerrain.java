@@ -8,17 +8,21 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class PlaceTerrain {
+    public final String type;
     public final Vector2 position;
     public final float radius;
-    public PlaceTerrain(Vector2 position, float radius) {
+    public PlaceTerrain(String type, Vector2 position, float radius) {
+        this.type = type;
         this.position = position;
         this.radius = radius;
     }
     public PlaceTerrain(DataInputStream stream) throws IOException {
+        this.type = stream.readUTF();
         this.position = new Vector2(stream.readFloat(), stream.readFloat());
         this.radius = stream.readFloat();
     }
     public void toStream(DataOutputStream stream) throws IOException {
+        stream.writeUTF(type);
         stream.writeFloat(position.x);
         stream.writeFloat(position.y);
         stream.writeFloat(radius);

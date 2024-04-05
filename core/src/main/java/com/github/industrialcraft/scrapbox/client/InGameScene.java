@@ -141,8 +141,13 @@ public class InGameScene implements IScene {
             }
             @Override
             public boolean touchDragged(int screenX, int screenY, int pointer) {
-                if(toolBox.tool == ToolBox.Tool.TerrainPlace){
-                    connection.send(new PlaceTerrain(mouseSelector.getWorldMousePosition(), 2));
+                if(!toolBox.isMouseInside()) {
+                    if (toolBox.tool == ToolBox.Tool.TerrainPlace) {
+                        connection.send(new PlaceTerrain("dirt", mouseSelector.getWorldMousePosition(), 2));
+                    }
+                    if (toolBox.tool == ToolBox.Tool.TerrainDestroy) {
+                        connection.send(new PlaceTerrain("", mouseSelector.getWorldMousePosition(), 2));
+                    }
                 }
                 return false;
             }
