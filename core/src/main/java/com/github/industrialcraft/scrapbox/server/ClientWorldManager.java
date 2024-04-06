@@ -4,8 +4,11 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.DeleteGameObject;
 import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
+import com.github.industrialcraft.scrapbox.common.net.msg.SendConnectionListData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientWorldManager {
     public final Server server;
@@ -36,6 +39,18 @@ public class ClientWorldManager {
     }
     public void updatePositions(){
         this.bodies.forEach(bodyInfo -> server.players.forEach(player -> player.send(bodyInfo.createMoveMessage(player))));
+
+        ArrayList<SendConnectionListData.Connection> connections = new ArrayList<>();
+        for(GameObject gameObject : server.gameObjects.values()){
+            HashMap<String, GameObject.ConnectionEdge> connectionPositions = gameObject.getConnectionEdges();
+            for(Map.Entry<String, GameObject.ConnectionData> connection : gameObject.connections.entrySet()){
+                if(gameObject.getId() < connection.getValue().other.getId()) {
+                    connections.add(new SendConnectionListData.Connection(gameObject.getBaseBody().getWorldPoint(connectionPositions.get(connection.getKey()).offset).cpy(), gameObject.getId(), connection.getKey()));
+                }
+            }
+        }
+        SendConnectionListData connectionListData = new SendConnectionListData(connections);
+        server.players.forEach(player -> player.send(connectionListData));
     }
 
     private static class BodyInfo{

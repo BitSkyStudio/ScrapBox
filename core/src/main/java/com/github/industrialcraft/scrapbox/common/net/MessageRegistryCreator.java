@@ -28,6 +28,8 @@ public class MessageRegistryCreator {
         messageRegistry.register(20, CreateValueConnection.createDescriptor());
         messageRegistry.register(21, ControllerInput.createDescriptor());
         messageRegistry.register(22, EditorUIInput.createDescriptor());
+        messageRegistry.register(23, SendConnectionListData.createDescriptor());
+        messageRegistry.register(24, DestroyJoint.createDescriptor());
         return messageRegistry;
     }
 }

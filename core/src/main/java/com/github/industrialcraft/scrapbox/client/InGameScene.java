@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -46,6 +47,9 @@ public class InGameScene implements IScene {
     public HashMap<Integer,ClientGameObjectEditor> editors;
     public DragAndDrop dragAndDrop;
     private ControllingData controllingData;
+    private ArrayList<SendConnectionListData.Connection> connectionsShowcase;
+    private Texture jointBreakIcon;
+    private static final float JOINT_BREAK_ICON_SIZE = 48;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -80,6 +84,8 @@ public class InGameScene implements IScene {
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
         this.terrainRenderer.addTerrainType("dirt", "dirt.png");
+        this.connectionsShowcase = new ArrayList<>();
+        this.jointBreakIcon = new Texture("joint_break_icon.png");
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
@@ -115,9 +121,20 @@ public class InGameScene implements IScene {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if(!toolBox.isMouseInside()) {
-                    selected = mouseSelector.getSelected();
-                    if (selected != null) {
-                        connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
+                    if(toolBox.tool == ToolBox.Tool.Hand) {
+                        selected = mouseSelector.getSelected();
+                        if (selected != null) {
+                            connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
+                        }
+                    }
+                    if(toolBox.tool == ToolBox.Tool.DeleteJoints){
+                        Vector3 mouse = cameraController.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+                        Vector2 mouse2 = new Vector2(mouse.x, mouse.y);
+                        for(SendConnectionListData.Connection connection1 : connectionsShowcase){
+                            if(mouse2.dst(connection1.position.cpy().scl(BOX_TO_PIXELS_RATIO)) < JOINT_BREAK_ICON_SIZE/2){
+                                connection.send(new DestroyJoint(connection1.gameObjectId, connection1.name));
+                            }
+                        }
                     }
                 } else {
                     toolBox.click(new Vector2(screenX, Gdx.graphics.getHeight()-screenY));
@@ -213,6 +230,10 @@ public class InGameScene implements IScene {
                     editor.rebuild(setGameObjectEditUIData);
                 }
             }
+            if(message instanceof SendConnectionListData){
+                SendConnectionListData sendConnectionListData = (SendConnectionListData) message;
+                this.connectionsShowcase = sendConnectionListData.connections;
+            }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             connection.send(new ToggleGamePaused());
@@ -259,6 +280,15 @@ public class InGameScene implements IScene {
             debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
         }
 
+        if(toolBox.tool == ToolBox.Tool.DeleteJoints){
+            batch.begin();
+            for(SendConnectionListData.Connection connection1 : connectionsShowcase){
+
+                batch.draw(jointBreakIcon, connection1.position.x * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, connection1.position.y * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, JOINT_BREAK_ICON_SIZE, JOINT_BREAK_ICON_SIZE);
+            }
+            batch.end();
+        }
+
         stage.act();
         stage.draw();
 
@@ -280,7 +310,7 @@ public class InGameScene implements IScene {
                 controllingData = null;
             } else {
                 MouseSelector.Selection selection = mouseSelector.getSelected();
-                if (selection != null) {
+                if (selection != null && gameObjects.get(selection.id).type.equals("controller")) {
                     controllingData = new ControllingData(new Vector2(cameraController.camera.position.x, cameraController.camera.position.y), selection.id);
                 }
             }
@@ -330,6 +360,7 @@ public class InGameScene implements IScene {
         }
         batch.dispose();
         toolBox.dispose();
+        jointBreakIcon.dispose();
         editors.forEach((integer, editor) -> editor.dispose());
         for(RenderData renderData : renderDataRegistry.values()){
             renderData.dispose();

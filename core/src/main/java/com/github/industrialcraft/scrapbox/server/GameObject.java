@@ -4,12 +4,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class GameObject {
     public static final double HALF_PI = Math.PI / 2;
@@ -17,7 +16,7 @@ public abstract class GameObject {
     public final Server server;
     public final HashMap<String,Body> bodies;
     private boolean isRemoved;
-    protected HashMap<String,GameObject> connections;
+    protected HashMap<String,ConnectionData> connections;
     private HashMap<Integer,ValueConnection> valueConnections;
     public Vehicle vehicle;
     private int baseId;
@@ -47,13 +46,42 @@ public abstract class GameObject {
             remove();
         }
     }
+    public void disconnect(String name){
+        ConnectionData connectionData = connections.remove(name);
+        connectionData.other.connections.remove(connectionData.otherName);
+        server.physics.destroyJoint(connectionData.joint);
+
+        HashSet<GameObject> originalObjects = new HashSet<>(this.vehicle.gameObjects);
+        while(!originalObjects.isEmpty()) {
+            HashSet<GameObject> closed = new HashSet<>();
+            HashSet<GameObject> open = new HashSet<>();
+            Vehicle vehicle = new Vehicle();
+            vehicle.setMode(this.vehicle.getMode());
+            GameObject go = originalObjects.iterator().next();
+            originalObjects.remove(go);
+            open.add(go);
+            while(!open.isEmpty()){
+                GameObject nextOpen = open.iterator().next();
+                open.remove(nextOpen);
+                closed.add(nextOpen);
+                originalObjects.remove(nextOpen);
+                nextOpen.vehicle = null;
+                vehicle.add(nextOpen);
+                for(ConnectionData entry : nextOpen.connections.values()){
+                    if(!closed.contains(entry.other)){
+                        open.add(entry.other);
+                    }
+                }
+            }
+        }
+    }
     public boolean collidesWith(Body thisBody, Body other){
         return true;
     }
     public boolean isSideUsed(String name){
         return this.connections.containsKey(name);
     }
-    public void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other){
+    public Joint createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other){
         RevoluteJointDef joint = new RevoluteJointDef();
         joint.bodyA = this.getBaseBody();
         joint.bodyB = other.gameObject.getBaseBody();
@@ -66,7 +94,7 @@ public abstract class GameObject {
         joint.referenceAngle = (float) (Math.round((other.gameObject.getBaseBody().getAngle() - this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
         joint.lowerAngle = 0f;
         joint.upperAngle = 0f;
-        this.server.physics.createJoint(joint);
+        return this.server.physics.createJoint(joint);
     }
     public void requestEditorUI(Player player){
 
@@ -125,8 +153,8 @@ public abstract class GameObject {
     public void createValueConnection(int id, ValueConnection connection){
         this.valueConnections.put(id, connection);
     }
-    public void connect(String id, GameObject gameObject){
-        this.connections.put(id, gameObject);
+    public void connect(String id, GameObject gameObject, String otherId, Joint joint){
+        this.connections.put(id, new ConnectionData(gameObject, otherId, joint));
     }
     public abstract HashMap<String,ConnectionEdge> getConnectionEdges();
     public HashMap<String,GameObjectConnectionEdge> getOpenConnections(){
@@ -176,6 +204,20 @@ public abstract class GameObject {
             body.getFixtureList().forEach(fixture -> fixture.setFilterData(filter));
         });
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameObject that = (GameObject) o;
+        return baseId == that.baseId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(baseId);
+    }
+
     @FunctionalInterface
     public interface GameObjectSpawner<T extends GameObject>{
         T spawn(Vector2 position, Server server);
@@ -203,6 +245,16 @@ public abstract class GameObject {
         }
         public boolean collides(GameObjectConnectionEdge other){
             return this.getPosition().dst(other.getPosition()) < 0.2 && (this.connectionEdge.internal==other.connectionEdge.internal);
+        }
+    }
+    public static class ConnectionData{
+        public final GameObject other;
+        public final String otherName;
+        public final Joint joint;
+        public ConnectionData(GameObject other, String otherName, Joint joint) {
+            this.other = other;
+            this.otherName = otherName;
+            this.joint = joint;
         }
     }
     public static class WeldCandidate{

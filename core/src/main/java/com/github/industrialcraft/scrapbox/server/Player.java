@@ -1,6 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
@@ -97,8 +98,6 @@ public class Player {
                     for(GameObject.WeldCandidate weldCandidate : pinching.getPossibleWelds()){
                         GameObject.GameObjectConnectionEdge go1 = weldCandidate.first;
                         GameObject.GameObjectConnectionEdge go2 = weldCandidate.second;
-                        go1.gameObject.connect(go1.name, go2.gameObject);
-                        go2.gameObject.connect(go2.name, go1.gameObject);
                         if(go2.gameObject instanceof FrameGameObject){
                             GameObject.GameObjectConnectionEdge tmp = go1;
                             go1 = go2;
@@ -107,7 +106,9 @@ public class Player {
                         if(!(go1.gameObject instanceof FrameGameObject)){
                             throw new RuntimeException("one of joined must be frame");
                         }
-                        go2.gameObject.createJoint(go2, go1);
+                        Joint joint = go2.gameObject.createJoint(go2, go1);
+                        go1.gameObject.connect(go1.name, go2.gameObject, go2.name, joint);
+                        go2.gameObject.connect(go2.name, go1.gameObject, go1.name, joint);
                         weldCandidate.second.gameObject.vehicle.add(weldCandidate.first.gameObject);
                     }
                 }
@@ -150,6 +151,11 @@ public class Player {
                 if(gameObject != null){
                     gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
                 }
+            }
+            if(message instanceof DestroyJoint){
+                DestroyJoint destroyJoint = (DestroyJoint) message;
+                GameObject gameObject = server.gameObjects.get(destroyJoint.gameObjectId);
+                gameObject.disconnect(destroyJoint.name);
             }
         }
     }

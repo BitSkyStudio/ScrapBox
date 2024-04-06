@@ -94,7 +94,7 @@ public class ControllerGameObject extends GameObject {
     }
 
     @Override
-    public void createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other) {
+    public Joint createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other) {
         float rotationOffset = (float) (Math.round((other.gameObject.getBaseBody().getAngle()-this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
         Transform transform = other.gameObject.getBaseBody().getTransform();
         this.getBaseBody().setTransform(transform.getPosition(), transform.getRotation()-rotationOffset);
@@ -104,7 +104,7 @@ public class ControllerGameObject extends GameObject {
         joint.localAnchorA.set(new Vector2(0, 0));
         joint.localAnchorB.set(new Vector2(0, 0));
         joint.referenceAngle = rotationOffset;
-        this.server.physics.createJoint(joint);
+        return this.server.physics.createJoint(joint);
     }
 
     @Override

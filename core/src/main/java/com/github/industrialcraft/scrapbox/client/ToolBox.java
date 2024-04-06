@@ -70,6 +70,7 @@ public class ToolBox {
     }
     public void dispose(){
         this.background.dispose();
+        this.tools.forEach(toolType -> toolType.texture.dispose());
     }
     public void addPart(String type, RenderData renderData){
         this.parts.add(new Part(type, renderData));
