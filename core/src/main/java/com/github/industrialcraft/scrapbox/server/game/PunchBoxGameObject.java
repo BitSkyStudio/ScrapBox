@@ -60,7 +60,7 @@ public class PunchBoxGameObject extends GameObject {
         if(thisBody != motor.getBodyA()){
             return true;
         }
-        return other.getUserData() != connections.get("center");
+        return other.getUserData() != connections.get("center").other;
     }
 
     @Override
