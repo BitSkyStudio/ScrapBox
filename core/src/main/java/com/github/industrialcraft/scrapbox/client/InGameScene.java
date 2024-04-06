@@ -283,7 +283,6 @@ public class InGameScene implements IScene {
         if(toolBox.tool == ToolBox.Tool.DeleteJoints){
             batch.begin();
             for(SendConnectionListData.Connection connection1 : connectionsShowcase){
-
                 batch.draw(jointBreakIcon, connection1.position.x * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, connection1.position.y * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, JOINT_BREAK_ICON_SIZE, JOINT_BREAK_ICON_SIZE);
             }
             batch.end();
@@ -346,7 +345,8 @@ public class InGameScene implements IScene {
     }
     @Override
     public void resize(int width, int height) {
-        this.stage.getViewport().update(width, height);
+        this.stage.getViewport().setWorldSize(width, height);
+        this.stage.getViewport().update(width, height, true);
         cameraController.camera.setToOrtho(false, width, height);
         cameraController.camera.position.set(0, 0, 0);
     }

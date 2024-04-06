@@ -21,7 +21,7 @@ public class ClientGameObjectEditor {
         Skin skin = ScrapBox.getInstance().getSkin();
         this.window = new Window("go: "+data.id, skin);
         this.window.padTop(50);
-        window.setPosition(Gdx.input.getX(), Gdx.graphics.getWidth()-Gdx.input.getY());
+        window.setPosition(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY());
         rebuild(data);
     }
     public void rebuild(SetGameObjectEditUIData data){

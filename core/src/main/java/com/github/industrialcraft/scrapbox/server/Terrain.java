@@ -32,10 +32,7 @@ public class Terrain {
         polygonShape.setAsBox(1,1);
         fixtureDef.shape = polygonShape;
         this.body.createFixture(fixtureDef);*/
-        PathsD terrain = new PathsD();
-        terrain.add(Clipper.Ellipse(new PointD(0, 0), 2, 2, 8));
-        terrain.add(Clipper.Ellipse(new PointD(1, 0), 2, 2, 8));
-        this.terrain = Clipper.Union(terrain, FillRule.Positive);
+        this.terrain = new PathsD();
         this.rebuild();
     }
     public void place(PlaceTerrain placeTerrain){
