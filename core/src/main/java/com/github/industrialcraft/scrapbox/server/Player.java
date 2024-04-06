@@ -157,6 +157,15 @@ public class Player {
                 GameObject gameObject = server.gameObjects.get(destroyJoint.gameObjectId);
                 gameObject.disconnect(destroyJoint.name);
             }
+            if(message instanceof RequestControllerState){
+                RequestControllerState requestControllerState = (RequestControllerState) message;
+                GameObject gameObject = server.gameObjects.get(requestControllerState.gameObjectId);
+                if(gameObject instanceof ControllerGameObject){
+                    boolean[] state = new boolean[10];
+                    System.arraycopy(((ControllerGameObject) gameObject).inputs, 0, state, 0, 10);
+                    this.send(new ResponseControllerState(state));
+                }
+            }
         }
     }
     public void disconnect(){

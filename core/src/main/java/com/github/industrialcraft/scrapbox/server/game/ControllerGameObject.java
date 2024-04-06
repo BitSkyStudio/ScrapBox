@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ControllerGameObject extends GameObject {
-    private final boolean[] inputs;
+    public final boolean[] inputs;
     private final ControllerButtonData[] buttonData;
     public ControllerGameObject(Vector2 position, Server server) {
         super(position, server);

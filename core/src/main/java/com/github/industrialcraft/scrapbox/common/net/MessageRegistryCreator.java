@@ -30,6 +30,8 @@ public class MessageRegistryCreator {
         messageRegistry.register(22, EditorUIInput.createDescriptor());
         messageRegistry.register(23, SendConnectionListData.createDescriptor());
         messageRegistry.register(24, DestroyJoint.createDescriptor());
+        messageRegistry.register(25, RequestControllerState.createDescriptor());
+        messageRegistry.register(26, ResponseControllerState.createDescriptor());
         return messageRegistry;
     }
 }

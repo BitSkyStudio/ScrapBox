@@ -49,7 +49,10 @@ public class InGameScene implements IScene {
     private ControllingData controllingData;
     private ArrayList<SendConnectionListData.Connection> connectionsShowcase;
     private Texture jointBreakIcon;
+    private boolean[] controllerState;
+    private Texture controllerButton;
     private static final float JOINT_BREAK_ICON_SIZE = 48;
+    private static final float CONTROLLER_BUTTON_SIZE = 80;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -86,6 +89,8 @@ public class InGameScene implements IScene {
         this.terrainRenderer.addTerrainType("dirt", "dirt.png");
         this.connectionsShowcase = new ArrayList<>();
         this.jointBreakIcon = new Texture("joint_break_icon.png");
+        this.controllerState = new boolean[10];
+        this.controllerButton = new Texture("controller_button.png");
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
@@ -234,11 +239,16 @@ public class InGameScene implements IScene {
                 SendConnectionListData sendConnectionListData = (SendConnectionListData) message;
                 this.connectionsShowcase = sendConnectionListData.connections;
             }
+            if(message instanceof ResponseControllerState){
+                ResponseControllerState responseControllerState = (ResponseControllerState) message;
+                this.controllerState = responseControllerState.state;
+            }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             connection.send(new ToggleGamePaused());
         }
         if(controllingData != null){
+            connection.send(new RequestControllerState(controllingData.controllingId));
             ClientGameObject gameObject = gameObjects.get(controllingData.controllingId);
             if(gameObject == null){
                 cameraController.camera.position.set(controllingData.position.x, controllingData.position.y, 0);
@@ -272,6 +282,20 @@ public class InGameScene implements IScene {
         batch.setProjectionMatrix(uiMatrix);
         toolBox.render(batch);
         batch.end();
+        if(controllingData != null){
+            float realWidth = Gdx.graphics.getWidth()-toolBox.getWidth();
+            float stripWidth = CONTROLLER_BUTTON_SIZE*10 + CONTROLLER_BUTTON_SIZE*9/2;
+            batch.begin();
+            for(int i = 0;i < 10;i++){
+                if(controllerState[i]){
+                    batch.setColor(0.5f, 1, 0.5f, 1);
+                } else {
+                    batch.setColor(0.5f, 0.5f, 0.5f, 1);
+                }
+                batch.draw(controllerButton, (float) (realWidth/2-stripWidth/2+i*CONTROLLER_BUTTON_SIZE*1.5), CONTROLLER_BUTTON_SIZE, CONTROLLER_BUTTON_SIZE, CONTROLLER_BUTTON_SIZE);
+            }
+            batch.end();
+        }
 
         drawObjects(arg0 -> arg0.selected);
 
@@ -362,6 +386,7 @@ public class InGameScene implements IScene {
         toolBox.dispose();
         jointBreakIcon.dispose();
         editors.forEach((integer, editor) -> editor.dispose());
+        controllerButton.dispose();
         for(RenderData renderData : renderDataRegistry.values()){
             renderData.dispose();
         }
