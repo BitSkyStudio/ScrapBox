@@ -87,6 +87,9 @@ public class Server {
         if(type.equals("puncher")){
             return spawnGameObject(position, PunchBoxGameObject::new);
         }
+        if(type.equals("propeller")){
+            return spawnGameObject(position, PropellerGameObject::new);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){

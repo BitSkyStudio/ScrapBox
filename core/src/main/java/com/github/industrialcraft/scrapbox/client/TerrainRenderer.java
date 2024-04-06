@@ -40,6 +40,7 @@ public class TerrainRenderer {
     public void draw(CameraController cameraController){
         this.polygonSpriteBatch.setProjectionMatrix(cameraController.camera.combined.cpy().scl(InGameScene.BOX_TO_PIXELS_RATIO / 16));
         this.polygonSpriteBatch.begin();
+        System.out.println("region count " + this.terrain.size());
         for(PolygonRegion polygonRegion : this.terrain){
             this.polygonSpriteBatch.draw(polygonRegion, 0, 0);
         }
