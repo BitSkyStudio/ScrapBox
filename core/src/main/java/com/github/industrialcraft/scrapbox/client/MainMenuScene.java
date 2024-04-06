@@ -11,16 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.server.Server;
 
-public class MainMenuScene implements IScene {
-    private Stage stage;
+public class MainMenuScene extends StageBasedScreen{
     @Override
     public void create() {
+        super.create();
         Skin skin = ScrapBox.getInstance().getSkin();
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-        Table table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
         TextButton startGameButton = new TextButton("Start Game", skin);
         startGameButton.addListener(new ClickListener(){
             @Override
@@ -41,23 +36,5 @@ public class MainMenuScene implements IScene {
             }
         });
         table.add(serverListButton);
-    }
-
-    @Override
-    public void render() {
-        Gdx.gl.glClearColor(50f / 255f, 50f / 255f, 50f / 255f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act();
-        stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-    }
-
-    @Override
-    public void dispose() {
-        stage.dispose();
     }
 }

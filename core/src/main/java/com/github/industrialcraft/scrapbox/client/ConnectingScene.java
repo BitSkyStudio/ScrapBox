@@ -10,12 +10,9 @@ import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.ClientNetXConnection;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 
-public class ConnectingScene implements IScene {
+public class ConnectingScene extends StageBasedScreen {
     public final IConnection connection;
     public final NetXClient netXClient;
-
-    private Stage stage;
-
     public ConnectingScene(IConnection connection, NetXClient netXClient) {
         this.connection = connection;
         this.netXClient = netXClient;
@@ -23,32 +20,15 @@ public class ConnectingScene implements IScene {
 
     @Override
     public void create() {
+        super.create();
         Skin skin = ScrapBox.getInstance().getSkin();
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-        Table table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
-        Label connectingText = new Label("Connecting", skin);
+        Label connectingText = new Label("Connecting...", skin);
         table.add(connectingText);
     }
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(50f / 255f, 50f / 255f, 50f / 255f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act();
-        stage.draw();
+        super.render();
         ((ClientNetXConnection)connection).waitForConnect();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-    }
-
-    @Override
-    public void dispose() {
-        stage.dispose();
     }
 }

@@ -18,19 +18,13 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class ServerJoinScene implements IScene {
-    private Stage stage;
-    private Table table;
+public class ServerJoinScene extends StageBasedScreen {
     private HashMap<UUID,ServerEntry> entries;
     private LanReceiver receiver;
     @Override
     public void create() {
+        super.create();
         entries = new HashMap<>();
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-        table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
         try {
             receiver = new LanReceiver(InetAddress.getByName("230.1.2.3"), 4321, lanMessage -> {
                 JsonValue json = new JsonReader().parse(lanMessage.getContent());
@@ -43,6 +37,7 @@ public class ServerJoinScene implements IScene {
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
+        reload();
     }
     private void reload(){
         Skin skin = ScrapBox.getInstance().getSkin();
@@ -60,24 +55,19 @@ public class ServerJoinScene implements IScene {
             table.add(button);
             table.row();
         }
-    }
-
-    @Override
-    public void render() {
-        Gdx.gl.glClearColor(50f / 255f, 50f / 255f, 50f / 255f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act();
-        stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
+        TextButton back = new TextButton("Back", skin);
+        back.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ScrapBox.getInstance().setScene(new MainMenuScene());
+            }
+        });
+        table.add(back);
     }
 
     @Override
     public void dispose() {
-        stage.dispose();
+        super.dispose();
         receiver.cancel();
     }
 
