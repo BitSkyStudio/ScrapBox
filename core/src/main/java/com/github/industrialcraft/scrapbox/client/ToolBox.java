@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.scrapbox.common.net.msg.TakeObject;
 
@@ -17,6 +18,8 @@ public class ToolBox {
     private int partScroll;
     public Tool tool;
     public ArrayList<ToolType> tools;
+    private final ArrayList<String> terrainTypes;
+    private int selectedTerrain;
     public ToolBox(InGameScene game) {
         this.game = game;
         this.background = new Texture("toolbox.png");
@@ -28,6 +31,11 @@ public class ToolBox {
         this.tools.add(new ToolType(Tool.DeleteJoints, new Texture("mode_destroy_joint.png")));
         this.tools.add(new ToolType(Tool.TerrainPlace, new Texture("mode_terrain_place.png")));
         this.tools.add(new ToolType(Tool.TerrainDestroy, new Texture("mode_break_terrain.png")));
+        this.selectedTerrain = 0;
+        this.terrainTypes = new ArrayList<>();
+    }
+    public void addTerrainType(String type){
+        this.terrainTypes.add(type);
     }
     public int getWidth() {
         return width;
@@ -36,9 +44,21 @@ public class ToolBox {
         float leftOffset = Gdx.graphics.getWidth()-width;
         batch.draw(background, leftOffset, 0, width, Gdx.graphics.getHeight());
         int toolHeight = width/tools.size();
-        for(int i = 0;i < this.parts.size();i++){
-            Part part = this.parts.get(i);
-            batch.draw(part.renderData.texture, leftOffset, Gdx.graphics.getHeight()-(i+1)*width-partScroll-toolHeight, width, width);
+        if(isTerrainSelectionOpen()){
+            for (int i = 0; i < game.terrainRenderer.textures.size(); i++) {
+                TextureRegion texture = game.terrainRenderer.textures.get(terrainTypes.get(i));
+                if(selectedTerrain == i){
+                    batch.setColor(0.3f, 0.3f, 0.3f, 1);
+                } else {
+                    batch.setColor(0.5f, 0.5f, 0.5f, 1);
+                }
+                batch.draw(texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width, width);
+            }
+        } else {
+            for (int i = 0; i < this.parts.size(); i++) {
+                Part part = this.parts.get(i);
+                batch.draw(part.renderData.texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width, width);
+            }
         }
         for(int i = 0;i < tools.size();i++){
             if(tools.get(i).tool == tool){
@@ -49,21 +69,30 @@ public class ToolBox {
             batch.draw(tools.get(i).texture, leftOffset+toolHeight*i, Gdx.graphics.getHeight()-toolHeight, toolHeight, toolHeight);
         }
     }
+    public boolean isTerrainSelectionOpen(){
+        return tool == Tool.TerrainDestroy || tool == Tool.TerrainPlace;
+    }
     public void click(Vector2 position){
         int toolHeight = width/tools.size();
         if(position.y > Gdx.graphics.getHeight() - toolHeight){
             tool = tools.get((int) ((position.x-(Gdx.graphics.getWidth()-width))/toolHeight)).tool;
             return;
         }
-        if(tool != Tool.Hand){
-            return;
+        float x = ((position.x + width - Gdx.graphics.getWidth()) / width * 2) - 1;
+        float y = (Gdx.graphics.getHeight() - (position.y + partScroll + toolHeight)) / width;
+        if(isTerrainSelectionOpen()){
+            if (this.terrainTypes.size() > (int) y) {
+                this.selectedTerrain = (int) y;
+            }
+        } else {
+            if (this.parts.size() > (int) y) {
+                Part part = this.parts.get((int) y);
+                game.connection.send(new TakeObject(part.type, game.mouseSelector.getWorldMousePosition(), new Vector2(x * part.renderData.width, (((y % 1) * 2) - 1) * part.renderData.height)));
+            }
         }
-        float x = ((position.x+width-Gdx.graphics.getWidth())/width*2)-1;
-        float y = (Gdx.graphics.getHeight()-(position.y + partScroll + toolHeight))/width;
-        if(this.parts.size() > (int)y){
-            Part part = this.parts.get((int)y);
-            game.connection.send(new TakeObject(part.type, game.mouseSelector.getWorldMousePosition(), new Vector2(x*part.renderData.width, (((y%1)*2)-1)*part.renderData.height)));
-        }
+    }
+    public String getSelectedTerrainType(){
+        return this.terrainTypes.get(this.selectedTerrain);
     }
     public boolean isMouseInside(){
         return Gdx.input.getX() > (Gdx.graphics.getWidth()-this.width);

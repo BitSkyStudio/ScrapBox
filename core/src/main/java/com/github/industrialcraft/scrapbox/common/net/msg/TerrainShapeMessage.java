@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class TerrainShapeMessage {
-    public final ArrayList<ArrayList<Vector2>> terrain;
-    public TerrainShapeMessage(ArrayList<ArrayList<Vector2>> terrain) {
+    public final ArrayList<TerrainData> terrain;
+    public TerrainShapeMessage(ArrayList<TerrainData> terrain) {
         this.terrain = terrain;
     }
     public TerrainShapeMessage(DataInputStream stream) throws IOException {
@@ -22,20 +22,29 @@ public class TerrainShapeMessage {
             for(int j = 0;j < length;j++){
                 path.add(new Vector2(stream.readFloat(), stream.readFloat()));
             }
-            this.terrain.add(path);
+            this.terrain.add(new TerrainData(path, stream.readUTF()));
         }
     }
     public void toStream(DataOutputStream stream) throws IOException {
         stream.writeInt(terrain.size());
-        for(ArrayList<Vector2> path : terrain){
-            stream.writeInt(path.size());
-            for(Vector2 point : path){
+        for(TerrainData path : terrain){
+            stream.writeInt(path.points.size());
+            for(Vector2 point : path.points){
                 stream.writeFloat(point.x);
                 stream.writeFloat(point.y);
             }
+            stream.writeUTF(path.type);
         }
     }
     public static MessageRegistry.MessageDescriptor<TerrainShapeMessage> createDescriptor(){
         return new MessageRegistry.MessageDescriptor<>(TerrainShapeMessage.class, TerrainShapeMessage::new, TerrainShapeMessage::toStream);
+    }
+    public static class TerrainData{
+        public final ArrayList<Vector2> points;
+        public final String type;
+        public TerrainData(ArrayList<Vector2> points, String type) {
+            this.points = points;
+            this.type = type;
+        }
     }
 }

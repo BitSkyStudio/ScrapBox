@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TerrainRenderer {
-    private final HashMap<String, TextureRegion> textures;
+    public final HashMap<String, TextureRegion> textures;
     private final PolygonSpriteBatch polygonSpriteBatch;
     private final ArrayList<PolygonRegion> terrain;
     public TerrainRenderer() {
@@ -28,19 +28,18 @@ public class TerrainRenderer {
     }
     public void loadMessage(TerrainShapeMessage message){
         this.terrain.clear();
-        for(ArrayList<Vector2> path : message.terrain){
-            float[] points = new float[path.size()*2];
-            for(int i = 0;i < path.size();i++){
-                points[i*2] = path.get(i).x * 16;
-                points[(i*2)+1] = path.get(i).y * 16;
+        for(TerrainShapeMessage.TerrainData path : message.terrain){
+            float[] points = new float[path.points.size()*2];
+            for(int i = 0;i < path.points.size();i++){
+                points[i*2] = path.points.get(i).x * 16;
+                points[(i*2)+1] = path.points.get(i).y * 16;
             }
-            this.terrain.add(new PolygonRegion(this.textures.get("dirt"), points, new EarClippingTriangulator().computeTriangles(points).toArray()));
+            this.terrain.add(new PolygonRegion(this.textures.get(path.type), points, new EarClippingTriangulator().computeTriangles(points).toArray()));
         }
     }
     public void draw(CameraController cameraController){
         this.polygonSpriteBatch.setProjectionMatrix(cameraController.camera.combined.cpy().scl(InGameScene.BOX_TO_PIXELS_RATIO / 16));
         this.polygonSpriteBatch.begin();
-        System.out.println("region count " + this.terrain.size());
         for(PolygonRegion polygonRegion : this.terrain){
             this.polygonSpriteBatch.draw(polygonRegion, 0, 0);
         }

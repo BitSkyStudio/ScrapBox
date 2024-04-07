@@ -39,8 +39,8 @@ public class PropellerGameObject extends GameObject {
     public void tick() {
         super.tick();
         float value = Math.max(Math.min(getValueOnInput(0),1),0);
-        float angle = (float) (getBaseBody().getAngle()+Math.PI/2);
-        getBaseBody().applyForceToCenter(new Vector2((float) Math.cos(angle), (float) Math.sin(angle)).scl(1000*value), true);
+        float angle = getBaseBody().getAngle();
+        getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(1000*value), true);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class PropellerGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("down", new ConnectionEdge(new Vector2(0, -0.125f), false));
+        edges.put("down", new ConnectionEdge(new Vector2(0, -0.25f), false));
         return edges;
     }
 }
