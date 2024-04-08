@@ -13,11 +13,12 @@ import java.util.HashMap;
 public class FrameGameObject extends GameObject {
     public static final float INSIDE_SIZE = 1-0.09375f*2;
 
-    public FrameGameObject(Vector2 position, Server server) {
-        super(position, server);
+    public FrameGameObject(Vector2 position, float rotation, Server server) {
+        super(position, rotation, server);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
+        bodyDef.angle = rotation;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         Body base = server.physics.createBody(bodyDef);
         FixtureDef fixtureDef = new FixtureDef();
@@ -37,5 +38,10 @@ public class FrameGameObject extends GameObject {
         edges.put("right", new ConnectionEdge(new Vector2(1, 0), false));
         edges.put("center", new ConnectionEdge(new Vector2(0, 0), true));
         return edges;
+    }
+
+    @Override
+    public String getType() {
+        return "frame";
     }
 }

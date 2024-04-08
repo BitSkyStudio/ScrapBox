@@ -1,5 +1,8 @@
 package com.github.industrialcraft.scrapbox.server;
 
+import clipper2.core.PathD;
+import clipper2.core.PathsD;
+import clipper2.core.PointD;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -12,14 +15,20 @@ import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
 import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Server {
+    public static Vector2 GRAVITY = new Vector2(0, -9.81f);
+
     public final ArrayList<Player> players;
     public final HashMap<Integer,GameObject> gameObjects;
     private final ArrayList<GameObject> newGameObjects;
@@ -34,7 +43,7 @@ public class Server {
     public Server() {
         this.uuid = UUID.randomUUID();
         this.players = new ArrayList<>();
-        this.physics = new World(new Vector2(0, -9.81f), true);
+        this.physics = new World(GRAVITY, true);
         this.terrain = new Terrain(this);
         this.gameObjects = new HashMap<>();
         this.newGameObjects = new ArrayList<>();
@@ -66,29 +75,32 @@ public class Server {
         this.addPlayer(new Player(this, new LocalConnection(write, read)));
         return new LocalConnection(read, write);
     }
-    public  <T extends GameObject> T spawnGameObject(Vector2 position, GameObject.GameObjectSpawner<T> spawner){
-        T gameObject = spawner.spawn(position, this);
+    public  <T extends GameObject> T spawnGameObject(Vector2 position, float rotation, GameObject.GameObjectSpawner<T> spawner, UUID uuid){
+        T gameObject = spawner.spawn(position, rotation, this);
+        if(uuid != null){
+            gameObject.uuid = uuid;
+        }
         this.newGameObjects.add(gameObject);
         return gameObject;
     }
-    public GameObject spawnGameObject(Vector2 position, String type){
+    public GameObject spawnGameObject(Vector2 position, float rotation, String type, UUID uuid){
         if(type.equals("frame")){
-            return spawnGameObject(position, FrameGameObject::new);
+            return spawnGameObject(position, rotation, FrameGameObject::new, uuid);
         }
         if(type.equals("wheel")){
-            return spawnGameObject(position, WheelGameObject::new);
+            return spawnGameObject(position, rotation, WheelGameObject::new, uuid);
         }
         if(type.equals("balloon")){
-            return spawnGameObject(position, BalloonGameObject::new);
+            return spawnGameObject(position, rotation, BalloonGameObject::new, uuid);
         }
         if(type.equals("controller")){
-            return spawnGameObject(position, ControllerGameObject::new);
+            return spawnGameObject(position, rotation, ControllerGameObject::new, uuid);
         }
         if(type.equals("puncher")){
-            return spawnGameObject(position, PunchBoxGameObject::new);
+            return spawnGameObject(position, rotation, PunchBoxGameObject::new, uuid);
         }
         if(type.equals("propeller")){
-            return spawnGameObject(position, PropellerGameObject::new);
+            return spawnGameObject(position, rotation, PropellerGameObject::new, uuid);
         }
         throw new IllegalArgumentException("unknown type " + type);
     }
@@ -144,6 +156,45 @@ public class Server {
             }
         }
     }
+    public SaveFile dumpToSaveFile(){
+        SaveFile saveFile = new SaveFile(new HashMap<>(), new ArrayList<>());
+        this.terrain.terrain.forEach((s, pathDS) -> {
+            ArrayList<ArrayList<Vector2>> paths = new ArrayList<>();
+            for(PathD path : pathDS){
+                ArrayList<Vector2> realPath = new ArrayList<>();
+                for(PointD pointD : path){
+                    realPath.add(new Vector2((float) pointD.x, (float) pointD.y));
+                }
+                paths.add(realPath);
+            }
+            saveFile.terrain.put(s, paths);
+        });
+        this.gameObjects.values().forEach(gameObject -> {
+            saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle()));
+        });
+        return saveFile;
+    }
+    public void loadSaveFile(SaveFile saveFile){
+        this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
+        this.gameObjects.clear();
+        this.players.forEach(Player::clearPinched);
+        for(SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects){
+            spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, uuid);
+        }
+        this.terrain.terrain.clear();
+        for(Map.Entry<String, ArrayList<ArrayList<Vector2>>> entry : saveFile.terrain.entrySet()){
+            PathsD paths = new PathsD();
+            for(ArrayList<Vector2> pathsReal : entry.getValue()){
+                PathD path = new PathD();
+                for(Vector2 point : pathsReal){
+                    path.add(new PointD(point.x, point.y));
+                }
+                paths.add(path);
+            }
+            this.terrain.terrain.put(entry.getKey(), paths);
+        }
+        this.terrain.rebuild();
+    }
     public void start(){
         new Thread(() -> {
             while(!stopped){
@@ -165,5 +216,13 @@ public class Server {
     public void stop(){
         this.stopped = true;
         this.networkServer.close();
+        this.physics.dispose();
+        try {
+            FileOutputStream stream = new FileOutputStream("save.sbs");
+            dumpToSaveFile().toStream(new DataOutputStream(stream));
+            stream.close();
+        } catch(IOException exception){
+            System.out.println("couldn't save");
+        }
     }
 }

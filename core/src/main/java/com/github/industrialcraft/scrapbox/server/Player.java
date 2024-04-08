@@ -74,7 +74,7 @@ public class Player {
             }
             if(message instanceof TakeObject){
                 TakeObject takeObject = (TakeObject) message;
-                GameObject gameObject = server.spawnGameObject(takeObject.position, takeObject.type);
+                GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null);
                 gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
                 connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
             }
@@ -175,7 +175,7 @@ public class Player {
     public boolean isDisconnected() {
         return isDisconnected;
     }
-    private void clearPinched(){
+    public void clearPinched(){
         if(pinching != null){
             GameObject gameObject = this.getPinching();
             if(gameObject.vehicle.getMode() == EObjectInteractionMode.Ghost){

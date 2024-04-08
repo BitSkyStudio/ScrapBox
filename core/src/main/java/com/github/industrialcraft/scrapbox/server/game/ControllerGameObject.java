@@ -15,11 +15,12 @@ import java.util.HashMap;
 public class ControllerGameObject extends GameObject {
     public final boolean[] inputs;
     private final ControllerButtonData[] buttonData;
-    public ControllerGameObject(Vector2 position, Server server) {
-        super(position, server);
+    public ControllerGameObject(Vector2 position, float rotation, Server server) {
+        super(position, rotation, server);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
+        bodyDef.angle = rotation;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         Body base = server.physics.createBody(bodyDef);
         FixtureDef fixtureDef = new FixtureDef();
@@ -112,6 +113,11 @@ public class ControllerGameObject extends GameObject {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
         edges.put("center", new ConnectionEdge(new Vector2(0, 0), true));
         return edges;
+    }
+
+    @Override
+    public String getType() {
+        return "controller";
     }
 
     public static class ControllerButtonData{

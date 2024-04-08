@@ -17,11 +17,12 @@ import java.util.HashMap;
 
 public class PunchBoxGameObject extends GameObject {
     private final PrismaticJoint motor;
-    public PunchBoxGameObject(Vector2 position, Server server) {
-        super(position, server);
+    public PunchBoxGameObject(Vector2 position, float rotation, Server server) {
+        super(position, rotation, server);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
+        bodyDef.angle = rotation;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         Body base = server.physics.createBody(bodyDef);
         FixtureDef baseFixtureDef = new FixtureDef();
@@ -52,12 +53,15 @@ public class PunchBoxGameObject extends GameObject {
         prismaticJointDef.maxMotorForce = 1000;
         prismaticJointDef.enableMotor = true;
         this.motor = (PrismaticJoint) this.server.physics.createJoint(prismaticJointDef);
-        this.setBody("puncher", "puncher", puncherBody);
+        this.setBody("puncher", "puncher_box", puncherBody);
     }
 
     @Override
     public boolean collidesWith(Body thisBody, Body other) {
         if(thisBody != motor.getBodyA()){
+            return true;
+        }
+        if(connections.get("center") == null){
             return true;
         }
         return other.getUserData() != connections.get("center").other;
@@ -99,5 +103,10 @@ public class PunchBoxGameObject extends GameObject {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
         edges.put("center", new ConnectionEdge(new Vector2(0, 0), true));
         return edges;
+    }
+
+    @Override
+    public String getType() {
+        return "puncher";
     }
 }

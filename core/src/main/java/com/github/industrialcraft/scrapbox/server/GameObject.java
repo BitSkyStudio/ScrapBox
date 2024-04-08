@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 
+import java.io.DataInputStream;
 import java.util.*;
 
 public abstract class GameObject {
@@ -20,13 +21,16 @@ public abstract class GameObject {
     private HashMap<Integer,ValueConnection> valueConnections;
     public Vehicle vehicle;
     private int baseId;
-    protected GameObject(Vector2 position, Server server){
+    public UUID uuid;
+    private String baseType;
+    protected GameObject(Vector2 position, float rotation, Server server){
         this.server = server;
         this.bodies = new HashMap<>();
         this.isRemoved = false;
         this.connections = new HashMap<>();
         this.valueConnections = new HashMap<>();
         new Vehicle().add(this);
+        this.uuid = UUID.randomUUID();
     }
     public void remove(){
         if(!isRemoved){
@@ -42,7 +46,8 @@ public abstract class GameObject {
         return this.isRemoved;
     }
     public void tick(){
-        if(this.getBaseBody().getPosition().y < -100){
+        float yPosition = this.getBaseBody().getPosition().y;
+        if(yPosition < -100 || yPosition > 1000){
             remove();
         }
     }
@@ -116,6 +121,7 @@ public abstract class GameObject {
         int id = server.clientWorldManager.addBody(this, body, type, base);
         if(base){
             this.baseId = id;
+            this.baseType = type;
         }
     }
     public int getId(){
@@ -218,9 +224,11 @@ public abstract class GameObject {
         return Objects.hash(baseId);
     }
 
+    public abstract String getType();
+
     @FunctionalInterface
     public interface GameObjectSpawner<T extends GameObject>{
-        T spawn(Vector2 position, Server server);
+        T spawn(Vector2 position, float rotation, Server server);
     }
     public static class ConnectionEdge{
         public final Vector2 offset;

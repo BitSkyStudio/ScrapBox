@@ -9,7 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
+import com.github.industrialcraft.scrapbox.server.SaveFile;
 import com.github.industrialcraft.scrapbox.server.Server;
+
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 
 public class MainMenuScene extends StageBasedScreen{
     @Override
@@ -21,6 +25,13 @@ public class MainMenuScene extends StageBasedScreen{
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Server server = new Server();
+                try{
+                    FileInputStream fileInputStream = new FileInputStream("save.sbs");
+                    server.loadSaveFile(new SaveFile(new DataInputStream(fileInputStream)));
+                    fileInputStream.close();
+                } catch(Exception e){
+                    System.out.println("couldn't load");
+                }
                 IConnection connection = server.joinLocalPlayer();
                 server.start();
                 ScrapBox.getInstance().setScene(new InGameScene(connection, server, null));

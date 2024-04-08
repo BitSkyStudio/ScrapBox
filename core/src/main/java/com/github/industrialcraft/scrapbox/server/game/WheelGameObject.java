@@ -18,11 +18,12 @@ import java.util.HashMap;
 
 public class WheelGameObject extends GameObject {
     private final RevoluteJoint motor;
-    public WheelGameObject(Vector2 position, Server server) {
-        super(position, server);
+    public WheelGameObject(Vector2 position, float rotation, Server server) {
+        super(position, rotation, server);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
+        bodyDef.angle = rotation;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         Body base = server.physics.createBody(bodyDef);
         FixtureDef baseFixtureDef = new FixtureDef();
@@ -78,5 +79,10 @@ public class WheelGameObject extends GameObject {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
         edges.put("up", new ConnectionEdge(new Vector2(0, 1), false));
         return edges;
+    }
+
+    @Override
+    public String getType() {
+        return "wheel";
     }
 }

@@ -20,11 +20,12 @@ import java.util.HashMap;
 public class PropellerGameObject extends GameObject {
     public static final float INSIDE_SIZE = 1-0.09375f*2;
 
-    public PropellerGameObject(Vector2 position, Server server) {
-        super(position, server);
+    public PropellerGameObject(Vector2 position, float rotation, Server server) {
+        super(position, rotation, server);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
+        bodyDef.angle = rotation;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         Body base = server.physics.createBody(bodyDef);
         FixtureDef fixtureDef = new FixtureDef();
@@ -57,5 +58,10 @@ public class PropellerGameObject extends GameObject {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
         edges.put("down", new ConnectionEdge(new Vector2(0, -0.25f), false));
         return edges;
+    }
+
+    @Override
+    public String getType() {
+        return "propeller";
     }
 }

@@ -19,7 +19,7 @@ import java.util.*;
 public class Terrain {
     public final Server server;
     public final Body body;
-    private HashMap<String,PathsD> terrain;
+    public HashMap<String,PathsD> terrain;
     public Terrain(Server server) {
         this.server = server;
         this.body = server.physics.createBody(new BodyDef());
