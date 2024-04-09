@@ -98,18 +98,7 @@ public class Player {
                     for(GameObject.WeldCandidate weldCandidate : pinching.getPossibleWelds()){
                         GameObject.GameObjectConnectionEdge go1 = weldCandidate.first;
                         GameObject.GameObjectConnectionEdge go2 = weldCandidate.second;
-                        if(go2.gameObject instanceof FrameGameObject){
-                            GameObject.GameObjectConnectionEdge tmp = go1;
-                            go1 = go2;
-                            go2 = tmp;
-                        }
-                        if(!(go1.gameObject instanceof FrameGameObject)){
-                            throw new RuntimeException("one of joined must be frame");
-                        }
-                        Joint joint = go2.gameObject.createJoint(go2, go1);
-                        go1.gameObject.connect(go1.name, go2.gameObject, go2.name, joint);
-                        go2.gameObject.connect(go2.name, go1.gameObject, go1.name, joint);
-                        weldCandidate.second.gameObject.vehicle.add(weldCandidate.first.gameObject);
+                        server.joinGameObject(go1.gameObject, go1.name, go2.gameObject, go2.name);
                     }
                 }
             }

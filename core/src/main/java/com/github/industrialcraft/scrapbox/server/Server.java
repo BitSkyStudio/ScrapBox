@@ -157,7 +157,7 @@ public class Server {
         }
     }
     public SaveFile dumpToSaveFile(){
-        SaveFile saveFile = new SaveFile(new HashMap<>(), new ArrayList<>());
+        SaveFile saveFile = new SaveFile(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
         this.terrain.terrain.forEach((s, pathDS) -> {
             ArrayList<ArrayList<Vector2>> paths = new ArrayList<>();
             for(PathD path : pathDS){
@@ -171,15 +171,28 @@ public class Server {
         });
         this.gameObjects.values().forEach(gameObject -> {
             saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle()));
+            for(Map.Entry<String, GameObject.ConnectionData> entry : gameObject.connections.entrySet()){
+                if(gameObject.getId() < entry.getValue().other.getId()){
+                    saveFile.savedJoints.add(new SaveFile.SavedJoint(gameObject.uuid, entry.getKey(), entry.getValue().other.uuid, entry.getValue().otherName));
+                }
+            }
         });
         return saveFile;
+    }
+    public GameObject getGameObjectByUUID(UUID uuid){
+        return this.gameObjects.values().stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny().or(() -> this.newGameObjects.stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny()).get();
     }
     public void loadSaveFile(SaveFile saveFile){
         this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
         this.gameObjects.clear();
         this.players.forEach(Player::clearPinched);
         for(SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects){
-            spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, uuid);
+            spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id);
+        }
+        for(SaveFile.SavedJoint joint : saveFile.savedJoints){
+            GameObject first = getGameObjectByUUID(joint.first);
+            GameObject second = getGameObjectByUUID(joint.second);
+            joinGameObject(first, joint.firstName, second, joint.secondName);
         }
         this.terrain.terrain.clear();
         for(Map.Entry<String, ArrayList<ArrayList<Vector2>>> entry : saveFile.terrain.entrySet()){
@@ -194,6 +207,23 @@ public class Server {
             this.terrain.terrain.put(entry.getKey(), paths);
         }
         this.terrain.rebuild();
+    }
+    public void joinGameObject(GameObject first, String firstName, GameObject second, String secondName){
+        if(second instanceof FrameGameObject){
+            GameObject tmpGameObject = first;
+            first = second;
+            second = tmpGameObject;
+            String tmpName = firstName;
+            firstName = secondName;
+            secondName = tmpName;
+        }
+        if(!(first instanceof FrameGameObject)){
+            throw new RuntimeException("one of joined must be frame");
+        }
+        Joint joint = second.createJoint(secondName, first, firstName);
+        first.connect(firstName, second, secondName, joint);
+        second.connect(secondName, first, firstName, joint);
+        first.vehicle.add(second);
     }
     public void start(){
         new Thread(() -> {

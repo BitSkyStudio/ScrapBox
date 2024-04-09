@@ -13,9 +13,11 @@ import java.util.UUID;
 public class SaveFile {
     public final HashMap<String, ArrayList<ArrayList<Vector2>>> terrain;
     public final ArrayList<SavedGameObject> savedGameObjects;
-    public SaveFile(HashMap<String, ArrayList<ArrayList<Vector2>>> terrain, ArrayList<SavedGameObject> savedGameObjects) {
+    public final ArrayList<SavedJoint> savedJoints;
+    public SaveFile(HashMap<String, ArrayList<ArrayList<Vector2>>> terrain, ArrayList<SavedGameObject> savedGameObjects, ArrayList<SavedJoint> savedJoints) {
         this.terrain = terrain;
         this.savedGameObjects = savedGameObjects;
+        this.savedJoints = savedJoints;
     }
     public SaveFile(DataInputStream stream) throws IOException {
         this.terrain = new HashMap<>();
@@ -39,6 +41,11 @@ public class SaveFile {
         for(int i = 0;i < savedGameObjectCount;i++){
             this.savedGameObjects.add(new SavedGameObject(stream));
         }
+        this.savedJoints = new ArrayList<>();
+        int savedJointCount = stream.readInt();
+        for(int i = 0;i < savedJointCount;i++){
+            this.savedJoints.add(new SavedJoint(stream));
+        }
     }
     public void toStream(DataOutputStream stream) throws IOException {
         stream.writeInt(terrain.size());
@@ -56,6 +63,10 @@ public class SaveFile {
         stream.writeInt(savedGameObjects.size());
         for(SavedGameObject gameObject : savedGameObjects){
             gameObject.toStream(stream);
+        }
+        stream.writeInt(savedJoints.size());
+        for(SavedJoint joint : savedJoints){
+            joint.toStream(stream);
         }
     }
     public static class SavedGameObject{
@@ -82,6 +93,32 @@ public class SaveFile {
             stream.writeFloat(position.x);
             stream.writeFloat(position.y);
             stream.writeFloat(rotation);
+        }
+    }
+    public static class SavedJoint{
+        public final UUID first;
+        public final String firstName;
+        public final UUID second;
+        public final String secondName;
+        public SavedJoint(UUID first, String firstName, UUID second, String secondName) {
+            this.first = first;
+            this.firstName = firstName;
+            this.second = second;
+            this.secondName = secondName;
+        }
+        public SavedJoint(DataInputStream stream) throws IOException {
+            this.first = new UUID(stream.readLong(), stream.readLong());
+            this.firstName = stream.readUTF();
+            this.second = new UUID(stream.readLong(), stream.readLong());
+            this.secondName = stream.readUTF();
+        }
+        public void toStream(DataOutputStream stream) throws IOException {
+            stream.writeLong(first.getMostSignificantBits());
+            stream.writeLong(first.getLeastSignificantBits());
+            stream.writeUTF(firstName);
+            stream.writeLong(second.getMostSignificantBits());
+            stream.writeLong(second.getLeastSignificantBits());
+            stream.writeUTF(secondName);
         }
     }
 }

@@ -33,12 +33,12 @@ public class BalloonGameObject extends GameObject {
     }
 
     @Override
-    public Joint createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other) {
+    public Joint createJoint(String thisName, GameObject other, String otherName) {
         DistanceJointDef joint = new DistanceJointDef();
         joint.bodyA = this.getBaseBody();
-        joint.bodyB = other.gameObject.getBaseBody();
-        joint.localAnchorA.set(self.connectionEdge.offset);
-        joint.localAnchorB.set(other.connectionEdge.offset);
+        joint.bodyB = other.getBaseBody();
+        joint.localAnchorA.set(this.getConnectionEdges().get(thisName).offset);
+        joint.localAnchorB.set(other.getConnectionEdges().get(otherName).offset);
         joint.length = 0.5f;
         return this.server.physics.createJoint(joint);
     }

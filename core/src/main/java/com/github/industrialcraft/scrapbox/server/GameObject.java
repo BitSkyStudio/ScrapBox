@@ -86,17 +86,17 @@ public abstract class GameObject {
     public boolean isSideUsed(String name){
         return this.connections.containsKey(name);
     }
-    public Joint createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other){
+    public Joint createJoint(String thisName, GameObject other, String otherName){
         RevoluteJointDef joint = new RevoluteJointDef();
         joint.bodyA = this.getBaseBody();
-        joint.bodyB = other.gameObject.getBaseBody();
-        joint.localAnchorA.set(self.connectionEdge.offset);
-        joint.localAnchorB.set(other.connectionEdge.offset);
+        joint.bodyB = other.getBaseBody();
+        joint.localAnchorA.set(this.getConnectionEdges().get(thisName).offset);
+        joint.localAnchorB.set(other.getConnectionEdges().get(otherName).offset);
         joint.enableLimit = true;
         //System.out.println(weldCandidate.angle);
         //joint.referenceAngle = (float) -weldCandidate.angle;
         //joint.referenceAngle = (float) Math.PI;
-        joint.referenceAngle = (float) (Math.round((other.gameObject.getBaseBody().getAngle() - this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
+        joint.referenceAngle = (float) (Math.round((other.getBaseBody().getAngle() - this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
         joint.lowerAngle = 0f;
         joint.upperAngle = 0f;
         return this.server.physics.createJoint(joint);

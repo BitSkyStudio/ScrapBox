@@ -57,7 +57,8 @@ public class ToolBox {
         } else {
             for (int i = 0; i < this.parts.size(); i++) {
                 Part part = this.parts.get(i);
-                batch.draw(part.renderData.texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width, width);
+                float maxLength = Math.max(part.renderData.width, part.renderData.height);
+                batch.draw(part.renderData.texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width * (part.renderData.width/maxLength), width * (part.renderData.height/maxLength));
             }
         }
         for(int i = 0;i < tools.size();i++){

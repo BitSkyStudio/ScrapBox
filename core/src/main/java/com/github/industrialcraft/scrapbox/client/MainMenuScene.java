@@ -30,6 +30,7 @@ public class MainMenuScene extends StageBasedScreen{
                     server.loadSaveFile(new SaveFile(new DataInputStream(fileInputStream)));
                     fileInputStream.close();
                 } catch(Exception e){
+                    e.printStackTrace();
                     System.out.println("couldn't load");
                 }
                 IConnection connection = server.joinLocalPlayer();

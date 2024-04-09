@@ -75,13 +75,13 @@ public class PunchBoxGameObject extends GameObject {
     }
 
     @Override
-    public Joint createJoint(GameObjectConnectionEdge self, GameObjectConnectionEdge other) {
-        float rotationOffset = (float) (Math.round((other.gameObject.getBaseBody().getAngle()-this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
-        Transform transform = other.gameObject.getBaseBody().getTransform();
+    public Joint createJoint(String thisName, GameObject other, String otherName) {
+        float rotationOffset = (float) (Math.round((other.getBaseBody().getAngle()-this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
+        Transform transform = other.getBaseBody().getTransform();
         this.getBaseBody().setTransform(transform.getPosition(), transform.getRotation()-rotationOffset);
         WeldJointDef joint = new WeldJointDef();
         joint.bodyA = this.getBaseBody();
-        joint.bodyB = other.gameObject.getBaseBody();
+        joint.bodyB = other.getBaseBody();
         joint.localAnchorA.set(new Vector2(0, 0));
         joint.localAnchorB.set(new Vector2(0, 0));
         joint.referenceAngle = rotationOffset;
