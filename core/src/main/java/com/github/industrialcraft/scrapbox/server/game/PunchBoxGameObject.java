@@ -93,7 +93,7 @@ public class PunchBoxGameObject extends GameObject {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
         ArrayList<EditorUIElement> row = new ArrayList<>();
         row.add(new EditorUILabel("speed: "));
-        row.add(new EditorUILink(0, true));
+        row.add(new EditorUILink(0, true, defaultValues.getOrDefault(0, 0f)));
         rows.add(new EditorUIRow(row));
         player.send(new SetGameObjectEditUIData(this.getId(), rows));
     }

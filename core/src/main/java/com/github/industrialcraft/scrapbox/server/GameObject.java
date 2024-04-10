@@ -19,6 +19,7 @@ public abstract class GameObject {
     private boolean isRemoved;
     protected HashMap<String,ConnectionData> connections;
     private HashMap<Integer,ValueConnection> valueConnections;
+    protected HashMap<Integer,Float> defaultValues;
     public Vehicle vehicle;
     private int baseId;
     public UUID uuid;
@@ -29,6 +30,7 @@ public abstract class GameObject {
         this.isRemoved = false;
         this.connections = new HashMap<>();
         this.valueConnections = new HashMap<>();
+        this.defaultValues = new HashMap<>();
         new Vehicle().add(this);
         this.uuid = UUID.randomUUID();
     }
@@ -105,7 +107,11 @@ public abstract class GameObject {
 
     }
     public void handleEditorUIInput(String elementId, String value){
-
+        try{
+            int i = Integer.parseInt(elementId);
+            float valueFloat = Float.parseFloat(value);
+            defaultValues.put(i, valueFloat);
+        } catch (Exception e){}
     }
     public Body getBody(String name){
         return this.bodies.get(name);
@@ -148,11 +154,8 @@ public abstract class GameObject {
     }
     public float getValueOnInput(int id){
         ValueConnection connection = valueConnections.get(id);
-        if(connection == null){
-            return 0;
-        }
-        if(connection.gameObject.isRemoved()){
-            return 0;
+        if(connection == null || connection.gameObject.isRemoved()){
+            return defaultValues.getOrDefault(id, 0f);
         }
         return connection.get();
     }
