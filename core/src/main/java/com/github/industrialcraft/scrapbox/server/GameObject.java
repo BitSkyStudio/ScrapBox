@@ -9,6 +9,8 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 public abstract class GameObject {
@@ -23,7 +25,6 @@ public abstract class GameObject {
     public Vehicle vehicle;
     private int baseId;
     public UUID uuid;
-    private String baseType;
     protected GameObject(Vector2 position, float rotation, Server server){
         this.server = server;
         this.bodies = new HashMap<>();
@@ -33,6 +34,32 @@ public abstract class GameObject {
         this.defaultValues = new HashMap<>();
         new Vehicle().add(this);
         this.uuid = UUID.randomUUID();
+    }
+    public void load(DataInputStream stream) throws IOException{
+        int valueConnectionSize = stream.readInt();
+        valueConnections.clear();
+        for(int i = 0;i < valueConnectionSize;i++){
+            valueConnections.put(stream.readInt(), new ValueConnection(server.getGameObjectByUUID(new UUID(stream.readLong(), stream.readLong())), stream.readInt()));
+        }
+        int defaultValuesSize = stream.readInt();
+        defaultValues.clear();
+        for(int i = 0;i < defaultValuesSize;i++) {
+            defaultValues.put(stream.readInt(), stream.readFloat());
+        }
+    }
+    public void save(DataOutputStream stream) throws IOException {
+        stream.writeInt(valueConnections.size());
+        for(Map.Entry<Integer, ValueConnection> entry : valueConnections.entrySet()){
+            stream.writeInt(entry.getKey());
+            stream.writeLong(entry.getValue().gameObject.uuid.getMostSignificantBits());
+            stream.writeLong(entry.getValue().gameObject.uuid.getLeastSignificantBits());
+            stream.writeInt(entry.getValue().id);
+        }
+        stream.writeInt(defaultValues.size());
+        for(Map.Entry<Integer, Float> entry : defaultValues.entrySet()){
+            stream.writeInt(entry.getKey());
+            stream.writeFloat(entry.getValue());
+        }
     }
     public void remove(){
         if(!isRemoved){
@@ -127,7 +154,6 @@ public abstract class GameObject {
         int id = server.clientWorldManager.addBody(this, body, type, base);
         if(base){
             this.baseId = id;
-            this.baseType = type;
         }
     }
     public int getId(){

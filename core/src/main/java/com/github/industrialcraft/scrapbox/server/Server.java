@@ -15,9 +15,7 @@ import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
 import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -170,7 +168,13 @@ public class Server {
             saveFile.terrain.put(s, paths);
         });
         this.gameObjects.values().forEach(gameObject -> {
-            saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle()));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            try {
+                gameObject.save(new DataOutputStream(outputStream));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle(), outputStream.toByteArray()));
             for(Map.Entry<String, GameObject.ConnectionData> entry : gameObject.connections.entrySet()){
                 if(gameObject.getId() < entry.getValue().other.getId()){
                     saveFile.savedJoints.add(new SaveFile.SavedJoint(gameObject.uuid, entry.getKey(), entry.getValue().other.uuid, entry.getValue().otherName));
@@ -186,8 +190,10 @@ public class Server {
         this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
         this.gameObjects.clear();
         this.players.forEach(Player::clearPinched);
+        HashMap<UUID,byte[]> data = new HashMap<>();
         for(SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects){
             spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id);
+            data.put(gameObject.id, gameObject.data);
         }
         for(SaveFile.SavedJoint joint : saveFile.savedJoints){
             GameObject first = getGameObjectByUUID(joint.first);
@@ -207,6 +213,13 @@ public class Server {
             this.terrain.terrain.put(entry.getKey(), paths);
         }
         this.terrain.rebuild();
+        data.forEach((uuid1, bytes) -> {
+            try {
+                getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
     public void joinGameObject(GameObject first, String firstName, GameObject second, String secondName){
         if(second instanceof FrameGameObject){

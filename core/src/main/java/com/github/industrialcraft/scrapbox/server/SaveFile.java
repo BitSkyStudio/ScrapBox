@@ -74,17 +74,21 @@ public class SaveFile {
         public final UUID id;
         public final Vector2 position;
         public final float rotation;
-        public SavedGameObject(String type, UUID id, Vector2 position, float rotation) {
+        public final byte[] data;
+        public SavedGameObject(String type, UUID id, Vector2 position, float rotation, byte[] data) {
             this.type = type;
             this.id = id;
             this.position = position;
             this.rotation = rotation;
+            this.data = data;
         }
         public SavedGameObject(DataInputStream stream) throws IOException{
             this.type = stream.readUTF();
             this.id = new UUID(stream.readLong(), stream.readLong());
             this.position = new Vector2(stream.readFloat(), stream.readFloat());
             this.rotation = stream.readFloat();
+            int dataLength = stream.readInt();
+            this.data = stream.readNBytes(dataLength);
         }
         public void toStream(DataOutputStream stream) throws IOException{
             stream.writeUTF(type);
@@ -93,6 +97,8 @@ public class SaveFile {
             stream.writeFloat(position.x);
             stream.writeFloat(position.y);
             stream.writeFloat(rotation);
+            stream.writeInt(data.length);
+            stream.write(data);
         }
     }
     public static class SavedJoint{
