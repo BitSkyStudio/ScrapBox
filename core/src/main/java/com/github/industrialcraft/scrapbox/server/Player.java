@@ -58,14 +58,16 @@ public class Player {
             }
             if(message instanceof MouseMoved){
                 MouseMoved mouseMoved = (MouseMoved) message;
-                if(pinching != null){
+                if(pinching != null) {
                     pinching.mouseJoint.setTarget(mouseMoved.position.cpy().sub(pinching.offset));
-                    GameObject gameObject = (GameObject) pinching.mouseJoint.getBodyB().getUserData();
-                    ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
-                    for(GameObject.WeldCandidate weld : gameObject.getPossibleWelds()){
-                        welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition().cpy(), weld.second.getPosition().cpy()));
+                    Object gameObject = pinching.mouseJoint.getBodyB().getUserData();
+                    if (gameObject instanceof GameObject) {
+                        ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
+                        for (GameObject.WeldCandidate weld : ((GameObject) gameObject).getPossibleWelds()) {
+                            welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition().cpy(), weld.second.getPosition().cpy()));
+                        }
+                        this.send(new ShowActivePossibleWelds(welds));
                     }
-                    this.send(new ShowActivePossibleWelds(welds));
                 }
             }
             if(message instanceof TrashObject){

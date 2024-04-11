@@ -39,7 +39,11 @@ public abstract class GameObject {
         int valueConnectionSize = stream.readInt();
         valueConnections.clear();
         for(int i = 0;i < valueConnectionSize;i++){
-            valueConnections.put(stream.readInt(), new ValueConnection(server.getGameObjectByUUID(new UUID(stream.readLong(), stream.readLong())), stream.readInt()));
+            int id = stream.readInt();
+            GameObject gameObject = server.getGameObjectByUUID(new UUID(stream.readLong(), stream.readLong()));
+            int otherId = stream.readInt();
+            if(gameObject != null)
+                valueConnections.put(id, new ValueConnection(gameObject, otherId));
         }
         int defaultValuesSize = stream.readInt();
         defaultValues.clear();
@@ -69,6 +73,9 @@ public abstract class GameObject {
     }
     public void destroy(){
         this.bodies.forEach((s, body) -> server.physics.destroyBody(body));
+        this.connections.forEach((s, connectionData) -> {
+            connectionData.other.connections.remove(connectionData.otherName);
+        });
         this.server.clientWorldManager.removeObject(this);
     }
     public boolean isRemoved(){

@@ -64,7 +64,12 @@ public class Server {
             if(bodyA.getUserData() == null || bodyB.getUserData() == null) {
                 return true;
             }
-            return ((GameObject) bodyA.getUserData()).collidesWith(bodyA, bodyB) && ((GameObject) bodyB.getUserData()).collidesWith(bodyB, bodyA);
+            Object userDataA = bodyA.getUserData();
+            Object userDataB = bodyB.getUserData();
+            if(!(userDataA instanceof GameObject && userDataB instanceof GameObject)){
+                return true;
+            }
+            return ((GameObject) userDataA).collidesWith(bodyA, bodyB) && ((GameObject) userDataB).collidesWith(bodyB, bodyA);
         });
     }
     public LocalConnection joinLocalPlayer(){
@@ -184,7 +189,7 @@ public class Server {
         return saveFile;
     }
     public GameObject getGameObjectByUUID(UUID uuid){
-        return this.gameObjects.values().stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny().or(() -> this.newGameObjects.stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny()).get();
+        return this.gameObjects.values().stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny().or(() -> this.newGameObjects.stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny()).orElse(null);
     }
     public void loadSaveFile(SaveFile saveFile){
         this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());

@@ -53,7 +53,7 @@ public class PunchBoxGameObject extends GameObject {
         prismaticJointDef.maxMotorForce = 1000;
         prismaticJointDef.enableMotor = true;
         this.motor = (PrismaticJoint) this.server.physics.createJoint(prismaticJointDef);
-        this.setBody("puncher", "puncher_box", puncherBody);
+        this.setBody("puncher", "puncher", puncherBody);
     }
 
     @Override
