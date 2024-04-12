@@ -45,7 +45,7 @@ public class PunchBoxGameObject extends GameObject {
         prismaticJointDef.bodyA = puncherBody;
         prismaticJointDef.bodyB = base;
         prismaticJointDef.localAnchorA.set(0, 0);
-        prismaticJointDef.localAnchorA.set(0, 0);
+        prismaticJointDef.localAnchorB.set(0, 0);
         prismaticJointDef.localAxisA.set(0, -1);
         prismaticJointDef.enableLimit = true;
         prismaticJointDef.lowerTranslation = 0;

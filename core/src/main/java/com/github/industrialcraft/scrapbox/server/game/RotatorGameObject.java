@@ -16,9 +16,9 @@ import com.github.industrialcraft.scrapbox.server.Server;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class WheelGameObject extends GameObject {
+public class RotatorGameObject extends GameObject {
     private final RevoluteJoint motor;
-    public WheelGameObject(Vector2 position, float rotation, Server server) {
+    public RotatorGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
 
         BodyDef bodyDef = new BodyDef();
@@ -28,28 +28,31 @@ public class WheelGameObject extends GameObject {
         Body base = server.physics.createBody(bodyDef);
         FixtureDef baseFixtureDef = new FixtureDef();
         PolygonShape baseShape = new PolygonShape();
-        baseShape.set(new Vector2[]{new Vector2(0, 0), new Vector2(1, 1), new Vector2(-1, 1)});
+        baseShape.set(new Vector2[]{new Vector2(0, 0), new Vector2(1, -1), new Vector2(-1, -1)});
         baseFixtureDef.shape = baseShape;
         baseFixtureDef.density = 1F;
         base.createFixture(baseFixtureDef);
-        this.setBody("base", "wheel_join", base);
+        this.setBody("base", "rotator_join", base);
 
 
         Body wheelBody = server.physics.createBody(bodyDef);
         FixtureDef wheelFixtureDef = new FixtureDef();
-        CircleShape wheelShape = new CircleShape();
-        wheelShape.setRadius(0.8f);
+        PolygonShape wheelShape = new PolygonShape();
+        wheelShape.set(new Vector2[]{new Vector2(0, -1), new Vector2(1, 0), new Vector2(-1, 0)});
         wheelFixtureDef.shape = wheelShape;
         wheelFixtureDef.density = 1F;
         wheelBody.createFixture(wheelFixtureDef);
         RevoluteJointDef revoluteJoint = new RevoluteJointDef();
         revoluteJoint.bodyA = wheelBody;
         revoluteJoint.bodyB = base;
-        revoluteJoint.localAnchorA.set(new Vector2(0, 0));
+        revoluteJoint.localAnchorA.set(new Vector2(0, -1));
         revoluteJoint.localAnchorB.set(new Vector2(0, 0));
         revoluteJoint.maxMotorTorque = 100;
+        revoluteJoint.lowerAngle = (float) (-Math.PI/2);
+        revoluteJoint.upperAngle = (float) (Math.PI/2);
+        revoluteJoint.enableLimit = true;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
-        this.setBody("wheel", "wheel", wheelBody);
+        this.setBody("end", "rotator_end", wheelBody);
     }
 
     @Override
@@ -68,7 +71,7 @@ public class WheelGameObject extends GameObject {
     public void requestEditorUI(Player player) {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
         ArrayList<EditorUIElement> row = new ArrayList<>();
-        row.add(new EditorUILabel("speed: "));
+        row.add(new EditorUILabel("angle: "));
         row.add(new EditorUILink(0, true, defaultValues.getOrDefault(0, 0f)));
         rows.add(new EditorUIRow(row));
         player.send(new SetGameObjectEditUIData(this.getId(), rows));
@@ -77,12 +80,12 @@ public class WheelGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("up", new ConnectionEdge(new Vector2(0, 1), false));
+        edges.put("down", new ConnectionEdge(new Vector2(0, -1), false));
         return edges;
     }
 
     @Override
     public String getType() {
-        return "wheel";
+        return "rotator";
     }
 }

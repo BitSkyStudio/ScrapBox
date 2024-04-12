@@ -110,6 +110,9 @@ public class Server {
         if(type.equals("tnt")){
             return spawnGameObject(position, rotation, TntGameObject::new, uuid);
         }
+        if(type.equals("rotator")){
+            return spawnGameObject(position, rotation, RotatorGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
