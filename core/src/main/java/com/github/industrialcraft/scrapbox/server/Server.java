@@ -5,6 +5,7 @@ import clipper2.core.PathsD;
 import clipper2.core.PointD;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.github.industrialcraft.netx.LANBroadcaster;
@@ -12,6 +13,7 @@ import com.github.industrialcraft.netx.NetXServer;
 import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
+import com.github.industrialcraft.scrapbox.common.net.msg.PlaceTerrain;
 import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 
@@ -105,6 +107,9 @@ public class Server {
         if(type.equals("propeller")){
             return spawnGameObject(position, rotation, PropellerGameObject::new, uuid);
         }
+        if(type.equals("tnt")){
+            return spawnGameObject(position, rotation, TntGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
@@ -187,6 +192,19 @@ public class Server {
             }
         });
         return saveFile;
+    }
+    public void createExplosion(Vector2 position, float strength){
+        this.terrain.place(new PlaceTerrain("", position, strength*2));
+        Array<Body> bodies = new Array<>();
+        this.physics.getBodies(bodies);
+        for(Body body : bodies){
+            float power = strength*4 - body.getPosition().dst(position);
+            System.out.println(power);
+            if(power > 0){
+                Vector2 impulse = body.getPosition().sub(position).scl(power * 50);
+                body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
+            }
+        }
     }
     public GameObject getGameObjectByUUID(UUID uuid){
         return this.gameObjects.values().stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny().or(() -> this.newGameObjects.stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny()).orElse(null);

@@ -74,6 +74,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("puncher", new RenderData(new Texture("puncher.png"), 1, 1));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("propeller", new RenderData(new Texture("propeller.png"), 1, 0.25f));
+        renderDataRegistry.put("tnt", new RenderData(new Texture("tnt.png"), 1, 1));
         batch = new ColorfulBatch();
         gameObjects = new HashMap<>();
         debugRendering = false;
@@ -85,6 +86,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("controller", renderDataRegistry.get("controller"));
         this.toolBox.addPart("puncher", renderDataRegistry.get("puncher_box"));
         this.toolBox.addPart("propeller", renderDataRegistry.get("propeller"));
+        this.toolBox.addPart("tnt", renderDataRegistry.get("tnt"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
