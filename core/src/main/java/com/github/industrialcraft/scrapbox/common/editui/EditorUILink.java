@@ -43,7 +43,7 @@ public class EditorUILink extends EditorUIElement{
             image.addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    TextField input = new TextField("", skin);
+                    TextField input = new TextField(defaultValue+"", skin);
                     Dialog dialog = new Dialog("Enter default value", skin, "dialog") {
                         public void result(Object obj) {
                             if(obj instanceof String){

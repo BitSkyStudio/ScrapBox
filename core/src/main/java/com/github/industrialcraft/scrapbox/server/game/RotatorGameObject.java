@@ -51,6 +51,7 @@ public class RotatorGameObject extends GameObject {
         revoluteJoint.lowerAngle = (float) (-Math.PI/2);
         revoluteJoint.upperAngle = (float) (Math.PI/2);
         revoluteJoint.enableLimit = true;
+        revoluteJoint.enableMotor = true;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
         this.setBody("end", "rotator_end", wheelBody);
     }
@@ -58,12 +59,28 @@ public class RotatorGameObject extends GameObject {
     @Override
     public void tick() {
         super.tick();
-        float value = Math.max(Math.min(getValueOnInput(0),1),-1);
-        if(value != 0){
-            motor.enableMotor(true);
-            motor.setMotorSpeed(value*5);
-        } else {
-            motor.enableMotor(false);
+        float value = Math.max(Math.min(getValueOnInput(0),90),-90);
+        motor.setMotorSpeed((float) -(Math.toDegrees(motor.getJointAngle())-value)/10);
+    }
+
+    @Override
+    public Joint createJoint(String thisName, GameObject other, String otherName) {
+        if(thisName.equals("rotator")) {
+            RevoluteJointDef joint = new RevoluteJointDef();
+            joint.bodyA = this.getBody("end");
+            joint.bodyB = other.getBaseBody();
+            joint.localAnchorA.set(new Vector2(0, 0));
+            joint.localAnchorB.set(other.getConnectionEdges().get(otherName).offset);
+            joint.enableLimit = true;
+            //System.out.println(weldCandidate.angle);
+            //joint.referenceAngle = (float) -weldCandidate.angle;
+            //joint.referenceAngle = (float) Math.PI;
+            joint.referenceAngle = (float) (Math.round((other.getBaseBody().getAngle() - this.getBody("end").getAngle())/HALF_PI)*HALF_PI);
+            joint.lowerAngle = 0f;
+            joint.upperAngle = 0f;
+            return this.server.physics.createJoint(joint);
+        } else{
+            return super.createJoint(thisName, other, otherName);
         }
     }
 
@@ -81,6 +98,8 @@ public class RotatorGameObject extends GameObject {
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
         edges.put("down", new ConnectionEdge(new Vector2(0, -1), false));
+        Body rotatorBody = getBody("end");
+        edges.put("rotator", new ConnectionEdge(getBaseBody().getLocalPoint(rotatorBody.getWorldPoint(new Vector2(0, 0))), false));
         return edges;
     }
 
