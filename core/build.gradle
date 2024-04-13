@@ -7,4 +7,5 @@ dependencies {
   implementation 'com.github.micycle1:Clipper2-java:1.2.2'
   implementation 'com.github.tommyettinger:colorful:0.8.5'
   implementation 'com.github.IndustrialCraft:NetX:v1.1.4'
+  implementation 'org.orbisgis:poly2tri-core:0.1.2'
 }

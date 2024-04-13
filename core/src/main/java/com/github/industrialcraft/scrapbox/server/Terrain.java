@@ -75,11 +75,11 @@ public class Terrain {
         //Clipper.SimplifyPaths(this.terrain, 0.5);
         //this.terrain = Clipper.Union(terrain, FillRule.Positive);
 
+
         TerrainShapeMessage terrainShapeMessage = this.createMessage();
         for(Player player : server.players){
             player.send(terrainShapeMessage);
         }
-
         for(PathsD type : this.terrain.values()){
             for(PathD path : type) {
                 ChainShape shape = new ChainShape();
@@ -98,15 +98,21 @@ public class Terrain {
         }
     }
     public TerrainShapeMessage createMessage(){
-        ArrayList<TerrainShapeMessage.TerrainData> terrain = new ArrayList<>();
+        HashMap<String,TerrainShapeMessage.TerrainData> terrain = new HashMap<>();
         for(Map.Entry<String, PathsD> e : this.terrain.entrySet()){
+            TerrainShapeMessage.TerrainData terrainData = new TerrainShapeMessage.TerrainData(new ArrayList<>(), new ArrayList<>());
             for(PathD path : e.getValue()) {
                 ArrayList<Vector2> messagePath = new ArrayList<>();
                 for (PointD point : path) {
                     messagePath.add(new Vector2((float) point.x, (float) point.y));
                 }
-                terrain.add(new TerrainShapeMessage.TerrainData(messagePath, e.getKey()));
+                if(Clipper.IsPositive(path)){
+                    terrainData.terrain.add(new TerrainShapeMessage.TerrainPath(messagePath));
+                } else {
+                    terrainData.holes.add(new TerrainShapeMessage.TerrainPath(messagePath));
+                }
             }
+            terrain.put(e.getKey(), terrainData);
         }
         return new TerrainShapeMessage(terrain);
     }
