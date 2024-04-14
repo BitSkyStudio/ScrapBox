@@ -5,12 +5,8 @@ import clipper2.core.FillRule;
 import clipper2.core.PathD;
 import clipper2.core.PathsD;
 import clipper2.core.PointD;
-import com.badlogic.gdx.math.DelaunayTriangulator;
-import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ShortArray;
 import com.github.industrialcraft.scrapbox.common.net.msg.PlaceTerrain;
 import com.github.industrialcraft.scrapbox.common.net.msg.TerrainShapeMessage;
 
@@ -20,40 +16,39 @@ public class Terrain {
     public final Server server;
     public final Body body;
     public HashMap<String,PathsD> terrain;
+    private boolean dirty;
     public Terrain(Server server) {
         this.server = server;
         this.body = server.physics.createBody(new BodyDef());
-
-        /*FixtureDef fixtureDef = new FixtureDef();
-        PolygonShape polygonShape = new PolygonShape();
-        polygonShape.setAsBox(1,1);
-        fixtureDef.shape = polygonShape;
-        this.body.createFixture(fixtureDef);*/
         this.terrain = new HashMap<>();
-        this.rebuild();
+        this.dirty = true;
     }
     private PathsD getTerrainType(String terrainType){
         return this.terrain.getOrDefault(terrainType, new PathsD());
     }
-    public void place(PlaceTerrain placeTerrain){
+
+    public void placeFromMessage(PlaceTerrain placeTerrain){
         //float resolution = (float) (2*placeTerrain.radius*Math.sin(Math.toRadians(22.5)));
         float resolution = 1f;
-        PointD point = new PointD(Math.floor(placeTerrain.position.x/resolution)*resolution, Math.floor(placeTerrain.position.y/resolution)*resolution);
-        PathD circle = createCircle(new Vector2((float) point.x, (float) point.y), placeTerrain.radius);
-        if(placeTerrain.type.isEmpty()) {
+        Vector2 point = new Vector2((float) (Math.floor(placeTerrain.position.x/resolution)*resolution), (float) (Math.floor(placeTerrain.position.y/resolution)*resolution));
+        place(placeTerrain.type, point, placeTerrain.radius);
+    }
+    public void place(String type, Vector2 position, float radius){
+        PathD circle = createCircle(position, radius);
+        if(type.isEmpty()) {
             this.terrain.replaceAll((k, v) -> Clipper.Difference(this.terrain.get(k), new PathsD(Collections.singletonList(circle)), FillRule.Positive));
         } else {
-            PathsD currentTerrain = getTerrainType(placeTerrain.type);
+            PathsD currentTerrain = getTerrainType(type);
             currentTerrain.add(circle);
             currentTerrain = Clipper.Union(currentTerrain, FillRule.Positive);
             for(Map.Entry<String, PathsD> e : this.terrain.entrySet()){
-                if(!e.getKey().equals(placeTerrain.type)){
+                if(!e.getKey().equals(type)){
                     currentTerrain = Clipper.Difference(currentTerrain, e.getValue(), FillRule.Positive);
                 }
             }
-            this.terrain.put(placeTerrain.type, currentTerrain);
+            this.terrain.put(type, currentTerrain);
         }
-        rebuild();
+        dirty = true;
     }
     private PathD createCircle(Vector2 position, float radius){
         PathD path = new PathD();
@@ -64,7 +59,11 @@ public class Terrain {
         }
         return path;
     }
-    public void rebuild(){
+    public void rebuildIfNeeded(){
+        if(!dirty){
+            return;
+        }
+        dirty = false;
         ArrayList<Fixture> fixtures = new ArrayList<>();
         for(Fixture fixture : this.body.getFixtureList()){
             fixtures.add(fixture);

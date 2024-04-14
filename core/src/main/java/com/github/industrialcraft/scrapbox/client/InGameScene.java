@@ -77,6 +77,8 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("tnt", new RenderData(new Texture("tnt.png"), 1, 1));
         renderDataRegistry.put("rotator_join", new RenderData(new Texture("rotator_join.png"), 1, 1));
         renderDataRegistry.put("rotator_end", new RenderData(new Texture("rotator_end.png"), 1, 1));
+        renderDataRegistry.put("cannon", new RenderData(new Texture("cannon.png"), 1, 1));
+        renderDataRegistry.put("bullet", new RenderData(new Texture("bullet.png"), 0.1f, 0.1f));
         batch = new ColorfulBatch();
         gameObjects = new HashMap<>();
         debugRendering = false;
@@ -90,6 +92,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("propeller", renderDataRegistry.get("propeller"));
         this.toolBox.addPart("tnt", renderDataRegistry.get("tnt"));
         this.toolBox.addPart("rotator", renderDataRegistry.get("rotator_join"));
+        this.toolBox.addPart("cannon", renderDataRegistry.get("cannon"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

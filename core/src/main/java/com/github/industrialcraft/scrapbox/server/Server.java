@@ -63,15 +63,19 @@ public class Server {
             }
             Body bodyA = fixtureA.getBody();
             Body bodyB = fixtureB.getBody();
-            if(bodyA.getUserData() == null || bodyB.getUserData() == null) {
-                return true;
-            }
             Object userDataA = bodyA.getUserData();
             Object userDataB = bodyB.getUserData();
-            if(!(userDataA instanceof GameObject && userDataB instanceof GameObject)){
-                return true;
+            if(userDataA instanceof GameObject){
+                if(!((GameObject) userDataA).collidesWith(bodyA, bodyB)){
+                    return false;
+                }
             }
-            return ((GameObject) userDataA).collidesWith(bodyA, bodyB) && ((GameObject) userDataB).collidesWith(bodyB, bodyA);
+            if(userDataB instanceof GameObject){
+                if(!((GameObject) userDataB).collidesWith(bodyB, bodyA)){
+                    return false;
+                }
+            }
+            return true;
         });
     }
     public LocalConnection joinLocalPlayer(){
@@ -113,6 +117,12 @@ public class Server {
         if(type.equals("rotator")){
             return spawnGameObject(position, rotation, RotatorGameObject::new, uuid);
         }
+        if(type.equals("cannon")){
+            return spawnGameObject(position, rotation, CannonGameObject::new, uuid);
+        }
+        if(type.equals("bullet")){
+            return spawnGameObject(position, rotation, BulletGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
@@ -127,7 +137,15 @@ public class Server {
             this.gameObjects.put(gameObject.getId(), gameObject);
         }
         this.newGameObjects.clear();
-        this.gameObjects.entrySet().removeIf(entry -> entry.getValue().isRemoved());
+        this.gameObjects.entrySet().removeIf(entry -> {
+            if(entry.getValue().isRemoved()){
+                entry.getValue().destroy();
+                return true;
+            } else {
+                return false;
+            }
+        });
+        terrain.rebuildIfNeeded();
         if(!paused) {
             for(GameObject gameObject : this.gameObjects.values()){
                 gameObject.tick();
@@ -197,10 +215,13 @@ public class Server {
         return saveFile;
     }
     public void createExplosion(Vector2 position, float strength){
-        this.terrain.place(new PlaceTerrain("", position, strength*2));
+        this.terrain.place("", position, strength*2);
         Array<Body> bodies = new Array<>();
         this.physics.getBodies(bodies);
         for(Body body : bodies){
+            if(body.getUserData() instanceof BulletGameObject){
+                continue;
+            }
             float power = strength*4 - body.getPosition().dst(position);
             if(power > 0){
                 Vector2 impulse = body.getPosition().sub(position).scl(power * 50);
@@ -237,7 +258,6 @@ public class Server {
             }
             this.terrain.terrain.put(entry.getKey(), paths);
         }
-        this.terrain.rebuild();
         data.forEach((uuid1, bytes) -> {
             try {
                 getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));

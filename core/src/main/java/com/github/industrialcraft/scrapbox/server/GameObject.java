@@ -66,9 +66,6 @@ public abstract class GameObject {
         }
     }
     public void remove(){
-        if(!isRemoved){
-            this.destroy();
-        }
         this.isRemoved = true;
     }
     public void destroy(){

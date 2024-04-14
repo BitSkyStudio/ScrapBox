@@ -1,14 +1,12 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
-import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 
 import java.util.ArrayList;
 
@@ -82,7 +80,7 @@ public class Player {
             }
             if(message instanceof PlaceTerrain){
                 PlaceTerrain placeTerrain = (PlaceTerrain) message;
-                server.terrain.place(placeTerrain);
+                server.terrain.placeFromMessage(placeTerrain);
             }
             if(message instanceof PinchingGhostToggle){
                 GameObject pinching = getPinching();
