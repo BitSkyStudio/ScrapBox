@@ -10,11 +10,13 @@ public class ClientGameObject {
     public Vector2 position;
     public float rotation;
     public EObjectInteractionMode mode;
+    public boolean selectable;
     public boolean selected;
     public ClientGameObject(AddGameObjectMessage message) {
         this.type = message.type;
         this.position = message.position;
         this.rotation = message.rotation;
+        this.selectable = message.selectable;
         this.mode = EObjectInteractionMode.Normal;
         this.selected = false;
     }

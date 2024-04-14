@@ -47,7 +47,7 @@ public class RotatorGameObject extends GameObject {
         revoluteJoint.bodyB = base;
         revoluteJoint.localAnchorA.set(new Vector2(0, -1));
         revoluteJoint.localAnchorB.set(new Vector2(0, 0));
-        revoluteJoint.maxMotorTorque = 100;
+        revoluteJoint.maxMotorTorque = 10000;
         revoluteJoint.lowerAngle = (float) (-Math.PI/2);
         revoluteJoint.upperAngle = (float) (Math.PI/2);
         revoluteJoint.enableLimit = true;

@@ -14,6 +14,9 @@ public class MouseSelector {
         Selection selection = null;
         for(int i : game.gameObjects.keySet()){
             ClientGameObject gameObject = game.gameObjects.get(i);
+            if(!gameObject.selectable){
+                continue;
+            }
             RenderData renderData = game.renderDataRegistry.get(gameObject.type);
             float xDiff = mouse.x - gameObject.position.x;
             float yDiff = mouse.y - gameObject.position.y;

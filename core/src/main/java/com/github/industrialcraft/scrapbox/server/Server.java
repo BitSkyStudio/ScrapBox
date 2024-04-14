@@ -202,7 +202,6 @@ public class Server {
         this.physics.getBodies(bodies);
         for(Body body : bodies){
             float power = strength*4 - body.getPosition().dst(position);
-            System.out.println(power);
             if(power > 0){
                 Vector2 impulse = body.getPosition().sub(position).scl(power * 50);
                 body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
