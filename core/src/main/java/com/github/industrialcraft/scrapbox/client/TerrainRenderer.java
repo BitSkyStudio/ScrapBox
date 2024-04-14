@@ -45,20 +45,15 @@ public class TerrainRenderer {
                 }
                 Poly2Tri.triangulate(polygon);
                 List<DelaunayTriangle> triangles = polygon.getTriangles();
-                int pointIndex = 0;
-                float[] points = new float[triangles.size()*3*2];
-                for(DelaunayTriangle triangle : triangles){
-                    for(TriangulationPoint point : triangle.points) {
-                        points[pointIndex*2] = point.getXf() * TERRAIN_TEXTURE_SIZE;
-                        points[pointIndex*2+1] = point.getYf() * TERRAIN_TEXTURE_SIZE;
-                        pointIndex += 1;
+                short[] vertexIndexes = new short[triangles.size()*3];
+                VertexDeduplicator vertexDeduplicator = new VertexDeduplicator();
+                for(int i = 0;i < triangles.size();i++){
+                    for(int j = 0;j < 3;j++) {
+                        TriangulationPoint point = triangles.get(i).points[j];
+                        vertexIndexes[i*3+j] = vertexDeduplicator.addVertex(new Vector2((float) (point.getX()*TERRAIN_TEXTURE_SIZE), (float) (point.getY()*TERRAIN_TEXTURE_SIZE)));
                     }
                 }
-                short[] vertices = new short[points.length/2];
-                for(int i = 0;i < vertices.length;i++){
-                    vertices[i] = (short) i;
-                }
-                this.terrain.add(new PolygonRegion(this.textures.get(entry.getKey()), points, vertices));
+                this.terrain.add(new PolygonRegion(this.textures.get(entry.getKey()), vertexDeduplicator.listVertices(), vertexIndexes));
             }
         }
     }
@@ -69,5 +64,32 @@ public class TerrainRenderer {
             this.polygonSpriteBatch.draw(polygonRegion, 0, 0);
         }
         this.polygonSpriteBatch.end();
+    }
+
+    public static class VertexDeduplicator{
+        private final ArrayList<Vector2> vertices;
+        private final HashMap<Vector2,Short> duplicates;
+        public VertexDeduplicator(){
+            this.vertices = new ArrayList<>();
+            this.duplicates = new HashMap<>();
+        }
+        public short addVertex(Vector2 position){
+            Short duplicate = this.duplicates.get(position);
+            if(duplicate != null){
+                return duplicate;
+            }
+            short index = (short) vertices.size();
+            vertices.add(position);
+            this.duplicates.put(position, index);
+            return index;
+        }
+        public float[] listVertices(){
+            float[] vertices = new float[this.vertices.size()*2];
+            for(int i = 0;i < this.vertices.size();i++){
+                vertices[i*2] = this.vertices.get(i).x;
+                vertices[i*2 + 1] = this.vertices.get(i).y;
+            }
+            return vertices;
+        }
     }
 }
