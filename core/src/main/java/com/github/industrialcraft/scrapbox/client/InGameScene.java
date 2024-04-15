@@ -315,7 +315,9 @@ public class InGameScene implements IScene {
 
         if(debugRendering && server != null){
             Matrix4 matrix = cameraController.camera.combined.cpy();
-            debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
+            synchronized (server.physics) {
+                debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
+            }
         }
 
         if(toolBox.tool == ToolBox.Tool.DeleteJoints){

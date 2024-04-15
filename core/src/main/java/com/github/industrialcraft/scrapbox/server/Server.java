@@ -286,11 +286,13 @@ public class Server {
     public void start(){
         new Thread(() -> {
             while(!stopped){
-                try {
-                    tick(1f / 20f);
-                } catch(Exception e){
-                    e.printStackTrace();
-                    stop();
+                synchronized (physics) {
+                    try {
+                        tick(1f / 20f);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        stop();
+                    }
                 }
                 tickCount++;
                 try {
