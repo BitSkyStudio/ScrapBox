@@ -26,13 +26,13 @@ public class Terrain {
     }
 
     public void placeFromMessage(PlaceTerrain placeTerrain){
-        //float resolution = (float) (2*placeTerrain.radius*Math.sin(Math.toRadians(22.5)));
-        float resolution = 1f;
-        Vector2 point = new Vector2((float) (Math.floor(placeTerrain.position.x/resolution)*resolution), (float) (Math.floor(placeTerrain.position.y/resolution)*resolution));
-        place(placeTerrain.type, point, placeTerrain.radius);
+        place(placeTerrain.type, placeTerrain.position, placeTerrain.radius);
     }
     public void place(String type, Vector2 position, float radius){
-        PathD circle = createCircle(position, radius);
+        float resolution = radius/2;
+        Vector2 point = new Vector2((float) (Math.floor(position.x/resolution)*resolution), (float) (Math.floor(position.y/resolution)*resolution));
+
+        PathD circle = createCircle(point, radius);
         if(type.isEmpty()) {
             this.terrain.replaceAll((k, v) -> Clipper.Difference(this.terrain.get(k), new PathsD(Collections.singletonList(circle)), FillRule.Positive));
         } else {
@@ -49,11 +49,11 @@ public class Terrain {
         dirty = true;
     }
     private PathD createCircle(Vector2 position, float radius){
+        final Vector2[] positions = new Vector2[]{new Vector2(-1, 2), new Vector2(1, 2), new Vector2(2, 1), new Vector2(2, -1), new Vector2(1, -2), new Vector2(-1, -2), new Vector2(-2, -1), new Vector2(-2, 1)};
         PathD path = new PathD();
         for(int i = 0;i < 8;i++){
-            float k = i + 0.5f;
-            Vector2 offset = new Vector2((float) Math.cos(2*k*Math.PI/8), (float) Math.sin(2*k*Math.PI/8));
-            path.add(new PointD(position.x + offset.x*radius, position.y + offset.y*radius));
+            Vector2 offset = positions[7-i];
+            path.add(new PointD(position.x + offset.x*radius/2, position.y + offset.y*radius/2));
         }
         return path;
     }
