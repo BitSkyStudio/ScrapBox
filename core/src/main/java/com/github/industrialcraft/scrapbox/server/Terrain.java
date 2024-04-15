@@ -1,16 +1,14 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import clipper2.Clipper;
-import clipper2.core.FillRule;
-import clipper2.core.PathD;
-import clipper2.core.PathsD;
-import clipper2.core.PointD;
+import clipper2.core.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.github.industrialcraft.scrapbox.common.net.msg.PlaceTerrain;
 import com.github.industrialcraft.scrapbox.common.net.msg.TerrainShapeMessage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Terrain {
     public final Server server;
@@ -97,22 +95,55 @@ public class Terrain {
         }
     }
     public TerrainShapeMessage createMessage(){
-        HashMap<String,TerrainShapeMessage.TerrainData> terrain = new HashMap<>();
+        HashMap<String,ArrayList<TerrainShapeMessage.TerrainData>> terrain = new HashMap<>();
         for(Map.Entry<String, PathsD> e : this.terrain.entrySet()){
-            TerrainShapeMessage.TerrainData terrainData = new TerrainShapeMessage.TerrainData(new ArrayList<>(), new ArrayList<>());
+            ArrayList<TerrainShapeMessage.TerrainData> terrainDatas = new ArrayList<>();
+            HashMap<RectD,PathD> holes = new HashMap<>();
             for(PathD path : e.getValue()) {
-                ArrayList<Vector2> messagePath = new ArrayList<>();
-                for (PointD point : path) {
-                    messagePath.add(new Vector2((float) point.x, (float) point.y));
-                }
-                if(Clipper.IsPositive(path)){
-                    terrainData.terrain.add(new TerrainShapeMessage.TerrainPath(messagePath));
-                } else {
-                    terrainData.holes.add(new TerrainShapeMessage.TerrainPath(messagePath));
+                if(!Clipper.IsPositive(path)){
+                    holes.put(GetBounds(path), Clipper.ReversePath(path));
                 }
             }
-            terrain.put(e.getKey(), terrainData);
+            for(PathD path : e.getValue()) {
+                if(Clipper.IsPositive(path)){
+                    RectD bounds = GetBounds(path);
+                    PathsD realHoles = new PathsD();
+                    holes.forEach((rectD, pointDS) -> {
+                        if(bounds.Contains(rectD)){
+                            realHoles.add(pointDS);
+                        }
+                    });
+                    Clipper.Union(realHoles, FillRule.Positive);
+                    terrainDatas.add(new TerrainShapeMessage.TerrainData(createTerrainPath(path),new ArrayList<>(realHoles.stream().map(this::createTerrainPath).collect(Collectors.toList()))));
+                }
+            }
+            terrain.put(e.getKey(), terrainDatas);
         }
         return new TerrainShapeMessage(terrain);
+    }
+    private RectD GetBounds(PathD path) {
+        RectD result = new RectD(false);
+        for (PointD pt : path) {
+            if (pt.x < result.left) {
+                result.left = pt.x;
+            }
+            if (pt.x > result.right) {
+                result.right = pt.x;
+            }
+            if (pt.y < result.top) {
+                result.top = pt.y;
+            }
+            if (pt.y > result.bottom) {
+                result.bottom = pt.y;
+            }
+        }
+        return result.left == Double.MAX_VALUE ? new RectD() : result;
+    }
+    private TerrainShapeMessage.TerrainPath createTerrainPath(PathD path){
+        ArrayList<Vector2> messagePath = new ArrayList<>();
+        for (PointD point : path) {
+            messagePath.add(new Vector2((float) point.x, (float) point.y));
+        }
+        return new TerrainShapeMessage.TerrainPath(messagePath);
     }
 }

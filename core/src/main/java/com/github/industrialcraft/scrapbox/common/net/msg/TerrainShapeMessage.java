@@ -11,40 +11,44 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TerrainShapeMessage {
-    public final HashMap<String,TerrainData> terrain;
-    public TerrainShapeMessage(HashMap<String,TerrainData> terrain) {
+    public final HashMap<String,ArrayList<TerrainData>> terrain;
+    public TerrainShapeMessage(HashMap<String,ArrayList<TerrainData>> terrain) {
         this.terrain = terrain;
     }
     public TerrainShapeMessage(DataInputStream stream) throws IOException {
         int count = stream.readInt();
         this.terrain = new HashMap<>();
         for(int i = 0;i < count;i++){
-            this.terrain.put(stream.readUTF(), new TerrainData(stream));
+            String name = stream.readUTF();
+            int count2 = stream.readInt();
+            ArrayList<TerrainData> terrainData = new ArrayList<>();
+            for(int j = 0;j < count2;j++)
+                terrainData.add(new TerrainData(stream));
+            this.terrain.put(name,terrainData);
         }
     }
     public void toStream(DataOutputStream stream) throws IOException {
         stream.writeInt(terrain.size());
-        for(Map.Entry<String, TerrainData> path : terrain.entrySet()){
+        for(Map.Entry<String, ArrayList<TerrainData>> path : terrain.entrySet()){
             stream.writeUTF(path.getKey());
-            path.getValue().toStream(stream);
+            stream.writeInt(path.getValue().size());
+            for (TerrainData terrainData : path.getValue()) {
+                terrainData.toStream(stream);
+            }
         }
     }
     public static MessageRegistry.MessageDescriptor<TerrainShapeMessage> createDescriptor(){
         return new MessageRegistry.MessageDescriptor<>(TerrainShapeMessage.class, TerrainShapeMessage::new, TerrainShapeMessage::toStream);
     }
     public static class TerrainData{
-        public final ArrayList<TerrainPath> terrain;
+        public final TerrainPath terrain;
         public final ArrayList<TerrainPath> holes;
-        public TerrainData(ArrayList<TerrainPath> terrain, ArrayList<TerrainPath> holes) {
+        public TerrainData(TerrainPath terrain, ArrayList<TerrainPath> holes) {
             this.terrain = terrain;
             this.holes = holes;
         }
         public TerrainData(DataInputStream stream) throws IOException {
-            int terrainCount = stream.readInt();
-            this.terrain = new ArrayList<>(terrainCount);
-            for(int i = 0;i < terrainCount;i++){
-                terrain.add(new TerrainPath(stream));
-            }
+            this.terrain = new TerrainPath(stream);
             int holesCount = stream.readInt();
             this.holes = new ArrayList<>(holesCount);
             for(int i = 0;i < holesCount;i++){
@@ -52,10 +56,7 @@ public class TerrainShapeMessage {
             }
         }
         public void toStream(DataOutputStream stream) throws IOException {
-            stream.writeInt(this.terrain.size());
-            for(TerrainPath path : this.terrain){
-                path.toStream(stream);
-            }
+            terrain.toStream(stream);
             stream.writeInt(this.holes.size());
             for(TerrainPath path : this.holes){
                 path.toStream(stream);

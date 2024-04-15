@@ -37,10 +37,10 @@ public class TerrainRenderer {
     }
     public void loadMessage(TerrainShapeMessage message){
         this.terrain.clear();
-        for(Map.Entry<String, TerrainShapeMessage.TerrainData> entry : message.terrain.entrySet()) {
-            for (TerrainShapeMessage.TerrainPath path : entry.getValue().terrain) {
-                org.poly2tri.geometry.polygon.Polygon polygon = new org.poly2tri.geometry.polygon.Polygon(path.points.stream().map(vector2 -> new PolygonPoint(vector2.x, vector2.y)).toArray(PolygonPoint[]::new));
-                for(TerrainShapeMessage.TerrainPath hole : entry.getValue().holes){
+        for(Map.Entry<String, ArrayList<TerrainShapeMessage.TerrainData>> entry : message.terrain.entrySet()) {
+            for (TerrainShapeMessage.TerrainData data : entry.getValue()) {
+                org.poly2tri.geometry.polygon.Polygon polygon = new org.poly2tri.geometry.polygon.Polygon(data.terrain.points.stream().map(vector2 -> new PolygonPoint(vector2.x, vector2.y)).toArray(PolygonPoint[]::new));
+                for(TerrainShapeMessage.TerrainPath hole : data.holes){
                     polygon.addHole(new org.poly2tri.geometry.polygon.Polygon(hole.points.stream().map(vector2 -> new PolygonPoint(vector2.x, vector2.y)).toArray(PolygonPoint[]::new)));
                 }
                 Poly2Tri.triangulate(polygon);
