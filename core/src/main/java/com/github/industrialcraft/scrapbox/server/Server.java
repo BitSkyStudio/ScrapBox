@@ -13,7 +13,6 @@ import com.github.industrialcraft.netx.NetXServer;
 import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
-import com.github.industrialcraft.scrapbox.common.net.msg.PlaceTerrain;
 import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 
@@ -186,7 +185,7 @@ public class Server {
         }
     }
     public SaveFile dumpToSaveFile(){
-        SaveFile saveFile = new SaveFile(new HashMap<>(), new ArrayList<>(), new ArrayList<>());
+        SaveFile saveFile = new SaveFile(new HashMap<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         this.terrain.terrain.forEach((s, pathDS) -> {
             ArrayList<ArrayList<Vector2>> paths = new ArrayList<>();
             for(PathD path : pathDS){
@@ -199,6 +198,9 @@ public class Server {
             saveFile.terrain.put(s, paths);
         });
         this.gameObjects.values().forEach(gameObject -> {
+            if(gameObject == gameObject.vehicle.gameObjects.get(0)){
+                saveFile.savedVehicles.add(gameObject.vehicle.save());
+            }
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             try {
                 gameObject.save(new DataOutputStream(outputStream));
@@ -264,6 +266,10 @@ public class Server {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        });
+        saveFile.savedVehicles.forEach(vehicle -> {
+            GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);
+            gameObject.vehicle.load(vehicle);
         });
     }
     public void joinGameObject(GameObject first, String firstName, GameObject second, String secondName){

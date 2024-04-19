@@ -14,10 +14,12 @@ public class SaveFile {
     public final HashMap<String, ArrayList<ArrayList<Vector2>>> terrain;
     public final ArrayList<SavedGameObject> savedGameObjects;
     public final ArrayList<SavedJoint> savedJoints;
-    public SaveFile(HashMap<String, ArrayList<ArrayList<Vector2>>> terrain, ArrayList<SavedGameObject> savedGameObjects, ArrayList<SavedJoint> savedJoints) {
+    public final ArrayList<SavedVehicle> savedVehicles;
+    public SaveFile(HashMap<String, ArrayList<ArrayList<Vector2>>> terrain, ArrayList<SavedGameObject> savedGameObjects, ArrayList<SavedJoint> savedJoints, ArrayList<SavedVehicle> savedVehicles) {
         this.terrain = terrain;
         this.savedGameObjects = savedGameObjects;
         this.savedJoints = savedJoints;
+        this.savedVehicles = savedVehicles;
     }
     public SaveFile(DataInputStream stream) throws IOException {
         this.terrain = new HashMap<>();
@@ -46,6 +48,11 @@ public class SaveFile {
         for(int i = 0;i < savedJointCount;i++){
             this.savedJoints.add(new SavedJoint(stream));
         }
+        this.savedVehicles = new ArrayList<>();
+        int savedVehicleCount = stream.readInt();
+        for(int i = 0;i < savedVehicleCount;i++){
+            this.savedVehicles.add(new SavedVehicle(stream));
+        }
     }
     public void toStream(DataOutputStream stream) throws IOException {
         stream.writeInt(terrain.size());
@@ -67,6 +74,10 @@ public class SaveFile {
         stream.writeInt(savedJoints.size());
         for(SavedJoint joint : savedJoints){
             joint.toStream(stream);
+        }
+        stream.writeInt(savedVehicles.size());
+        for(SavedVehicle vehicle : savedVehicles){
+            vehicle.toStream(stream);
         }
     }
     public static class SavedGameObject{
@@ -125,6 +136,23 @@ public class SaveFile {
             stream.writeLong(second.getMostSignificantBits());
             stream.writeLong(second.getLeastSignificantBits());
             stream.writeUTF(secondName);
+        }
+    }
+    public static class SavedVehicle {
+        public final UUID firstGameObjectId;
+        public final boolean isStatic;
+        public SavedVehicle(UUID firstGameObjectId, boolean isStatic) {
+            this.firstGameObjectId = firstGameObjectId;
+            this.isStatic = isStatic;
+        }
+        public SavedVehicle(DataInputStream stream) throws IOException {
+            this.firstGameObjectId = new UUID(stream.readLong(), stream.readLong());
+            this.isStatic = stream.readBoolean();
+        }
+        public void toStream(DataOutputStream stream) throws IOException {
+            stream.writeLong(firstGameObjectId.getMostSignificantBits());
+            stream.writeLong(firstGameObjectId.getLeastSignificantBits());
+            stream.writeBoolean(isStatic);
         }
     }
 }

@@ -12,6 +12,12 @@ public class Vehicle {
         this.gameObjects = new ArrayList<>();
         this.mode = EObjectInteractionMode.Normal;
     }
+    public SaveFile.SavedVehicle save(){
+        return new SaveFile.SavedVehicle(gameObjects.get(0).uuid, this.mode == EObjectInteractionMode.Static);
+    }
+    public void load(SaveFile.SavedVehicle vehicle){
+        this.setMode(vehicle.isStatic?EObjectInteractionMode.Static:EObjectInteractionMode.Normal);
+    }
     public void add(GameObject gameObject){
         if(gameObject.vehicle == this){
             return;
