@@ -189,8 +189,15 @@ public abstract class GameObject {
         }
         return connection.get();
     }
+    public boolean isInputFilled(int id){
+        ValueConnection connection = valueConnections.get(id);
+        return !(connection == null || connection.gameObject.isRemoved());
+    }
     public void createValueConnection(int id, ValueConnection connection){
         this.valueConnections.put(id, connection);
+    }
+    public void destroyValueConnection(int id){
+        this.valueConnections.remove(id);
     }
     public void connect(String id, GameObject gameObject, String otherId, Joint joint){
         this.connections.put(id, new ConnectionData(gameObject, otherId, joint));

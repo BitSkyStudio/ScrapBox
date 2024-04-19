@@ -69,7 +69,7 @@ public class WheelGameObject extends GameObject {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
         ArrayList<EditorUIElement> row = new ArrayList<>();
         row.add(new EditorUILabel("speed: "));
-        row.add(new EditorUILink(0, true, defaultValues.getOrDefault(0, 0f)));
+        row.add(new EditorUILink(0, true, defaultValues.getOrDefault(0, 0f), isInputFilled(0)));
         rows.add(new EditorUIRow(row));
         player.send(new SetGameObjectEditUIData(this.getId(), rows));
     }

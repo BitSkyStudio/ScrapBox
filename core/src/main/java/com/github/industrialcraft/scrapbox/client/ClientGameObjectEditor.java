@@ -10,12 +10,14 @@ import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIDat
 public class ClientGameObjectEditor {
     public final int gameObjectID;
     public final Texture linkInput;
+    public final Texture linkInputFilled;
     public final Texture linkOutput;
     public final InGameScene scene;
     public final Window window;
     public ClientGameObjectEditor(int gameObjectID, InGameScene scene, SetGameObjectEditUIData data) {
         this.gameObjectID = gameObjectID;
         this.linkInput = new Texture("link_input.png");
+        this.linkInputFilled = new Texture("link_input_filled.png");
         this.linkOutput = new Texture("link_output.png");
         this.scene = scene;
         Skin skin = ScrapBox.getInstance().getSkin();

@@ -13,10 +13,12 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Predicate;
 import com.github.industrialcraft.netx.NetXClient;
+import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.Server;
@@ -281,19 +283,30 @@ public class InGameScene implements IScene {
         this.terrainRenderer.draw(this.cameraController);
         drawObjects(arg0 -> true);
 
+        stage.act();
+        stage.draw();
+
+        Matrix4 uiMatrix = new Matrix4();
+        uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
         shapeRenderer.setAutoShapeType(true);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for(ShowActivePossibleWelds.PossibleWeld weld: weldShowcase){
             shapeRenderer.setColor(Color.GREEN);
             shapeRenderer.rectLine(weld.first.cpy().scl(BOX_TO_PIXELS_RATIO), weld.second.cpy().scl(BOX_TO_PIXELS_RATIO), 5);
+        }
+        Actor dragging = dragAndDrop.getDragActor();
+        if(dragging != null){
+            shapeRenderer.setProjectionMatrix(uiMatrix);
+            shapeRenderer.setColor(Color.BLACK);
+            Vector2 start = ((EditorUILink.ConnectionData)dragAndDrop.getDragPayload().getObject()).position;
+            shapeRenderer.rectLine(dragging.getX() + dragging.getWidth(), dragging.getY() + dragging.getHeight()/2, start.x, start.y, 3);
         }
         shapeRenderer.end();
 
         batch.begin();
         batch.setColor(0.5f, 0.5f, 0.5f, 1);
-        Matrix4 uiMatrix = new Matrix4();
-        uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.setProjectionMatrix(uiMatrix);
         toolBox.render(batch);
         batch.end();
@@ -328,9 +341,6 @@ public class InGameScene implements IScene {
             }
             batch.end();
         }
-
-        stage.act();
-        stage.draw();
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
             connection.send(new CommitWeld());

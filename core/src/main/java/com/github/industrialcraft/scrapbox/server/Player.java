@@ -1,6 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
@@ -126,6 +127,13 @@ public class Player {
                 GameObject input = server.gameObjects.get(createValueConnection.inputObjectId);
                 GameObject output = server.gameObjects.get(createValueConnection.outputObjectId);
                 input.createValueConnection(createValueConnection.inputId, new GameObject.ValueConnection(output, createValueConnection.outputId));
+                input.requestEditorUI(this);
+            }
+            if(message instanceof DestroyValueConnection){
+                DestroyValueConnection destroyValueConnection = (DestroyValueConnection) message;
+                GameObject input = server.gameObjects.get(destroyValueConnection.inputObjectId);
+                input.destroyValueConnection(destroyValueConnection.inputId);
+                input.requestEditorUI(this);
             }
             if(message instanceof ControllerInput){
                 ControllerInput controllerInput = (ControllerInput) message;
@@ -180,7 +188,11 @@ public class Player {
         if(pinching == null){
             return null;
         }
-        return (GameObject) pinching.mouseJoint.getBodyB().getUserData();
+        Body body = pinching.mouseJoint.getBodyB();
+        if(body == null){
+            return null;
+        }
+        return (GameObject) body.getUserData();
     }
     public void send(Object message){
         this.connection.send(message);

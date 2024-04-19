@@ -66,7 +66,7 @@ public class ControllerGameObject extends GameObject {
             row.add(new EditorUIDropDown("hold"+j, holdSelection, buttonData[i].keep?1:0));
             row.add(new EditorUIInputBox("low"+j, buttonData[i].low+""));
             row.add(new EditorUIInputBox("high"+j, buttonData[i].high+""));
-            row.add(new EditorUILink(i, false, 0f));
+            row.add(new EditorUILink(i, false, 0f, isInputFilled(0)));
             rows.add(new EditorUIRow(row));
         }
         player.send(new SetGameObjectEditUIData(this.getId(), rows));
