@@ -388,8 +388,9 @@ public class InGameScene implements IScene {
     public void resize(int width, int height) {
         this.stage.getViewport().setWorldSize(width, height);
         this.stage.getViewport().update(width, height, true);
+        Vector3 position = cameraController.camera.position.cpy();
         cameraController.camera.setToOrtho(false, width, height);
-        cameraController.camera.position.set(0, 0, 0);
+        cameraController.camera.position.set(position);
     }
     @Override
     public void dispose() {
