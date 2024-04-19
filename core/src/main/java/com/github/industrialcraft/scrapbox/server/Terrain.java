@@ -28,17 +28,15 @@ public class Terrain {
     public void placeFromMessage(PlaceTerrain placeTerrain){
         place(placeTerrain.type, placeTerrain.position, placeTerrain.radius);
     }
-    public void place(String type, Vector2 position, float radius){
-        float resolution = radius/2;
-        Vector2 point = new Vector2((float) (Math.floor(position.x/resolution)*resolution), (float) (Math.floor(position.y/resolution)*resolution));
-
-        PathD circle = createCircle(point, radius);
+    public void place(String type, Vector2 point, float radius){
+        PathD circle = Clipper.Ellipse(new PointD(point.x, point.y), radius, radius, 20);
         if(type.isEmpty()) {
             this.terrain.replaceAll((k, v) -> Clipper.Difference(this.terrain.get(k), new PathsD(Collections.singletonList(circle)), FillRule.Positive));
         } else {
             PathsD currentTerrain = getTerrainType(type);
             currentTerrain.add(circle);
             currentTerrain = Clipper.Union(currentTerrain, FillRule.Positive);
+            currentTerrain = Clipper.SimplifyPaths(currentTerrain, 0.03);
             for(Map.Entry<String, PathsD> e : this.terrain.entrySet()){
                 if(!e.getKey().equals(type)){
                     currentTerrain = Clipper.Difference(currentTerrain, e.getValue(), FillRule.Positive);
@@ -47,15 +45,6 @@ public class Terrain {
             this.terrain.put(type, currentTerrain);
         }
         dirty = true;
-    }
-    private PathD createCircle(Vector2 position, float radius){
-        final Vector2[] positions = new Vector2[]{new Vector2(-1, 2), new Vector2(1, 2), new Vector2(2, 1), new Vector2(2, -1), new Vector2(1, -2), new Vector2(-1, -2), new Vector2(-2, -1), new Vector2(-2, 1)};
-        PathD path = new PathD();
-        for(int i = 0;i < 8;i++){
-            Vector2 offset = positions[7-i];
-            path.add(new PointD(position.x + offset.x*radius/2, position.y + offset.y*radius/2));
-        }
-        return path;
     }
     public void rebuildIfNeeded(){
         if(!dirty){
@@ -69,9 +58,6 @@ public class Terrain {
         for(Fixture fixture : fixtures){
             this.body.destroyFixture(fixture);
         }
-        //Clipper.SimplifyPaths(this.terrain, 0.5);
-        //this.terrain = Clipper.Union(terrain, FillRule.Positive);
-
 
         TerrainShapeMessage terrainShapeMessage = this.createMessage();
         for(Player player : server.players){
