@@ -268,7 +268,8 @@ public class InGameScene implements IScene {
                 cameraController.camera.position.set(controllingData.position.x, controllingData.position.y, 0);
                 controllingData = null;
             } else {
-                cameraController.camera.position.set(gameObject.position.x * BOX_TO_PIXELS_RATIO, gameObject.position.y * BOX_TO_PIXELS_RATIO, 0);
+                Vector2 lerpedPosition = gameObject.getRealPosition();
+                cameraController.camera.position.set(lerpedPosition.x * BOX_TO_PIXELS_RATIO, lerpedPosition.y * BOX_TO_PIXELS_RATIO, 0);
             }
         } else {
             cameraController.tick();
