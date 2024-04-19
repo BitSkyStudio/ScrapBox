@@ -22,12 +22,11 @@ public class ClientGameObjectEditor {
         this.scene = scene;
         Skin skin = ScrapBox.getInstance().getSkin();
         this.window = new Window("go: "+data.id, skin);
-        this.window.padTop(50);
         window.setPosition(Gdx.input.getX(), Gdx.graphics.getHeight()-Gdx.input.getY());
         rebuild(data);
     }
     public void rebuild(SetGameObjectEditUIData data){
-        this.window.clear();
+        this.window.clearChildren();
         Skin skin = ScrapBox.getInstance().getSkin();
         for(int i = 0;i < data.rows.size();i++){
             data.rows.get(i).elements.forEach(editorUIElement -> window.add(editorUIElement.createActor(skin, this)));
