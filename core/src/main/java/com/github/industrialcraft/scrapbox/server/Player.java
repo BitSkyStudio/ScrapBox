@@ -49,7 +49,8 @@ public class Player {
                 mouseJointDef.target.set(gameObject.vehicle.getCenterOfMass());
                 mouseJointDef.maxForce = 10000;
                 mouseJointDef.collideConnected = true;
-                pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), gameObjectPinch.offset);
+                Vector2 offset = gameObject.vehicle.getCenterOfMass().sub(gameObject.getBaseBody().getWorldPoint(gameObjectPinch.offset));
+                pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), offset);
             }
             if(message instanceof GameObjectRelease){
                 clearPinched();
@@ -57,7 +58,7 @@ public class Player {
             if(message instanceof MouseMoved){
                 MouseMoved mouseMoved = (MouseMoved) message;
                 if(pinching != null) {
-                    pinching.mouseJoint.setTarget(mouseMoved.position.cpy().sub(pinching.offset));
+                    pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
                     Object gameObject = pinching.mouseJoint.getBodyB().getUserData();
                     if (gameObject instanceof GameObject) {
                         ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
