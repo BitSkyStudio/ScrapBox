@@ -15,7 +15,7 @@ public class ToolBox {
     private int width;
     private final Texture background;
     private final ArrayList<Part> parts;
-    private int partScroll;
+    private float partScroll;
     public Tool tool;
     public ArrayList<ToolType> tools;
     private final ArrayList<String> terrainTypes;
@@ -41,9 +41,15 @@ public class ToolBox {
         return width;
     }
     public void render(Batch batch){
+
+
         float leftOffset = Gdx.graphics.getWidth()-width;
         batch.draw(background, leftOffset, 0, width, Gdx.graphics.getHeight());
         int toolHeight = width/tools.size();
+
+        float clampedScroll = -Math.max(0, Math.min(-this.partScroll, (parts.size()*width)-Gdx.graphics.getHeight()+toolHeight));
+        this.partScroll -= (partScroll-clampedScroll) * Gdx.graphics.getDeltaTime() * 10;
+
         if(isTerrainSelectionOpen()){
             for (int i = 0; i < game.terrainRenderer.textures.size(); i++) {
                 TextureRegion texture = game.terrainRenderer.textures.get(terrainTypes.get(i));
@@ -106,7 +112,7 @@ public class ToolBox {
         this.parts.add(new Part(type, renderData));
     }
     public void scroll(int value){
-        this.partScroll = Math.max(0, Math.min(value+(this.partScroll*10), (parts.size()*width)-Gdx.graphics.getHeight()));
+        this.partScroll += -value * 40;
     }
     public static class Part{
         public final String type;
