@@ -14,11 +14,13 @@ public class Terrain {
     public final Server server;
     public final Body body;
     public HashMap<String,PathsD> terrain;
+    private final HashMap<String, TerrainType> terrainTypes;
     private boolean dirty;
     public Terrain(Server server) {
         this.server = server;
         this.body = server.physics.createBody(new BodyDef());
         this.terrain = new HashMap<>();
+        this.terrainTypes = new HashMap<>();
         this.dirty = true;
     }
     private PathsD getTerrainType(String terrainType){
@@ -63,8 +65,8 @@ public class Terrain {
         for(Player player : server.players){
             player.send(terrainShapeMessage);
         }
-        for(PathsD type : this.terrain.values()){
-            for(PathD path : type) {
+        for(Map.Entry<String, PathsD> type : this.terrain.entrySet()){
+            for(PathD path : type.getValue()) {
                 ChainShape shape = new ChainShape();
                 ArrayList<Vector2> pathVec = new ArrayList<>();
                 float[] points = new float[path.size() * 2];
@@ -76,6 +78,9 @@ public class Terrain {
                 shape.createLoop(points);
                 FixtureDef fixtureDef = new FixtureDef();
                 fixtureDef.shape = shape;
+                TerrainType terrainType = this.terrainTypes.get(type.getKey());
+                fixtureDef.friction = terrainType.friction;
+                fixtureDef.restitution = terrainType.restitution;
                 body.createFixture(fixtureDef);
             }
         }
@@ -131,5 +136,16 @@ public class Terrain {
             messagePath.add(new Vector2((float) point.x, (float) point.y));
         }
         return new TerrainShapeMessage.TerrainPath(messagePath);
+    }
+    public void registerTerrainType(String name, TerrainType type){
+        this.terrainTypes.put(name, type);
+    }
+    public static class TerrainType {
+        public final float friction;
+        public final float restitution;
+        public TerrainType(float friction, float restitution) {
+            this.friction = friction;
+            this.restitution = restitution;
+        }
     }
 }

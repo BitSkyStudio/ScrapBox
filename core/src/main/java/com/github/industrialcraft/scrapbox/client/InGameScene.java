@@ -100,6 +100,8 @@ public class InGameScene implements IScene {
         this.terrainRenderer = new TerrainRenderer();
         addTerrainType("dirt", "dirt.png");
         addTerrainType("stone", "stone.png");
+        addTerrainType("ice", "ice.png");
+        addTerrainType("slime", "slime.png");
         this.connectionsShowcase = new ArrayList<>();
         this.jointBreakIcon = new Texture("joint_break_icon.png");
         this.controllerState = new boolean[10];

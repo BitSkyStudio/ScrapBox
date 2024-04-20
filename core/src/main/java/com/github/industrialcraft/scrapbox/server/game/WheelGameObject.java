@@ -41,6 +41,7 @@ public class WheelGameObject extends GameObject {
         wheelShape.setRadius(0.8f);
         wheelFixtureDef.shape = wheelShape;
         wheelFixtureDef.density = 1F;
+        wheelFixtureDef.friction = 1;
         wheelBody.createFixture(wheelFixtureDef);
         RevoluteJointDef revoluteJoint = new RevoluteJointDef();
         revoluteJoint.bodyA = wheelBody;
