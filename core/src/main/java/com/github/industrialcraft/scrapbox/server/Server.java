@@ -126,6 +126,9 @@ public class Server {
         if(type.equals("bullet")){
             return spawnGameObject(position, rotation, BulletGameObject::new, uuid);
         }
+        if(type.equals("position_sensor")){
+            return spawnGameObject(position, rotation, PositionSensorGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){

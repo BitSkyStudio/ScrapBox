@@ -41,7 +41,7 @@ public class InGameScene implements IScene {
     public MouseSelector mouseSelector;
     private boolean debugRendering;
     private MouseSelector.Selection selected;
-    private ToolBox toolBox;
+    public ToolBox toolBox;
     private ArrayList<ShowActivePossibleWelds.PossibleWeld> weldShowcase;
     private ShapeRenderer shapeRenderer;
     public TerrainRenderer terrainRenderer;
@@ -65,7 +65,7 @@ public class InGameScene implements IScene {
         this.dragAndDrop = new DragAndDrop();
         stage = new Stage();
         editors = new HashMap<>();
-        cameraController = new CameraController(new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        cameraController = new CameraController(this, new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         debugRenderer = new Box2DDebugRenderer();
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
@@ -81,6 +81,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("rotator_end", new RenderData(new Texture("rotator_end.png"), 1, 1));
         renderDataRegistry.put("cannon", new RenderData(new Texture("cannon.png"), 1, 1));
         renderDataRegistry.put("bullet", new RenderData(new Texture("bullet.png"), 0.1f, 0.1f));
+        renderDataRegistry.put("position_sensor", new RenderData(new Texture("position_sensor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         batch = new ColorfulBatch();
         gameObjects = new HashMap<>();
         debugRendering = false;
@@ -95,6 +96,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("tnt", renderDataRegistry.get("tnt"));
         this.toolBox.addPart("rotator", renderDataRegistry.get("rotator_join"));
         this.toolBox.addPart("cannon", renderDataRegistry.get("cannon"));
+        this.toolBox.addPart("position_sensor", renderDataRegistry.get("position_sensor"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
