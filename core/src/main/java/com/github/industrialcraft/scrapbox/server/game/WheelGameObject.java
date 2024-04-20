@@ -38,7 +38,7 @@ public class WheelGameObject extends GameObject {
         Body wheelBody = server.physics.createBody(bodyDef);
         FixtureDef wheelFixtureDef = new FixtureDef();
         CircleShape wheelShape = new CircleShape();
-        wheelShape.setRadius(0.8f);
+        wheelShape.setRadius(0.95f);
         wheelFixtureDef.shape = wheelShape;
         wheelFixtureDef.density = 1F;
         wheelFixtureDef.friction = 1;

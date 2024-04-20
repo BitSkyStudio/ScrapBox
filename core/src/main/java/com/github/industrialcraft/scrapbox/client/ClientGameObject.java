@@ -17,6 +17,7 @@ public class ClientGameObject {
     public boolean selected;
     public int lastUpdateLength;
     public long lastUpdate;
+    public String animationData;
     public ClientGameObject(AddGameObjectMessage message) {
         this.type = message.type;
         this.lastPosition = message.position;
@@ -28,6 +29,7 @@ public class ClientGameObject {
         this.selected = false;
         this.lastUpdate = System.currentTimeMillis();
         this.lastUpdateLength = 0;
+        this.animationData = message.animation;
     }
     public void move(MoveGameObjectMessage message){
         this.lastPosition = this.position;
@@ -38,6 +40,7 @@ public class ClientGameObject {
         this.selected = message.selected;
         this.lastUpdateLength = (int) (System.currentTimeMillis() - this.lastUpdate);
         this.lastUpdate = System.currentTimeMillis();
+        this.animationData = message.animation;
     }
     private float getProgress(){
         return ((float)(System.currentTimeMillis() - this.lastUpdate))/this.lastUpdateLength;

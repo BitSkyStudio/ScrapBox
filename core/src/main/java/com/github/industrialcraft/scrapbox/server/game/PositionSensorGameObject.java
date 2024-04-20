@@ -1,5 +1,6 @@
 package com.github.industrialcraft.scrapbox.server.game;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
@@ -106,7 +107,10 @@ public class PositionSensorGameObject extends GameObject {
             return position.y;
         }
         if(id == 2){
-            return rotation;
+            float angle = (float) ((Math.toDegrees(-rotation)%360+360)%360);
+            if(angle > 180)
+                angle -= 360;
+            return angle;
         }
 
         throw new RuntimeException("input id doesnt exist");

@@ -266,6 +266,10 @@ public abstract class GameObject {
 
     public abstract String getType();
 
+    public String getAnimationData(){
+        return "";
+    }
+
     @FunctionalInterface
     public interface GameObjectSpawner<T extends GameObject>{
         T spawn(Vector2 position, float rotation, Server server);

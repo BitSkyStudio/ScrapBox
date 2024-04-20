@@ -12,12 +12,14 @@ public class AddGameObjectMessage {
     public final String type;
     public final Vector2 position;
     public final float rotation;
+    public final String animation;
     public final boolean selectable;
-    public AddGameObjectMessage(int id, String type, Vector2 position, float rotation, boolean selectable) {
+    public AddGameObjectMessage(int id, String type, Vector2 position, float rotation, String animation, boolean selectable) {
         this.id = id;
         this.type = type;
         this.position = position;
         this.rotation = rotation;
+        this.animation = animation;
         this.selectable = selectable;
     }
     public AddGameObjectMessage(DataInputStream stream) throws IOException {
@@ -25,6 +27,7 @@ public class AddGameObjectMessage {
         this.type = stream.readUTF();
         this.position = new Vector2(stream.readFloat(), stream.readFloat());
         this.rotation = stream.readFloat();
+        this.animation = stream.readUTF();
         this.selectable = stream.readBoolean();
     }
     public void toStream(DataOutputStream stream) throws IOException {
@@ -33,6 +36,7 @@ public class AddGameObjectMessage {
         stream.writeFloat(position.x);
         stream.writeFloat(position.y);
         stream.writeFloat(rotation);
+        stream.writeUTF(animation);
         stream.writeBoolean(selectable);
     }
     public static MessageRegistry.MessageDescriptor<AddGameObjectMessage> createDescriptor(){

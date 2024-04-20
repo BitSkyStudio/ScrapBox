@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -53,6 +55,7 @@ public class InGameScene implements IScene {
     private Texture jointBreakIcon;
     private boolean[] controllerState;
     private Texture controllerButton;
+    private BitmapFont font;
     private static final float JOINT_BREAK_ICON_SIZE = 48;
     private static final float CONTROLLER_BUTTON_SIZE = 80;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
@@ -63,6 +66,7 @@ public class InGameScene implements IScene {
     @Override
     public void create() {
         this.dragAndDrop = new DragAndDrop();
+        font = new BitmapFont();
         stage = new Stage();
         editors = new HashMap<>();
         cameraController = new CameraController(this, new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -82,6 +86,18 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("cannon", new RenderData(new Texture("cannon.png"), 1, 1));
         renderDataRegistry.put("bullet", new RenderData(new Texture("bullet.png"), 0.1f, 0.1f));
         renderDataRegistry.put("position_sensor", new RenderData(new Texture("position_sensor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
+        renderDataRegistry.put("display", new RenderData(new Texture("display.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (gameObject, batch) -> {
+            Matrix4 mx4Font = new Matrix4();
+            Vector3 translation = new Vector3(gameObject.getRealPosition().x * BOX_TO_PIXELS_RATIO, gameObject.getRealPosition().y * BOX_TO_PIXELS_RATIO, 0);
+            mx4Font.translate(translation).rotateRad(new Vector3(0, 0, 1), gameObject.rotation).translate(translation.cpy().scl(-1));
+            batch.setTransformMatrix(mx4Font);
+            GlyphLayout layout = new GlyphLayout();
+            layout.setText(font, gameObject.animationData);
+            float realWidth = Math.min(layout.width, FrameGameObject.INSIDE_SIZE*2);
+            font.draw(batch, gameObject.animationData, translation.x - layout.width / 2, translation.y);
+            mx4Font.idt();
+            batch.setTransformMatrix(mx4Font);
+        }));
         batch = new ColorfulBatch();
         gameObjects = new HashMap<>();
         debugRendering = false;
@@ -97,6 +113,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("rotator", renderDataRegistry.get("rotator_join"));
         this.toolBox.addPart("cannon", renderDataRegistry.get("cannon"));
         this.toolBox.addPart("position_sensor", renderDataRegistry.get("position_sensor"));
+        this.toolBox.addPart("display", renderDataRegistry.get("display"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
@@ -394,7 +411,11 @@ public class InGameScene implements IScene {
                     batch.setColor(0.5f, 0.5f, 0.5f, 0.7f);
                     break;
             }
-            renderDataRegistry.get(gameObject.type).draw(batch, gameObject);
+            RenderData renderData = renderDataRegistry.get(gameObject.type);
+            renderData.draw(batch, gameObject);
+            if(renderData.customRenderFunction != null){
+                renderData.customRenderFunction.render(gameObject, batch);
+            }
         }
         batch.end();
     }

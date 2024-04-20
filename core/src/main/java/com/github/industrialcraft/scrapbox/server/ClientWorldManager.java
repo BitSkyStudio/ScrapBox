@@ -67,7 +67,7 @@ public class ClientWorldManager {
             this.selectable = selectable;
         }
         public AddGameObjectMessage createAddMessage(){
-            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), selectable);
+            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.getAnimationData(), selectable);
         }
         public MoveGameObjectMessage createMoveMessage(Player player){
             GameObject pinching = player.getPinching();
@@ -77,7 +77,7 @@ public class ClientWorldManager {
                     selected = true;
                 }
             }
-            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.vehicle.getMode(), selected);
+            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.vehicle.getMode(), gameObject.getAnimationData(), selected);
         }
     }
 }

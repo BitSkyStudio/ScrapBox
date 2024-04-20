@@ -2,6 +2,7 @@ package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -10,10 +11,18 @@ public class RenderData {
     public final TextureRegion texture;
     public final float width;
     public final float height;
+    public final CustomRenderFunction customRenderFunction;
     public RenderData(Texture texture, float width, float height) {
         this.texture = new TextureRegion(texture);
         this.width = width;
         this.height = height;
+        this.customRenderFunction = null;
+    }
+    public RenderData(Texture texture, float width, float height, CustomRenderFunction customRenderFunction) {
+        this.texture = new TextureRegion(texture);
+        this.width = width;
+        this.height = height;
+        this.customRenderFunction = customRenderFunction;
     }
     public void draw(Batch batch, ClientGameObject gameObject){
         Vector2 lerpedPosition = gameObject.getRealPosition();
@@ -21,5 +30,10 @@ public class RenderData {
     }
     public void dispose(){
         this.texture.getTexture().dispose();
+    }
+
+    @FunctionalInterface
+    public interface CustomRenderFunction{
+        void render(ClientGameObject gameObject, Batch batch);
     }
 }
