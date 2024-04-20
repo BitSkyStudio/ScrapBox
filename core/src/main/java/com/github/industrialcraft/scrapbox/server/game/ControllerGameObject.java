@@ -9,6 +9,9 @@ import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -51,6 +54,23 @@ public class ControllerGameObject extends GameObject {
             inputs[key] = down;
         }
     }
+
+    @Override
+    public void load(DataInputStream stream) throws IOException {
+        super.load(stream);
+        for(int i = 0;i < 10;i++){
+            buttonData[i] = new ControllerButtonData(stream);
+        }
+    }
+
+    @Override
+    public void save(DataOutputStream stream) throws IOException {
+        super.save(stream);
+        for(ControllerButtonData buttonData : this.buttonData){
+            buttonData.toStream(stream);
+        }
+    }
+
     @Override
     public void requestEditorUI(Player player) {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
@@ -129,6 +149,16 @@ public class ControllerGameObject extends GameObject {
             this.keep = false;
             this.low = 0;
             this.high = 1;
+        }
+        public ControllerButtonData(DataInputStream stream) throws IOException {
+            this.keep = stream.readBoolean();
+            this.low = stream.readFloat();
+            this.high = stream.readFloat();
+        }
+        public void toStream(DataOutputStream stream) throws IOException {
+            stream.writeBoolean(keep);
+            stream.writeFloat(low);
+            stream.writeFloat(high);
         }
     }
 }
