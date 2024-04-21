@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox;
 import com.github.industrialcraft.netx.ClientMessage;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.client.ConnectingScene;
+import com.github.industrialcraft.scrapbox.client.DisconnectedScene;
 import com.github.industrialcraft.scrapbox.client.InGameScene;
 import com.github.industrialcraft.scrapbox.client.ScrapBox;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
@@ -16,7 +17,9 @@ public class ClientNetXConnection implements IConnection {
     }
     @Override
     public void send(Object message) {
-        this.client.send(message);
+        try {
+            this.client.send(message);
+        } catch(Exception e){}
     }
     @Override
     public ArrayList<Object> read() {
@@ -25,6 +28,10 @@ public class ClientNetXConnection implements IConnection {
             @Override
             public void message(NetXClient user, Object msg) {
                 messages.add(msg);
+            }
+            @Override
+            public void disconnect(NetXClient user) {
+                ScrapBox.getInstance().setScene(new DisconnectedScene("connection lost"));
             }
         }));
         return messages;

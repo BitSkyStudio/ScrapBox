@@ -433,7 +433,9 @@ public class InGameScene implements IScene {
             server.stop();
         }
         if(client != null){
-            client.disconnect();
+            try {
+                client.disconnect();
+            } catch(Exception e){}
         }
         batch.dispose();
         toolBox.dispose();
