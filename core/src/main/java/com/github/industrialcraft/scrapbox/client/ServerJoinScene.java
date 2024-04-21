@@ -12,6 +12,7 @@ import com.github.industrialcraft.netx.LanReceiver;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.ClientNetXConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
+import com.github.industrialcraft.scrapbox.common.net.msg.EditorUIInput;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -30,7 +31,7 @@ public class ServerJoinScene extends StageBasedScreen {
                 JsonValue json = new JsonReader().parse(lanMessage.getContent());
                 UUID uuid = UUID.fromString(json.getString("id"));
                 int port = json.getInt("port");
-                entries.put(uuid, new ServerEntry(lanMessage.getAddress().toString(), port));
+                entries.put(uuid, new ServerEntry(lanMessage.getAddress().toString().replaceFirst("/", ""), port));
                 reload();
             });
             receiver.start();
@@ -47,7 +48,7 @@ public class ServerJoinScene extends StageBasedScreen {
             button.addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    NetXClient client = new NetXClient(entry.address.replace("/", ""), entry.port, MessageRegistryCreator.create());
+                    NetXClient client = new NetXClient(entry.address, entry.port, MessageRegistryCreator.create());
                     client.start();
                     ScrapBox.getInstance().setScene(new ConnectingScene(new ClientNetXConnection(client), client));
                 }
@@ -55,6 +56,28 @@ public class ServerJoinScene extends StageBasedScreen {
             table.add(button);
             table.row();
         }
+        TextButton joinIp = new TextButton("Join IP", skin);
+        joinIp.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                TextField input = new TextField("", skin);
+                Dialog dialog = new Dialog("Enter Server IP and Port", skin, "dialog") {
+                    public void result(Object obj) {
+                        if(obj instanceof String){
+                            String[] split = input.getText().split(":");
+                            NetXClient client = new NetXClient(split[0], Integer.parseInt(split[1]), MessageRegistryCreator.create());
+                            client.start();
+                            ScrapBox.getInstance().setScene(new ConnectingScene(new ClientNetXConnection(client), client));
+                        }
+                    }
+                };
+                dialog.button("Cancel");
+                dialog.button("Ok", "");
+                dialog.getContentTable().add(input);
+                dialog.show(stage);
+            }
+        });
+        table.add(joinIp);
         TextButton back = new TextButton("Back", skin);
         back.addListener(new ClickListener(){
             @Override
