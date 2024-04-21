@@ -247,6 +247,9 @@ public class InGameScene implements IScene {
             if(message instanceof DeleteGameObject){
                 DeleteGameObject deleteGameObject = (DeleteGameObject) message;
                 gameObjects.remove(deleteGameObject.id);
+                ClientGameObjectEditor editor = editors.get(deleteGameObject.id);
+                if(editor != null)
+                    closeEditor(editor);
             }
             if(message instanceof TakeObjectResponse){
                 TakeObjectResponse takeObjectResponse = (TakeObjectResponse) message;
