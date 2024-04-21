@@ -328,6 +328,15 @@ public class InGameScene implements IScene {
             shapeRenderer.rectLine(dragging.getX() + dragging.getWidth(), dragging.getY() + dragging.getHeight()/2, start.x, start.y, 3);
         }
         shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        if(toolBox.isTerrainSelectionOpen()){
+            shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
+            shapeRenderer.setColor(Color.BLACK);
+            Vector2 position = mouseSelector.getWorldMousePosition();
+            shapeRenderer.circle(position.x * BOX_TO_PIXELS_RATIO, position.y * BOX_TO_PIXELS_RATIO, 2 * BOX_TO_PIXELS_RATIO);
+        }
+
+        shapeRenderer.end();
 
         batch.begin();
         batch.setColor(0.5f, 0.5f, 0.5f, 1);

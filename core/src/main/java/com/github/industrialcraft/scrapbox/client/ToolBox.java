@@ -1,7 +1,6 @@
 package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -41,8 +40,6 @@ public class ToolBox {
         return width;
     }
     public void render(Batch batch){
-
-
         float leftOffset = Gdx.graphics.getWidth()-width;
         batch.draw(background, leftOffset, 0, width, Gdx.graphics.getHeight());
         int toolHeight = width/tools.size();
@@ -114,6 +111,7 @@ public class ToolBox {
     public void scroll(int value){
         this.partScroll += -value * 40;
     }
+
     public static class Part{
         public final String type;
         public final RenderData renderData;
