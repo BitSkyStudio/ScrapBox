@@ -4,6 +4,8 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
+import java.io.File;
+
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class ScrapBox extends ApplicationAdapter {
     private IScene scene;
@@ -14,6 +16,7 @@ public class ScrapBox extends ApplicationAdapter {
         scene = new MainMenuScene();
         scene.create();
         scene.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        new File("./saves").mkdir();
     }
     @Override
     public void render() {

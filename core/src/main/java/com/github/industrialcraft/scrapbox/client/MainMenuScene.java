@@ -24,18 +24,7 @@ public class MainMenuScene extends StageBasedScreen{
         startGameButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Server server = new Server();
-                try{
-                    FileInputStream fileInputStream = new FileInputStream("save.sbs");
-                    server.loadSaveFile(new SaveFile(new DataInputStream(fileInputStream)));
-                    fileInputStream.close();
-                } catch(Exception e){
-                    e.printStackTrace();
-                    System.out.println("couldn't load");
-                }
-                IConnection connection = server.joinLocalPlayer();
-                server.start();
-                ScrapBox.getInstance().setScene(new InGameScene(connection, server, null));
+                ScrapBox.getInstance().setScene(new WorldJoinScene());
             }
         });
         table.add(startGameButton);

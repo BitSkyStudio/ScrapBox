@@ -39,7 +39,9 @@ public class Server {
     public boolean paused;
     private int tickCount;
     private final UUID uuid;
-    public Server() {
+    public final File saveFile;
+    public Server(File saveFile) {
+        this.saveFile = saveFile;
         this.uuid = UUID.randomUUID();
         this.players = new ArrayList<>();
         this.physics = new World(GRAVITY, true);
@@ -324,7 +326,7 @@ public class Server {
         this.networkServer.close();
         this.physics.dispose();
         try {
-            FileOutputStream stream = new FileOutputStream("save.sbs");
+            FileOutputStream stream = new FileOutputStream(saveFile);
             dumpToSaveFile().toStream(new DataOutputStream(stream));
             stream.close();
         } catch(IOException exception){
