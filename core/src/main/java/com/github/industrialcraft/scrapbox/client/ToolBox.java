@@ -15,6 +15,7 @@ public class ToolBox {
     private final Texture background;
     private final ArrayList<Part> parts;
     private float partScroll;
+    private float terrainScroll;
     public Tool tool;
     public ArrayList<ToolType> tools;
     private final ArrayList<String> terrainTypes;
@@ -43,8 +44,13 @@ public class ToolBox {
         batch.draw(background, leftOffset, 0, width, Gdx.graphics.getHeight());
         int toolHeight = width/tools.size();
 
-        float clampedScroll = -Math.max(0, Math.min(-this.partScroll, (parts.size()*width)-Gdx.graphics.getHeight()+toolHeight));
-        this.partScroll -= (partScroll-clampedScroll) * Gdx.graphics.getDeltaTime() * 10;
+        if(isTerrainSelectionOpen()){
+            float clampedScroll = -Math.max(0, Math.min(-this.terrainScroll, (terrainTypes.size() * width) - Gdx.graphics.getHeight() + toolHeight));
+            this.terrainScroll -= (terrainScroll - clampedScroll) * Gdx.graphics.getDeltaTime() * 10;
+        } else {
+            float clampedScroll = -Math.max(0, Math.min(-this.partScroll, (parts.size() * width) - Gdx.graphics.getHeight() + toolHeight));
+            this.partScroll -= (partScroll - clampedScroll) * Gdx.graphics.getDeltaTime() * 10;
+        }
 
         if(isTerrainSelectionOpen()){
             for (int i = 0; i < game.terrainRenderer.textures.size(); i++) {
@@ -54,7 +60,7 @@ public class ToolBox {
                 } else {
                     batch.setColor(0.5f, 0.5f, 0.5f, 1);
                 }
-                batch.draw(texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width, width);
+                batch.draw(texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - terrainScroll - toolHeight, width, width);
             }
         } else {
             for (int i = 0; i < this.parts.size(); i++) {
@@ -82,7 +88,7 @@ public class ToolBox {
             return;
         }
         float x = ((position.x + width - Gdx.graphics.getWidth()) / width * 2) - 1;
-        float y = (Gdx.graphics.getHeight() - (position.y + partScroll + toolHeight)) / width;
+        float y = (Gdx.graphics.getHeight() - (position.y + (isTerrainSelectionOpen()?terrainScroll:partScroll) + toolHeight)) / width;
         if(isTerrainSelectionOpen()){
             if (this.terrainTypes.size() > (int) y) {
                 this.selectedTerrain = (int) y;
@@ -108,7 +114,11 @@ public class ToolBox {
         this.parts.add(new Part(type, renderData));
     }
     public void scroll(int value){
-        this.partScroll += -value * 40;
+        if(isTerrainSelectionOpen()){
+            this.terrainScroll += -value * 40;
+        } else {
+            this.partScroll += -value * 40;
+        }
     }
 
     public static class Part{
