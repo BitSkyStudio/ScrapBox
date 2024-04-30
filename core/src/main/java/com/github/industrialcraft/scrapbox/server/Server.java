@@ -49,7 +49,6 @@ public class Server {
         this.terrain.registerTerrainType("dirt", new Terrain.TerrainType(2, 0.05f));
         this.terrain.registerTerrainType("stone", new Terrain.TerrainType(1, 0.3f));
         this.terrain.registerTerrainType("ice", new Terrain.TerrainType(0.f, 0.1f));
-        this.terrain.registerTerrainType("slime", new Terrain.TerrainType(2f, 1f));
         this.gameObjects = new HashMap<>();
         this.newGameObjects = new ArrayList<>();
         this.clientWorldManager = new ClientWorldManager(this);

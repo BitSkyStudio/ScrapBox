@@ -117,10 +117,10 @@ public class InGameScene implements IScene {
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
+        addTerrainType("", "terrain_air.png");
         addTerrainType("dirt", "dirt.png");
         addTerrainType("stone", "stone.png");
         addTerrainType("ice", "ice.png");
-        addTerrainType("slime", "slime.png");
         this.connectionsShowcase = new ArrayList<>();
         this.jointBreakIcon = new Texture("joint_break_icon.png");
         this.controllerState = new boolean[10];
@@ -175,6 +175,9 @@ public class InGameScene implements IScene {
                             }
                         }
                     }
+                    if (toolBox.tool == ToolBox.Tool.TerrainModify) {
+                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2));
+                    }
                 } else {
                     toolBox.click(new Vector2(screenX, Gdx.graphics.getHeight()-screenY));
                 }
@@ -198,11 +201,8 @@ public class InGameScene implements IScene {
             @Override
             public boolean touchDragged(int screenX, int screenY, int pointer) {
                 if(!toolBox.isMouseInside()) {
-                    if (toolBox.tool == ToolBox.Tool.TerrainPlace) {
+                    if (toolBox.tool == ToolBox.Tool.TerrainModify) {
                         connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2));
-                    }
-                    if (toolBox.tool == ToolBox.Tool.TerrainDestroy) {
-                        connection.send(new PlaceTerrain("", mouseSelector.getWorldMousePosition(), 2));
                     }
                 }
                 return false;

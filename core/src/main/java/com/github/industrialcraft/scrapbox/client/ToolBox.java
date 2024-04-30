@@ -28,8 +28,7 @@ public class ToolBox {
         this.tools = new ArrayList<>();
         this.tools.add(new ToolType(Tool.Hand, new Texture("mode_hand.png")));
         this.tools.add(new ToolType(Tool.DeleteJoints, new Texture("mode_destroy_joint.png")));
-        this.tools.add(new ToolType(Tool.TerrainPlace, new Texture("mode_terrain_place.png")));
-        this.tools.add(new ToolType(Tool.TerrainDestroy, new Texture("mode_break_terrain.png")));
+        this.tools.add(new ToolType(Tool.TerrainModify, new Texture("mode_terrain_modify.png")));
         this.selectedTerrain = 0;
         this.terrainTypes = new ArrayList<>();
     }
@@ -74,7 +73,7 @@ public class ToolBox {
         }
     }
     public boolean isTerrainSelectionOpen(){
-        return tool == Tool.TerrainDestroy || tool == Tool.TerrainPlace;
+        return tool == Tool.TerrainModify;
     }
     public void click(Vector2 position){
         int toolHeight = width/tools.size();
@@ -131,7 +130,6 @@ public class ToolBox {
     public enum Tool{
         Hand,
         DeleteJoints,
-        TerrainPlace,
-        TerrainDestroy
+        TerrainModify
     }
 }
