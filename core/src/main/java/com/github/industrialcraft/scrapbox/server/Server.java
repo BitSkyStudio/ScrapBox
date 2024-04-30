@@ -4,6 +4,7 @@ import clipper2.core.PathD;
 import clipper2.core.PathsD;
 import clipper2.core.PointD;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
@@ -19,10 +20,7 @@ import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Server {
@@ -40,6 +38,7 @@ public class Server {
     private int tickCount;
     private final UUID uuid;
     public final File saveFile;
+    public final ArrayList<Vector3> scheduledExplosions;
     public Server(File saveFile) {
         this.saveFile = saveFile;
         this.uuid = UUID.randomUUID();
@@ -56,6 +55,7 @@ public class Server {
         this.networkServer.start();
         this.stopped = false;
         this.tickCount = 0;
+        this.scheduledExplosions = new ArrayList<>();
         this.physics.setContactFilter((fixtureA, fixtureB) -> {
             Filter filterA = fixtureA.getFilterData();
             Filter filterB = fixtureB.getFilterData();
@@ -136,6 +136,9 @@ public class Server {
         if(type.equals("math_unit")){
             return spawnGameObject(position, rotation, MathUnitGameObject::new, uuid);
         }
+        if(type.equals("explosion_particle")){
+            return spawnGameObject(position, rotation, ExplosionParticleGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
@@ -164,9 +167,19 @@ public class Server {
                 gameObject.tick();
             }
             for(int i = 0;i < 10;i++) {
-                this.physics.step(deltaTime / 10, 10, 10);
+                this.physics.step(1.35f * deltaTime / 10, 10, 10);
             }
         }
+        for(Vector3 explosion : this.scheduledExplosions){
+            Vector2 position = new Vector2(explosion.x, explosion.y);
+            this.terrain.place("", position, explosion.z*2);
+            Random random = new Random();
+            for(int i = 0;i < 100;i++){
+                ExplosionParticleGameObject go = spawnGameObject(position, 0f, ExplosionParticleGameObject::new, null);
+                go.getBaseBody().applyLinearImpulse(Vector2.Y.cpy().setAngleRad((float) (random.nextFloat()*Math.PI*2f)).scl(explosion.z*10*random.nextFloat()), go.getBaseBody().getWorldCenter(), true);
+            }
+        }
+        this.scheduledExplosions.clear();
         this.clientWorldManager.updatePositions();
         this.players.forEach(Player::tick);
         this.players.removeIf(Player::isDisconnected);
@@ -231,19 +244,7 @@ public class Server {
         return saveFile;
     }
     public void createExplosion(Vector2 position, float strength){
-        this.terrain.place("", position, strength*2);
-        Array<Body> bodies = new Array<>();
-        this.physics.getBodies(bodies);
-        for(Body body : bodies){
-            if(body.getUserData() instanceof BulletGameObject){
-                continue;
-            }
-            float power = strength*4 - body.getPosition().dst(position);
-            if(power > 0){
-                Vector2 impulse = body.getPosition().sub(position).scl(power * 50);
-                body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
-            }
-        }
+        this.scheduledExplosions.add(new Vector3(position.x, position.y, strength));
     }
     public GameObject getGameObjectByUUID(UUID uuid){
         return this.gameObjects.values().stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny().or(() -> this.newGameObjects.stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny()).orElse(null);
@@ -305,10 +306,11 @@ public class Server {
     }
     public void start(){
         new Thread(() -> {
+            long startTime = System.currentTimeMillis();
             while(!stopped){
                 synchronized (physics) {
                     try {
-                        tick(1f / 20f);
+                        tick(1f/20);
                     } catch (Exception e) {
                         e.printStackTrace();
                         stop();
@@ -316,7 +318,9 @@ public class Server {
                 }
                 tickCount++;
                 try {
-                    Thread.sleep(50);
+                    int sleepTime = (int) (tickCount*50-(System.currentTimeMillis()-startTime));
+                    if(sleepTime > 0)
+                        Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
