@@ -133,6 +133,9 @@ public class Server {
         if(type.equals("display")){
             return spawnGameObject(position, rotation, DisplayGameObject::new, uuid);
         }
+        if(type.equals("math_unit")){
+            return spawnGameObject(position, rotation, MathUnitGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){

@@ -84,7 +84,7 @@ public class ToolBox {
     public void click(Vector2 position){
         int toolHeight = width/tools.size();
         if(position.y > Gdx.graphics.getHeight() - toolHeight){
-            tool = tools.get((int) ((position.x-(Gdx.graphics.getWidth()-width))/toolHeight)).tool;
+            tool = tools.get((int) ((position.x-(Gdx.graphics.getWidth()-width)-1)/toolHeight)).tool;
             return;
         }
         float x = ((position.x + width - Gdx.graphics.getWidth()) / width * 2) - 1;

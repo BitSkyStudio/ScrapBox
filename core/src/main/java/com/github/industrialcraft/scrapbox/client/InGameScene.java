@@ -86,6 +86,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("cannon", new RenderData(new Texture("cannon.png"), 1, 1));
         renderDataRegistry.put("bullet", new RenderData(new Texture("bullet.png"), 0.1f, 0.1f));
         renderDataRegistry.put("position_sensor", new RenderData(new Texture("position_sensor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
+        renderDataRegistry.put("math_unit", new RenderData(new Texture("math_unit.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("display", new RenderData(new Texture("display.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (gameObject, batch) -> {
             Matrix4 mx4Font = new Matrix4();
             Vector3 translation = new Vector3(gameObject.getRealPosition().x * BOX_TO_PIXELS_RATIO, gameObject.getRealPosition().y * BOX_TO_PIXELS_RATIO, 0);
@@ -114,6 +115,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("cannon", renderDataRegistry.get("cannon"));
         this.toolBox.addPart("position_sensor", renderDataRegistry.get("position_sensor"));
         this.toolBox.addPart("display", renderDataRegistry.get("display"));
+        this.toolBox.addPart("math_unit", renderDataRegistry.get("math_unit"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
