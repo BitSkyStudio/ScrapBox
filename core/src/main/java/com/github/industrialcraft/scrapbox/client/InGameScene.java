@@ -179,7 +179,7 @@ public class InGameScene implements IScene {
                         }
                     }
                     if (toolBox.tool == ToolBox.Tool.TerrainModify) {
-                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2));
+                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2*toolBox.brushSize));
                     }
                 } else {
                     toolBox.click(new Vector2(screenX, Gdx.graphics.getHeight()-screenY));
@@ -205,7 +205,7 @@ public class InGameScene implements IScene {
             public boolean touchDragged(int screenX, int screenY, int pointer) {
                 if(!toolBox.isMouseInside()) {
                     if (toolBox.tool == ToolBox.Tool.TerrainModify) {
-                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2));
+                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2 * toolBox.brushSize));
                     }
                 }
                 return false;
@@ -216,8 +216,12 @@ public class InGameScene implements IScene {
             }
             @Override
             public boolean scrolled(float amountX, float amountY) {
-                if(selected != null){
-                    connection.send(new PinchingRotate(amountY));
+                if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)){
+                    if(toolBox.isTerrainSelectionOpen()){
+                        toolBox.changeBrushSize(amountY);
+                    } else {
+                        connection.send(new PinchingRotate(amountY));
+                    }
                 } else if(toolBox.isMouseInside()){
                     toolBox.scroll((int) amountY);
                 } else {
@@ -336,7 +340,7 @@ public class InGameScene implements IScene {
             shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
             shapeRenderer.setColor(Color.BLACK);
             Vector2 position = mouseSelector.getWorldMousePosition();
-            shapeRenderer.circle(position.x * BOX_TO_PIXELS_RATIO, position.y * BOX_TO_PIXELS_RATIO, 2 * BOX_TO_PIXELS_RATIO);
+            shapeRenderer.circle(position.x * BOX_TO_PIXELS_RATIO, position.y * BOX_TO_PIXELS_RATIO, toolBox.brushSize * 2 * BOX_TO_PIXELS_RATIO);
         }
 
         shapeRenderer.end();

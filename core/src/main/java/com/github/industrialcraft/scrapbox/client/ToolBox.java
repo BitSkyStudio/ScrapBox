@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.scrapbox.common.net.msg.TakeObject;
 
@@ -20,6 +21,7 @@ public class ToolBox {
     public ArrayList<ToolType> tools;
     private final ArrayList<String> terrainTypes;
     private int selectedTerrain;
+    public float brushSize;
     public ToolBox(InGameScene game) {
         this.game = game;
         this.background = new Texture("toolbox.png");
@@ -32,6 +34,7 @@ public class ToolBox {
         this.tools.add(new ToolType(Tool.TerrainModify, new Texture("mode_terrain_modify.png")));
         this.selectedTerrain = 0;
         this.terrainTypes = new ArrayList<>();
+        this.brushSize = 1;
     }
     public void addTerrainType(String type){
         this.terrainTypes.add(type);
@@ -99,6 +102,9 @@ public class ToolBox {
                 game.connection.send(new TakeObject(part.type, game.mouseSelector.getWorldMousePosition(), new Vector2(x * part.renderData.width, (((y % 1) * 2) - 1) * part.renderData.height)));
             }
         }
+    }
+    public void changeBrushSize(float amount){
+        this.brushSize = (float) MathUtils.clamp(this.brushSize+(amount/10f), .025, 5);
     }
     public String getSelectedTerrainType(){
         return this.terrainTypes.get(this.selectedTerrain);
