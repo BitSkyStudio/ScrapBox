@@ -56,6 +56,7 @@ public class Server {
         this.stopped = false;
         this.tickCount = 0;
         this.scheduledExplosions = new ArrayList<>();
+        this.paused = false;
         this.physics.setContactFilter((fixtureA, fixtureB) -> {
             Filter filterA = fixtureA.getFilterData();
             Filter filterB = fixtureB.getFilterData();
@@ -166,8 +167,8 @@ public class Server {
             for(GameObject gameObject : this.gameObjects.values()){
                 gameObject.tick();
             }
-            for(int i = 0;i < 10;i++) {
-                this.physics.step(1.35f * deltaTime / 10, 10, 10);
+            for(int i = 0;i < 20;i++) {
+                this.physics.step(1.35f * deltaTime / 20, 20, 20);
             }
         }
         for(Vector3 explosion : this.scheduledExplosions){

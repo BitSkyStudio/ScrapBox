@@ -39,7 +39,7 @@ public class PropellerGameObject extends GameObject {
     @Override
     public void tick() {
         super.tick();
-        float value = Math.max(Math.min(getValueOnInput(0),1),0);
+        float value = Math.max(Math.min(getValueOnInput(0),1),-1);
         float angle = getBaseBody().getAngle();
         getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(1000*value), true);
     }
