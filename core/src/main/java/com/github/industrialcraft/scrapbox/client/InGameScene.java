@@ -169,7 +169,7 @@ public class InGameScene implements IScene {
                             connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
                         }
                     }
-                    if(toolBox.tool == ToolBox.Tool.DeleteJoints){
+                    if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.X)){
                         Vector3 mouse = cameraController.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
                         Vector2 mouse2 = new Vector2(mouse.x, mouse.y);
                         for(SendConnectionListData.Connection connection1 : connectionsShowcase){
@@ -374,7 +374,7 @@ public class InGameScene implements IScene {
             }
         }
 
-        if(toolBox.tool == ToolBox.Tool.DeleteJoints){
+        if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.X)){
             batch.begin();
             for(SendConnectionListData.Connection connection1 : connectionsShowcase){
                 batch.draw(jointBreakIcon, connection1.position.x * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, connection1.position.y * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, JOINT_BREAK_ICON_SIZE, JOINT_BREAK_ICON_SIZE);
