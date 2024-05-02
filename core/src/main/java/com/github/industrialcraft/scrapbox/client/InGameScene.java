@@ -298,7 +298,6 @@ public class InGameScene implements IScene {
             connection.send(new RequestControllerState(controllingData.controllingId));
             ClientGameObject gameObject = gameObjects.get(controllingData.controllingId);
             if(gameObject == null){
-                cameraController.camera.position.set(controllingData.position.x, controllingData.position.y, 0);
                 controllingData = null;
             } else {
                 Vector2 lerpedPosition = gameObject.getRealPosition();
@@ -400,12 +399,11 @@ public class InGameScene implements IScene {
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
             if(controllingData != null){
-                cameraController.camera.position.set(controllingData.position.x, controllingData.position.y, 0);
                 controllingData = null;
             } else {
                 MouseSelector.Selection selection = mouseSelector.getSelected();
                 if (selection != null && gameObjects.get(selection.id).type.equals("controller")) {
-                    controllingData = new ControllingData(new Vector2(cameraController.camera.position.x, cameraController.camera.position.y), selection.id);
+                    controllingData = new ControllingData(selection.id);
                 }
             }
         }
@@ -470,10 +468,8 @@ public class InGameScene implements IScene {
         }
     }
     private static class ControllingData{
-        public final Vector2 position;
         public final int controllingId;
-        private ControllingData(Vector2 position, int controllingId) {
-            this.position = position;
+        private ControllingData(int controllingId) {
             this.controllingId = controllingId;
         }
     }
