@@ -59,7 +59,7 @@ public class MathUnitGameObject extends GameObject {
     }
 
     @Override
-    public void requestEditorUI(Player player) {
+    public ArrayList<EditorUIRow> createEditorUI() {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
 
         ArrayList<String> calibrationSelection = new ArrayList<>(List.of(OPERATION_LIST));
@@ -72,7 +72,7 @@ public class MathUnitGameObject extends GameObject {
             row.add(new EditorUILink(i, false, 0f, false));
             rows.add(new EditorUIRow(row));
         }
-        player.send(new SetGameObjectEditUIData(this.getId(), rows));
+        return rows;
     }
     @Override
     public void handleEditorUIInput(String elementId, String value) {

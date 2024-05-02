@@ -33,6 +33,7 @@ public class MessageRegistryCreator {
         messageRegistry.register(25, RequestControllerState.createDescriptor());
         messageRegistry.register(26, ResponseControllerState.createDescriptor());
         messageRegistry.register(27, DestroyValueConnection.createDescriptor());
+        messageRegistry.register(28, CloseGameObjectEditUI.createDescriptor());
         return messageRegistry;
     }
 }

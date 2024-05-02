@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.github.industrialcraft.scrapbox.common.net.msg.CloseGameObjectEditUI;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 
 public class ClientGameObjectEditor {
@@ -67,6 +68,7 @@ public class ClientGameObjectEditor {
         close.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                scene.connection.send(new CloseGameObjectEditUI(ClientGameObjectEditor.this.gameObjectID));
                 scene.closeEditor(ClientGameObjectEditor.this);
             }
         });

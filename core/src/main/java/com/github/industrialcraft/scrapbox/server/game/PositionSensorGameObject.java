@@ -61,9 +61,8 @@ public class PositionSensorGameObject extends GameObject {
             calibration.toStream(stream);
         }
     }
-
     @Override
-    public void requestEditorUI(Player player) {
+    public ArrayList<EditorUIRow> createEditorUI() {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
 
         ArrayList<String> calibrationSelection = new ArrayList<>();
@@ -78,7 +77,7 @@ public class PositionSensorGameObject extends GameObject {
             row.add(new EditorUILink(i, false, 0f, isInputFilled(i)));
             rows.add(new EditorUIRow(row));
         }
-        player.send(new SetGameObjectEditUIData(this.getId(), rows));
+        return rows;
     }
     @Override
     public void handleEditorUIInput(String elementId, String value) {

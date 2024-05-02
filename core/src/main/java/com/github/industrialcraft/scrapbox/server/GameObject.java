@@ -7,6 +7,9 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
+import com.github.industrialcraft.scrapbox.common.net.msg.OpenGameObjectEditUI;
+import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -25,6 +28,7 @@ public abstract class GameObject {
     public Vehicle vehicle;
     private int baseId;
     public UUID uuid;
+    public HashSet<Player> uiViewers;
     protected GameObject(Vector2 position, float rotation, Server server){
         this.server = server;
         this.bodies = new HashMap<>();
@@ -34,6 +38,7 @@ public abstract class GameObject {
         this.defaultValues = new HashMap<>();
         new Vehicle().add(this);
         this.uuid = UUID.randomUUID();
+        this.uiViewers = new HashSet<>();
     }
     public void load(DataInputStream stream) throws IOException{
         int valueConnectionSize = stream.readInt();
@@ -134,8 +139,8 @@ public abstract class GameObject {
         joint.upperAngle = 0f;
         return this.server.physics.createJoint(joint);
     }
-    public void requestEditorUI(Player player){
-
+    public ArrayList<EditorUIRow> createEditorUI(){
+        return null;
     }
     public void handleEditorUIInput(String elementId, String value){
         try{
@@ -184,11 +189,12 @@ public abstract class GameObject {
     }
     public float getValueOnInput(int id){
         ValueConnection connection = valueConnections.get(id);
-        if(connection == null || connection.gameObject.isRemoved() || connection.gameObject.vehicle != this.vehicle){
+        if(connection != null && (connection.gameObject.isRemoved() || connection.gameObject.vehicle != this.vehicle)){
             valueConnections.remove(id);
-            return defaultValues.getOrDefault(id, 0f);
+            updateUI();
+            connection = null;
         }
-        return connection.get();
+        return connection==null?defaultValues.getOrDefault(id, 0f):connection.get();
     }
     public boolean isInputFilled(int id){
         ValueConnection connection = valueConnections.get(id);
@@ -202,6 +208,13 @@ public abstract class GameObject {
     }
     public void connect(String id, GameObject gameObject, String otherId, Joint joint){
         this.connections.put(id, new ConnectionData(gameObject, otherId, joint));
+    }
+    public void updateUI(){
+        ArrayList<EditorUIRow> rows = createEditorUI();
+        if(rows == null)
+            return;
+        SetGameObjectEditUIData message = new SetGameObjectEditUIData(this.getId(), rows);
+        this.uiViewers.forEach(player -> player.send(message));
     }
     public abstract HashMap<String,ConnectionEdge> getConnectionEdges();
     public HashMap<String,GameObjectConnectionEdge> getOpenConnections(){

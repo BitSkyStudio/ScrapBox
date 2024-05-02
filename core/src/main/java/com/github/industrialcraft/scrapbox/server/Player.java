@@ -10,17 +10,21 @@ import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.UUID;
 
 public class Player {
     public final Server server;
     public final IConnection connection;
     private PinchingData pinching;
     private boolean isDisconnected;
+    public final UUID uuid;
     public Player(Server server, IConnection connection) {
         this.server = server;
         this.connection = connection;
         this.pinching = null;
         this.isDisconnected = false;
+        this.uuid = UUID.randomUUID();
     }
     public void tick(){
         if(this.pinching != null){
@@ -120,20 +124,27 @@ public class Player {
             }
             if(message instanceof OpenGameObjectEditUI){
                 OpenGameObjectEditUI openGameObjectEditUI = (OpenGameObjectEditUI) message;
-                server.gameObjects.get(openGameObjectEditUI.id).requestEditorUI(this);
+                GameObject go = server.gameObjects.get(openGameObjectEditUI.id);
+                go.uiViewers.add(this);
+                go.updateUI();
+            }
+            if(message instanceof CloseGameObjectEditUI){
+                CloseGameObjectEditUI closeGameObjectEditUI = (CloseGameObjectEditUI) message;
+                GameObject go = server.gameObjects.get(closeGameObjectEditUI.id);
+                go.uiViewers.remove(this);
             }
             if(message instanceof CreateValueConnection){
                 CreateValueConnection createValueConnection = (CreateValueConnection) message;
                 GameObject input = server.gameObjects.get(createValueConnection.inputObjectId);
                 GameObject output = server.gameObjects.get(createValueConnection.outputObjectId);
                 input.createValueConnection(createValueConnection.inputId, new GameObject.ValueConnection(output, createValueConnection.outputId));
-                input.requestEditorUI(this);
+                input.updateUI();
             }
             if(message instanceof DestroyValueConnection){
                 DestroyValueConnection destroyValueConnection = (DestroyValueConnection) message;
                 GameObject input = server.gameObjects.get(destroyValueConnection.inputObjectId);
                 input.destroyValueConnection(destroyValueConnection.inputId);
-                input.requestEditorUI(this);
+                input.updateUI();
             }
             if(message instanceof ControllerInput){
                 ControllerInput controllerInput = (ControllerInput) message;
@@ -201,6 +212,17 @@ public class Player {
         for(Object message : messages){
             this.connection.send(message);
         }
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(uuid, player.uuid);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
     }
     public static class PinchingData{
         public final MouseJoint mouseJoint;

@@ -72,7 +72,7 @@ public class ControllerGameObject extends GameObject {
     }
 
     @Override
-    public void requestEditorUI(Player player) {
+    public ArrayList<EditorUIRow> createEditorUI() {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
 
         ArrayList<String> holdSelection = new ArrayList<>();
@@ -89,7 +89,7 @@ public class ControllerGameObject extends GameObject {
             row.add(new EditorUILink(i, false, 0f, isInputFilled(0)));
             rows.add(new EditorUIRow(row));
         }
-        player.send(new SetGameObjectEditUIData(this.getId(), rows));
+        return rows;
     }
     @Override
     public void handleEditorUIInput(String elementId, String value) {

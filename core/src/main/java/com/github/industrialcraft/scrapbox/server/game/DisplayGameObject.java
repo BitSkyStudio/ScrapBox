@@ -34,7 +34,7 @@ public class DisplayGameObject extends GameObject {
     }
 
     @Override
-    public void requestEditorUI(Player player) {
+    public ArrayList<EditorUIRow> createEditorUI() {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
 
         ArrayList<EditorUIElement> row = new ArrayList<>();
@@ -42,7 +42,7 @@ public class DisplayGameObject extends GameObject {
         row.add(new EditorUILink(0, true, 0f, isInputFilled(0)));
         rows.add(new EditorUIRow(row));
 
-        player.send(new SetGameObjectEditUIData(this.getId(), rows));
+        return rows;
     }
 
     @Override
