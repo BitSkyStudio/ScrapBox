@@ -64,10 +64,13 @@ public class Player {
                 MouseMoved mouseMoved = (MouseMoved) message;
                 if(pinching != null) {
                     pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
-                    Object gameObject = pinching.mouseJoint.getBodyB().getUserData();
-                    if (gameObject instanceof GameObject) {
+                    GameObject gameObject = getPinching();
+                    if (gameObject != null) {
+                        if(gameObject.isSideUsed("center") && gameObject.getConnectionEdges().size() == 1){
+                            gameObject = gameObject.connections.get("center").other;
+                        }
                         ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
-                        for (GameObject.WeldCandidate weld : ((GameObject) gameObject).getPossibleWelds()) {
+                        for (GameObject.WeldCandidate weld : gameObject.getPossibleWelds()) {
                             welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition().cpy(), weld.second.getPosition().cpy()));
                         }
                         this.send(new ShowActivePossibleWelds(welds));
@@ -101,6 +104,9 @@ public class Player {
             if(message instanceof CommitWeld){
                 GameObject pinching = getPinching();
                 if(pinching != null){
+                    if(pinching.isSideUsed("center") && pinching.getConnectionEdges().size() == 1){
+                        pinching = pinching.connections.get("center").other;
+                    }
                     for(GameObject.WeldCandidate weldCandidate : pinching.getPossibleWelds()){
                         GameObject.GameObjectConnectionEdge go1 = weldCandidate.first;
                         GameObject.GameObjectConnectionEdge go2 = weldCandidate.second;

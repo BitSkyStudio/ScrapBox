@@ -22,7 +22,7 @@ public abstract class GameObject {
     public final Server server;
     public final HashMap<String,Body> bodies;
     private boolean isRemoved;
-    protected HashMap<String,ConnectionData> connections;
+    public HashMap<String,ConnectionData> connections;
     private HashMap<Integer,ValueConnection> valueConnections;
     protected HashMap<Integer,Float> defaultValues;
     public Vehicle vehicle;
@@ -236,9 +236,6 @@ public abstract class GameObject {
                     continue;
                 }
                 for(Map.Entry<String, GameObjectConnectionEdge> edge2: other.getOpenConnections().entrySet()){
-                    if(other.isSideUsed(edge2.getKey())){
-                        continue;
-                    }
                     if(edge1.getValue().collides(edge2.getValue())){
                         weldCandidates.add(new WeldCandidate(edge1.getValue(), edge1.getKey(), edge2.getValue(), edge2.getKey()));
                     }
