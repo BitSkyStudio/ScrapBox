@@ -184,7 +184,8 @@ public abstract class GameObject {
     }
     public float getValueOnInput(int id){
         ValueConnection connection = valueConnections.get(id);
-        if(connection == null || connection.gameObject.isRemoved()){
+        if(connection == null || connection.gameObject.isRemoved() || connection.gameObject.vehicle != this.vehicle){
+            valueConnections.remove(id);
             return defaultValues.getOrDefault(id, 0f);
         }
         return connection.get();
