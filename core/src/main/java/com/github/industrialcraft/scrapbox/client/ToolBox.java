@@ -22,6 +22,7 @@ public class ToolBox {
     private final ArrayList<String> terrainTypes;
     private int selectedTerrain;
     public float brushSize;
+    public boolean brushRectangle;
     public ToolBox(InGameScene game) {
         this.game = game;
         this.background = new Texture("toolbox.png");
@@ -34,6 +35,7 @@ public class ToolBox {
         this.selectedTerrain = 0;
         this.terrainTypes = new ArrayList<>();
         this.brushSize = 1;
+        this.brushRectangle = false;
     }
     public void addTerrainType(String type){
         this.terrainTypes.add(type);
@@ -86,7 +88,11 @@ public class ToolBox {
     public void click(Vector2 position){
         int toolHeight = width/tools.size();
         if(position.y > Gdx.graphics.getHeight() - toolHeight){
-            tool = tools.get((int) ((position.x-(Gdx.graphics.getWidth()-width)-1)/toolHeight)).tool;
+            Tool newTool = tools.get((int) ((position.x-(Gdx.graphics.getWidth()-width)-1)/toolHeight)).tool;
+            if(newTool == tool && tool == Tool.TerrainModify){
+                brushRectangle = !brushRectangle;
+            }
+            tool = newTool;
             return;
         }
         float x = ((position.x + width - Gdx.graphics.getWidth()) / width * 2) - 1;

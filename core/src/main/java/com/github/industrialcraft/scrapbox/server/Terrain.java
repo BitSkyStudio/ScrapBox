@@ -28,15 +28,25 @@ public class Terrain {
     }
 
     public void placeFromMessage(PlaceTerrain placeTerrain){
-        place(placeTerrain.type, placeTerrain.position, placeTerrain.radius);
+        place(placeTerrain.type, placeTerrain.position, placeTerrain.radius, placeTerrain.rectangle);
     }
-    public void place(String type, Vector2 point, float radius){
-        PathD circle = Clipper.Ellipse(new PointD(point.x, point.y), radius, radius, 20);
+    public void place(String type, Vector2 point, float radius, boolean rectangle){
+        PathD shape;
+        if(rectangle){
+            radius /= 2;
+            shape = new PathD();
+            shape.add(new PointD(point.x-radius, point.y-radius));
+            shape.add(new PointD(point.x+radius, point.y-radius));
+            shape.add(new PointD(point.x+radius, point.y+radius));
+            shape.add(new PointD(point.x-radius, point.y+radius));
+        } else {
+            shape = Clipper.Ellipse(new PointD(point.x, point.y), radius, radius, 20);
+        }
         if(type.isEmpty()) {
-            this.terrain.replaceAll((k, v) -> Clipper.Difference(this.terrain.get(k), new PathsD(Collections.singletonList(circle)), FillRule.Positive));
+            this.terrain.replaceAll((k, v) -> Clipper.Difference(this.terrain.get(k), new PathsD(Collections.singletonList(shape)), FillRule.Positive));
         } else {
             PathsD currentTerrain = getTerrainType(type);
-            currentTerrain.add(circle);
+            currentTerrain.add(shape);
             currentTerrain = Clipper.Union(currentTerrain, FillRule.Positive);
             currentTerrain = Clipper.SimplifyPaths(currentTerrain, 0.03);
             for(Map.Entry<String, PathsD> e : this.terrain.entrySet()){

@@ -179,7 +179,7 @@ public class InGameScene implements IScene {
                         }
                     }
                     if (toolBox.tool == ToolBox.Tool.TerrainModify) {
-                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2*toolBox.brushSize));
+                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2*toolBox.brushSize, toolBox.brushRectangle));
                     }
                 } else {
                     toolBox.click(new Vector2(screenX, Gdx.graphics.getHeight()-screenY));
@@ -205,7 +205,7 @@ public class InGameScene implements IScene {
             public boolean touchDragged(int screenX, int screenY, int pointer) {
                 if(!toolBox.isMouseInside()) {
                     if (toolBox.tool == ToolBox.Tool.TerrainModify) {
-                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2 * toolBox.brushSize));
+                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2 * toolBox.brushSize, toolBox.brushRectangle));
                     }
                 }
                 return false;
@@ -340,7 +340,11 @@ public class InGameScene implements IScene {
             shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
             shapeRenderer.setColor(Color.BLACK);
             Vector2 position = mouseSelector.getWorldMousePosition();
-            shapeRenderer.circle(position.x * BOX_TO_PIXELS_RATIO, position.y * BOX_TO_PIXELS_RATIO, toolBox.brushSize * 2 * BOX_TO_PIXELS_RATIO);
+            if(toolBox.brushRectangle){
+                shapeRenderer.rect((position.x - toolBox.brushSize) * BOX_TO_PIXELS_RATIO, (position.y - toolBox.brushSize) * BOX_TO_PIXELS_RATIO, toolBox.brushSize * 2 * BOX_TO_PIXELS_RATIO, toolBox.brushSize * 2 * BOX_TO_PIXELS_RATIO);
+            } else {
+                shapeRenderer.circle(position.x * BOX_TO_PIXELS_RATIO, position.y * BOX_TO_PIXELS_RATIO, toolBox.brushSize * 2 * BOX_TO_PIXELS_RATIO);
+            }
         }
 
         shapeRenderer.end();
