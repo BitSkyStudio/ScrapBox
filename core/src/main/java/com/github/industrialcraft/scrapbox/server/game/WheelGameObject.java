@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 public class WheelGameObject extends GameObject {
     private final RevoluteJoint motor;
+    private final Body wheelBody;
     public WheelGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
 
@@ -35,20 +36,23 @@ public class WheelGameObject extends GameObject {
         this.setBody("base", "wheel_join", base);
 
 
-        Body wheelBody = server.physics.createBody(bodyDef);
+        bodyDef.bullet = true;
+        this.wheelBody = server.physics.createBody(bodyDef);
         FixtureDef wheelFixtureDef = new FixtureDef();
         CircleShape wheelShape = new CircleShape();
         wheelShape.setRadius(0.95f);
         wheelFixtureDef.shape = wheelShape;
         wheelFixtureDef.density = 1F;
-        wheelFixtureDef.friction = 10;
-        wheelBody.createFixture(wheelFixtureDef);
+        wheelFixtureDef.friction = 500;
+        wheelFixtureDef.restitution = 0;
+        Fixture wheelFixture = wheelBody.createFixture(wheelFixtureDef);
+        wheelFixture.setUserData("");
         RevoluteJointDef revoluteJoint = new RevoluteJointDef();
         revoluteJoint.bodyA = wheelBody;
         revoluteJoint.bodyB = base;
         revoluteJoint.localAnchorA.set(new Vector2(0, 0));
         revoluteJoint.localAnchorB.set(new Vector2(0, 0));
-        revoluteJoint.maxMotorTorque = 100;
+        revoluteJoint.maxMotorTorque = 300;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
         this.setBody("wheel", "wheel", wheelBody);
     }
@@ -57,9 +61,22 @@ public class WheelGameObject extends GameObject {
     public void tick() {
         super.tick();
         float value = Math.max(Math.min(getValueOnInput(0),1),-1);
+        for(Contact contact : server.physics.getContactList()){
+            if(contact.isTouching()){
+                if((contact.getFixtureA().getBody().getUserData() == this && (contact.getFixtureA().getUserData() instanceof String)) || (contact.getFixtureB().getBody().getUserData() == this && (contact.getFixtureB().getUserData() instanceof String))){
+                    System.out.println("here");
+                    for(Vector2 point : contact.getWorldManifold().getPoints()){
+                        if(point.isZero())
+                            continue;
+                        System.out.println(point.cpy().sub(wheelBody.getWorldCenter()).nor());
+                        wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(1000), wheelBody.getWorldCenter(), true);
+                    }
+                }
+            }
+        }
         if(value != 0){
             motor.enableMotor(true);
-            motor.setMotorSpeed(value*5);
+            motor.setMotorSpeed(value*6);
         } else {
             motor.enableMotor(false);
         }
