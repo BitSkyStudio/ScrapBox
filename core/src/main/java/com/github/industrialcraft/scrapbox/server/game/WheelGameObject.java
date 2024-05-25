@@ -19,8 +19,11 @@ import java.util.HashMap;
 public class WheelGameObject extends GameObject {
     private final RevoluteJoint motor;
     private final Body wheelBody;
+    private final float adhesion;
     public WheelGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
+
+        this.adhesion = 0.f;
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
@@ -58,18 +61,15 @@ public class WheelGameObject extends GameObject {
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    public void internalTick() {
         float value = Math.max(Math.min(getValueOnInput(0),1),-1);
         for(Contact contact : server.physics.getContactList()){
             if(contact.isTouching()){
                 if((contact.getFixtureA().getBody().getUserData() == this && (contact.getFixtureA().getUserData() instanceof String)) || (contact.getFixtureB().getBody().getUserData() == this && (contact.getFixtureB().getUserData() instanceof String))){
-                    System.out.println("here");
                     for(Vector2 point : contact.getWorldManifold().getPoints()){
                         if(point.isZero())
                             continue;
-                        System.out.println(point.cpy().sub(wheelBody.getWorldCenter()).nor());
-                        wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(1000), wheelBody.getWorldCenter(), true);
+                        wheelBody.applyLinearImpulse(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion), wheelBody.getWorldCenter(), true);
                     }
                 }
             }

@@ -167,8 +167,12 @@ public class Server {
             for(GameObject gameObject : this.gameObjects.values()){
                 gameObject.tick();
             }
-            for(int i = 0;i < 20;i++) {
-                this.physics.step(1.35f * deltaTime / 20, 20, 20);
+            int internalSteps = 20;
+            for(int i = 0;i < internalSteps;i++) {
+                for(GameObject gameObject : this.gameObjects.values()){
+                    gameObject.internalTick();
+                }
+                this.physics.step(1.35f * deltaTime / internalSteps, 20, 20);
             }
         }
         for(Vector3 explosion : this.scheduledExplosions){

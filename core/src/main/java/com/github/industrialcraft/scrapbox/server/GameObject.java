@@ -89,6 +89,7 @@ public abstract class GameObject {
             remove();
         }
     }
+    public void internalTick(){}
     public void disconnect(String name){
         ConnectionData connectionData = connections.remove(name);
         connectionData.other.connections.remove(connectionData.otherName);
