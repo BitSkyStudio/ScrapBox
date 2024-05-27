@@ -40,6 +40,7 @@ public class BalloonGameObject extends GameObject {
         joint.localAnchorA.set(this.getConnectionEdges().get(thisName).offset);
         joint.localAnchorB.set(other.getConnectionEdges().get(otherName).offset);
         joint.length = 0.5f;
+        joint.collideConnected = true;
         return this.server.physics.createJoint(joint);
     }
 
