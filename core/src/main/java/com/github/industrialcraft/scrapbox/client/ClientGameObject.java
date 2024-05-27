@@ -18,6 +18,7 @@ public class ClientGameObject {
     public int lastUpdateLength;
     public long lastUpdate;
     public String animationData;
+    public Object internalRendererData;
     public ClientGameObject(AddGameObjectMessage message) {
         this.type = message.type;
         this.lastPosition = message.position;
@@ -30,6 +31,7 @@ public class ClientGameObject {
         this.lastUpdate = System.currentTimeMillis();
         this.lastUpdateLength = 0;
         this.animationData = message.animation;
+        this.internalRendererData = null;
     }
     public void move(MoveGameObjectMessage message){
         this.lastPosition = this.position;

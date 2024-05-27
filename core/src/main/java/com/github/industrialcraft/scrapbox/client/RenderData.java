@@ -34,6 +34,6 @@ public class RenderData {
 
     @FunctionalInterface
     public interface CustomRenderFunction{
-        void render(ClientGameObject gameObject, Batch batch);
+        void render(RenderData renderData, ClientGameObject gameObject, Batch batch);
     }
 }

@@ -79,7 +79,18 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("puncher", new RenderData(new Texture("puncher.png"), 1, 1));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
-        renderDataRegistry.put("propeller", new RenderData(new Texture("propeller.png"), 1, 0.25f));
+        renderDataRegistry.put("propeller", new RenderData(new Texture("propeller.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            float time = gameObject.internalRendererData!=null? (float) gameObject.internalRendererData :0f;
+            float speed = Float.parseFloat(gameObject.animationData);
+            time += Gdx.graphics.getDeltaTime() * Math.max(speed * 30, time != 0?5:0);
+            if(speed == 0 && Math.cos(time) > 0.9 && Math.cos(time) < 1.){
+                time = 0;
+            }
+            float realWidth = (float) (renderData.width * Math.cos(time));
+            gameObject.internalRendererData = time;
+            batch.draw(renderData.texture, (lerpedPosition.x - realWidth) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height) * InGameScene.BOX_TO_PIXELS_RATIO, realWidth * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO, realWidth * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+        }));
         renderDataRegistry.put("tnt", new RenderData(new Texture("tnt.png"), 1, 1));
         renderDataRegistry.put("rotator_join", new RenderData(new Texture("rotator_join.png"), 1, 1));
         renderDataRegistry.put("rotator_end", new RenderData(new Texture("rotator_end.png"), 1, 1));
@@ -88,7 +99,8 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("position_sensor", new RenderData(new Texture("position_sensor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("math_unit", new RenderData(new Texture("math_unit.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("explosion_particle", new RenderData(new Texture("explosion_particle.png"), 0.5f, 0.5f));
-        renderDataRegistry.put("display", new RenderData(new Texture("display.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (gameObject, batch) -> {
+        renderDataRegistry.put("display", new RenderData(new Texture("display.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch) -> {
+            renderData.draw(batch, gameObject);
             Matrix4 mx4Font = new Matrix4();
             Vector3 translation = new Vector3(gameObject.getRealPosition().x * BOX_TO_PIXELS_RATIO, gameObject.getRealPosition().y * BOX_TO_PIXELS_RATIO, 0);
             mx4Font.translate(translation).rotateRad(new Vector3(0, 0, 1), gameObject.rotation).translate(translation.cpy().scl(-1));
@@ -433,9 +445,10 @@ public class InGameScene implements IScene {
                     break;
             }
             RenderData renderData = renderDataRegistry.get(gameObject.type);
-            renderData.draw(batch, gameObject);
             if(renderData.customRenderFunction != null){
-                renderData.customRenderFunction.render(gameObject, batch);
+                renderData.customRenderFunction.render(renderData, gameObject, batch);
+            } else {
+                renderData.draw(batch, gameObject);
             }
         }
         batch.end();

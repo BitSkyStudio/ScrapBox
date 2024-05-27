@@ -18,8 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PropellerGameObject extends GameObject {
-    public static final float INSIDE_SIZE = 1-0.09375f*2;
-
+    public float speed;
     public PropellerGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
 
@@ -35,13 +34,24 @@ public class PropellerGameObject extends GameObject {
         fixtureDef.density = 1F;
         base.createFixture(fixtureDef);
         this.setBody("base", "propeller", base);
+
+        this.speed = 0;
     }
+
+    @Override
+    public String getAnimationData() {
+        return "" + speed;
+    }
+
     @Override
     public void tick() {
         super.tick();
-        float value = Math.max(Math.min(getValueOnInput(0),1),-1);
+        float targetSpeed = Math.max(Math.min(getValueOnInput(0),1),-1);
+        float maxChangePerTick = 0.05f;
+        float difference = Math.min(Math.max(this.speed - targetSpeed, -maxChangePerTick), maxChangePerTick);
+        this.speed -= difference;
         float angle = getBaseBody().getAngle();
-        getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(1000*value), true);
+        getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(1000*speed), true);
     }
 
     @Override
