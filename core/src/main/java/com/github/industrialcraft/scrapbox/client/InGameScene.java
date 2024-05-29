@@ -355,7 +355,28 @@ public class InGameScene implements IScene {
             debugRendering = !debugRendering;
         }
         this.terrainRenderer.draw(this.cameraController);
-        drawObjects(arg0 -> true);
+        batch.setProjectionMatrix(cameraController.camera.combined);
+        batch.begin();
+        for (ClientGameObject gameObject : gameObjects.values()) {
+            switch (gameObject.mode){
+                case Normal:
+                    batch.setColor(0.5f, 0.5f, 0.5f, 1);
+                    break;
+                case Static:
+                    batch.setColor(Color.YELLOW);
+                    break;
+                case Ghost:
+                    batch.setColor(0.5f, 0.5f, 0.5f, 0.7f);
+                    break;
+            }
+            RenderData renderData = renderDataRegistry.get(gameObject.type);
+            if(renderData.customRenderFunction != null){
+                renderData.customRenderFunction.render(renderData, gameObject, batch);
+            } else {
+                renderData.draw(batch, gameObject);
+            }
+        }
+        batch.end();
 
         stage.act();
         stage.draw();
@@ -411,9 +432,6 @@ public class InGameScene implements IScene {
             }
             batch.end();
         }
-
-        drawObjects(arg0 -> arg0.selected);
-
         if(debugRendering && server != null){
             Matrix4 matrix = cameraController.camera.combined.cpy();
             synchronized (server.physics) {
@@ -457,33 +475,6 @@ public class InGameScene implements IScene {
         editors.entrySet().removeIf(entry -> entry.getValue() == editor);
         editor.window.remove();
         editor.dispose();
-    }
-    public void drawObjects(Predicate<ClientGameObject> predicate){
-        batch.setProjectionMatrix(cameraController.camera.combined);
-        batch.begin();
-        for (ClientGameObject gameObject : gameObjects.values()) {
-            if(!predicate.evaluate(gameObject)){
-                continue;
-            }
-            switch (gameObject.mode){
-                case Normal:
-                    batch.setColor(0.5f, 0.5f, 0.5f, 1);
-                    break;
-                case Static:
-                    batch.setColor(Color.YELLOW);
-                    break;
-                case Ghost:
-                    batch.setColor(0.5f, 0.5f, 0.5f, 0.7f);
-                    break;
-            }
-            RenderData renderData = renderDataRegistry.get(gameObject.type);
-            if(renderData.customRenderFunction != null){
-                renderData.customRenderFunction.render(renderData, gameObject, batch);
-            } else {
-                renderData.draw(batch, gameObject);
-            }
-        }
-        batch.end();
     }
     @Override
     public void resize(int width, int height) {
