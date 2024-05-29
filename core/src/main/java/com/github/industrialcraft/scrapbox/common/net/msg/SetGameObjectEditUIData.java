@@ -35,7 +35,7 @@ public class SetGameObjectEditUIData {
         for(EditorUIRow row : rows){
             stream.writeInt(row.elements.size());
             for(EditorUIElement element : row.elements){
-                stream.writeInt(element.getId());
+                stream.writeInt(element.getText());
                 element.toStream(stream);
             }
         }

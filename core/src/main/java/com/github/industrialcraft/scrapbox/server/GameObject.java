@@ -23,7 +23,7 @@ public abstract class GameObject {
     public final HashMap<String,Body> bodies;
     private boolean isRemoved;
     public HashMap<String,ConnectionData> connections;
-    private HashMap<Integer,ValueConnection> valueConnections;
+    protected HashMap<Integer,ValueConnection> valueConnections;
     protected HashMap<Integer,Float> defaultValues;
     public Vehicle vehicle;
     private int baseId;
@@ -57,6 +57,7 @@ public abstract class GameObject {
         }
     }
     public void save(DataOutputStream stream) throws IOException {
+        valueConnections.entrySet().removeIf(entry -> entry.getValue() == null);
         stream.writeInt(valueConnections.size());
         for(Map.Entry<Integer, ValueConnection> entry : valueConnections.entrySet()){
             stream.writeInt(entry.getKey());

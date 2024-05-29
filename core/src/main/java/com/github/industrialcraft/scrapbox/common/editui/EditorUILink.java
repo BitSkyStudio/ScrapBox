@@ -115,7 +115,7 @@ public class EditorUILink extends EditorUIElement{
         }
     }
     @Override
-    public int getId() {
+    public int getText() {
         return 2;
     }
 }

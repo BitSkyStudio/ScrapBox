@@ -43,6 +43,8 @@ public class WorldJoinScene extends StageBasedScreen {
         joinButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(list.getSelected() == null)
+                    return;
                 File saveFile = new File("./saves/" + list.getSelected() + ".sbs");
                 Server server = new Server(saveFile);
                 try{

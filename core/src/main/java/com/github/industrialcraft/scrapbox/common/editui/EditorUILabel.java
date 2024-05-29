@@ -27,7 +27,7 @@ public class EditorUILabel extends EditorUIElement{
         return new Label(text, skin);
     }
     @Override
-    public int getId() {
+    public int getText() {
         return 1;
     }
 }

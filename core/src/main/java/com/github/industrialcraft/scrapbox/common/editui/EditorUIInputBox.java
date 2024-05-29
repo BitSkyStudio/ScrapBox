@@ -40,7 +40,7 @@ public class EditorUIInputBox extends EditorUIElement{
         return inputBox;
     }
     @Override
-    public int getId() {
+    public int getText() {
         return 4;
     }
 }

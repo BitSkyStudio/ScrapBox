@@ -4,9 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
-import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.io.DataInputStream;
@@ -20,12 +18,11 @@ public class MathUnitGameObject extends GameObject {
         OPERATION_LIST = new String[]{"+","-","*","/"};
     }
 
-    private final int[] operations;
+    private ArrayList<Integer> operations;
     public MathUnitGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
 
-        this.operations = new int[10];
-        Arrays.fill(operations, 0);
+        this.operations = new ArrayList<>();
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
@@ -48,13 +45,15 @@ public class MathUnitGameObject extends GameObject {
     @Override
     public void load(DataInputStream stream) throws IOException {
         super.load(stream);
-        for(int i = 0;i < operations.length;i++)
-            operations[i] = stream.readInt();
+        int count = stream.readInt();
+        for(int i = 0;i < count;i++)
+            operations.add(stream.readInt());
     }
 
     @Override
     public void save(DataOutputStream stream) throws IOException {
         super.save(stream);
+        stream.writeInt(operations.size());
         for (int operation : operations) stream.writeInt(operation);
     }
 
@@ -63,15 +62,17 @@ public class MathUnitGameObject extends GameObject {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
 
         ArrayList<String> calibrationSelection = new ArrayList<>(List.of(OPERATION_LIST));
-        for(int i = 0;i < operations.length;i++){
+        for(int i = 0;i < operations.size();i++){
             ArrayList<EditorUIElement> row = new ArrayList<>();
             row.add(new EditorUILink(i*2, true, defaultValues.getOrDefault(i*2, 0f), isInputFilled(i*2)));
-            row.add(new EditorUIDropDown("op"+i, calibrationSelection, operations[i]));
+            row.add(new EditorUIDropDown("op"+i, calibrationSelection, operations.get(i)));
             row.add(new EditorUILink(i*2 + 1, true, defaultValues.getOrDefault(i*2+1, 0f), isInputFilled(i*2 + 1)));
             row.add(new EditorUILabel("="));
             row.add(new EditorUILink(i, false, 0f, false));
+            row.add(new EditorUIButton("X", "close"+i));
             rows.add(new EditorUIRow(row));
         }
+        rows.add(new EditorUIRow(new ArrayList<>(List.of(new EditorUIButton("New", "new")))));
         return rows;
     }
     @Override
@@ -79,7 +80,20 @@ public class MathUnitGameObject extends GameObject {
         super.handleEditorUIInput(elementId, value);
         if(elementId.startsWith("op")){
             int i = Integer.parseInt(elementId.replace("op", ""));
-            operations[i] = Integer.parseInt(value);
+            operations.set(i, Integer.parseInt(value));
+        }
+        if(elementId.startsWith("close")){
+            int i = Integer.parseInt(elementId.replace("close", ""));
+            operations.remove(i);
+            for(int j = i;j < operations.size();j++){
+                valueConnections.put(j*2, valueConnections.get((j+1)*2));
+                valueConnections.put(j*2+1, valueConnections.get((j+1)*2+1));
+            }
+            destroyValueConnection(operations.size()*2);
+            destroyValueConnection(operations.size()*2+1);
+        }
+        if(elementId.equals("new")){
+            operations.add(0);
         }
     }
 
@@ -87,14 +101,16 @@ public class MathUnitGameObject extends GameObject {
     public float getValueOnOutput(int id) {
         float first = getValueOnInput(id*2);
         float second = getValueOnInput(id*2+1);
-        if(operations[id] == 0){
-            return first+second;
-        } else if(operations[id] == 1){
-            return first-second;
-        } else if(operations[id] == 2){
-            return first*second;
-        } else if(operations[id] == 3){
-            return first/second;
+        int op = operations.get(id);
+        switch (op){
+            case 0:
+                return first+second;
+            case 1:
+                return first-second;
+            case 2:
+                return first*second;
+            case 3:
+                return first/second;
         }
         throw new IllegalArgumentException("invalid operation");
     }

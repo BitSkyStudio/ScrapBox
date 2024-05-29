@@ -165,6 +165,7 @@ public class Player {
                 GameObject gameObject = server.gameObjects.get(editorUIInput.gameObjectId);
                 if(gameObject != null){
                     gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
+                    gameObject.updateUI();
                 }
             }
             if(message instanceof DestroyJoint){
