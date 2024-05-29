@@ -58,6 +58,7 @@ public class EditorUILink extends EditorUIElement{
                             }
                         }
                     };
+                    dialog.setMovable(false);
                     dialog.button("Cancel");
                     dialog.button("Ok", "");
                     dialog.getContentTable().add(input);

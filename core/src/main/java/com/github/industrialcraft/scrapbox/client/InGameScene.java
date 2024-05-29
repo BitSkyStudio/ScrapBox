@@ -16,7 +16,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Predicate;
 import com.github.industrialcraft.netx.NetXClient;
@@ -58,6 +63,7 @@ public class InGameScene implements IScene {
     private BitmapFont font;
     private static final float JOINT_BREAK_ICON_SIZE = 48;
     private static final float CONTROLLER_BUTTON_SIZE = 80;
+    public Dialog escapeMenu;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -318,6 +324,32 @@ public class InGameScene implements IScene {
         } else {
             cameraController.tick();
         }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+            if(escapeMenu == null) {
+                escapeMenu = new Dialog("Escape Menu", ScrapBox.getInstance().getSkin(), "dialog"){
+                    @Override
+                    protected void result(Object object) {
+                        InGameScene.this.escapeMenu = null;
+                    }
+                };
+                escapeMenu.setMovable(false);
+                Table table = escapeMenu.getContentTable();
+                TextButton mainMenu = new TextButton("Main Menu", ScrapBox.getInstance().getSkin());
+                mainMenu.addListener(new ClickListener(){
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        ScrapBox.getInstance().setScene(new MainMenuScene());
+                    }
+                });
+                table.add(mainMenu);
+                escapeMenu.button("Back");
+                escapeMenu.show(stage);
+            } else {
+                escapeMenu.hide();
+                escapeMenu = null;
+            }
+        }
+
         cameraController.camera.update();
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
             debugRendering = !debugRendering;
