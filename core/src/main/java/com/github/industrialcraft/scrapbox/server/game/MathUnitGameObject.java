@@ -19,10 +19,12 @@ public class MathUnitGameObject extends GameObject {
     }
 
     private ArrayList<Integer> operations;
+    private ArrayList<Float> outputs;
     public MathUnitGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
 
         this.operations = new ArrayList<>();
+        this.outputs = new ArrayList<>();
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
@@ -39,6 +41,13 @@ public class MathUnitGameObject extends GameObject {
     }
     @Override
     public void tick() {
+        ArrayList<Float> newOutputs = new ArrayList<>();
+        for(int i = 0;i < operations.size();i++){
+            float first = getValueOnInput(i*2);
+            float second = getValueOnInput(i*2+1);
+            newOutputs.add(calculate(first, second, operations.get(i)));
+        }
+        this.outputs = newOutputs;
         super.tick();
     }
 
@@ -48,6 +57,9 @@ public class MathUnitGameObject extends GameObject {
         int count = stream.readInt();
         for(int i = 0;i < count;i++)
             operations.add(stream.readInt());
+        int outputsCount = stream.readInt();
+        for(int i = 0;i < outputsCount;i++)
+            outputs.add(stream.readFloat());
     }
 
     @Override
@@ -55,6 +67,8 @@ public class MathUnitGameObject extends GameObject {
         super.save(stream);
         stream.writeInt(operations.size());
         for (int operation : operations) stream.writeInt(operation);
+        stream.writeInt(outputs.size());
+        for (float output : outputs) stream.writeFloat(output);
     }
 
     @Override
@@ -99,8 +113,12 @@ public class MathUnitGameObject extends GameObject {
 
     @Override
     public float getValueOnOutput(int id) {
-        float first = getValueOnInput(id*2);
-        float second = getValueOnInput(id*2+1);
+        if(id >= this.outputs.size()){
+            return 0;
+        }
+        return this.outputs.get(id);
+    }
+    public float calculate(float first, float second, int id){
         int op = operations.get(id);
         switch (op){
             case 0:
@@ -112,7 +130,7 @@ public class MathUnitGameObject extends GameObject {
             case 3:
                 return first/second;
         }
-        throw new IllegalArgumentException("invalid operation");
+        throw new IllegalArgumentException("invalid op: " + id);
     }
 
     @Override
