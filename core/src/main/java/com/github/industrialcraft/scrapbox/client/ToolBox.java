@@ -30,8 +30,8 @@ public class ToolBox {
         this.parts = new ArrayList<>();
         this.tool = Tool.Hand;
         this.tools = new ArrayList<>();
-        this.tools.add(new ToolType(Tool.Hand, new Texture("mode_hand.png")));
-        this.tools.add(new ToolType(Tool.TerrainModify, new Texture("mode_terrain_modify.png")));
+        this.tools.add(new ToolType(Tool.Hand, new Texture("mode_hand.png"), null));
+        this.tools.add(new ToolType(Tool.TerrainModify, new Texture("mode_terrain_modify_circle.png"), new Texture("mode_terrain_modify_rect.png")));
         this.selectedTerrain = 0;
         this.terrainTypes = new ArrayList<>();
         this.brushSize = 1;
@@ -79,7 +79,8 @@ public class ToolBox {
             } else {
                 batch.setColor(0.5f, 0.5f, 0.5f, 1);
             }
-            batch.draw(tools.get(i).texture, leftOffset+toolHeight*i, Gdx.graphics.getHeight()-toolHeight, toolHeight, toolHeight);
+            ToolType tool = tools.get(i);
+            batch.draw(brushRectangle?(tool.alternative!=null?tool.alternative:tool.texture):tool.texture, leftOffset+toolHeight*i, Gdx.graphics.getHeight()-toolHeight, toolHeight, toolHeight);
         }
     }
     public boolean isTerrainSelectionOpen(){
@@ -143,9 +144,11 @@ public class ToolBox {
     public static class ToolType{
         public final Tool tool;
         public final Texture texture;
-        public ToolType(Tool tool, Texture texture) {
+        public final Texture alternative;
+        public ToolType(Tool tool, Texture texture, Texture alternative) {
             this.tool = tool;
             this.texture = texture;
+            this.alternative = alternative;
         }
     }
     public enum Tool{

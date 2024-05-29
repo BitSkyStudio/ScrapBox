@@ -51,7 +51,7 @@ public class PropellerGameObject extends GameObject {
         float difference = Math.min(Math.max(this.speed - targetSpeed, -maxChangePerTick), maxChangePerTick);
         this.speed -= difference;
         float angle = getBaseBody().getAngle();
-        getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(1000*speed), true);
+        getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(3000*speed), true);
     }
 
     @Override

@@ -37,5 +37,14 @@ public class MainMenuScene extends StageBasedScreen{
             }
         });
         table.add(serverListButton);
+        table.row();
+        TextButton exitListButton = new TextButton("Exit", skin);
+        exitListButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.exit(0);
+            }
+        });
+        table.add(exitListButton);
     }
 }

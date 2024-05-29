@@ -29,7 +29,7 @@ public class BalloonGameObject extends GameObject {
     @Override
     public void tick() {
         super.tick();
-        getBaseBody().applyForceToCenter(new Vector2(0, 500), true);
+        getBaseBody().applyForce(new Vector2(0, 500), getBaseBody().getWorldPoint(new Vector2(0, 1)), true);
     }
 
     @Override
