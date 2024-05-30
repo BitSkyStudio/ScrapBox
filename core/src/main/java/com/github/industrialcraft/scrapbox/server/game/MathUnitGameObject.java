@@ -11,11 +11,18 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class MathUnitGameObject extends GameObject {
-    public static final String[] OPERATION_LIST;
+    public static final MathOperation[] OPERATION_LIST;
     static{
-        OPERATION_LIST = new String[]{"+","-","*","/"};
+        OPERATION_LIST = new MathOperation[]{
+            new MathOperation("+", (first, second) -> first+second),
+            new MathOperation("-", (first, second) -> first-second),
+            new MathOperation("*", (first, second) -> first*second),
+            new MathOperation("/", (first, second) -> first/second)
+        };
     }
 
     private ArrayList<Integer> operations;
@@ -25,6 +32,7 @@ public class MathUnitGameObject extends GameObject {
 
         this.operations = new ArrayList<>();
         this.outputs = new ArrayList<>();
+        this.operations.add(0);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
@@ -45,7 +53,7 @@ public class MathUnitGameObject extends GameObject {
         for(int i = 0;i < operations.size();i++){
             float first = getValueOnInput(i*2);
             float second = getValueOnInput(i*2+1);
-            newOutputs.add(calculate(first, second, operations.get(i)));
+            newOutputs.add(OPERATION_LIST[operations.get(i)].function.apply(first, second));
         }
         this.outputs = newOutputs;
         super.tick();
@@ -54,6 +62,7 @@ public class MathUnitGameObject extends GameObject {
     @Override
     public void load(DataInputStream stream) throws IOException {
         super.load(stream);
+        operations.clear();
         int count = stream.readInt();
         for(int i = 0;i < count;i++)
             operations.add(stream.readInt());
@@ -75,7 +84,7 @@ public class MathUnitGameObject extends GameObject {
     public ArrayList<EditorUIRow> createEditorUI() {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
 
-        ArrayList<String> calibrationSelection = new ArrayList<>(List.of(OPERATION_LIST));
+        ArrayList<String> calibrationSelection = Arrays.stream(OPERATION_LIST).map(mathOperation -> mathOperation.text).collect(Collectors.toCollection(ArrayList::new));
         for(int i = 0;i < operations.size();i++){
             ArrayList<EditorUIElement> row = new ArrayList<>();
             row.add(new EditorUILink(i*2, true, defaultValues.getOrDefault(i*2, 0f), isInputFilled(i*2)));
@@ -118,20 +127,6 @@ public class MathUnitGameObject extends GameObject {
         }
         return this.outputs.get(id);
     }
-    public float calculate(float first, float second, int id){
-        int op = operations.get(id);
-        switch (op){
-            case 0:
-                return first+second;
-            case 1:
-                return first-second;
-            case 2:
-                return first*second;
-            case 3:
-                return first/second;
-        }
-        throw new IllegalArgumentException("invalid op: " + id);
-    }
 
     @Override
     public Joint createJoint(String thisName, GameObject other, String otherName) {
@@ -157,5 +152,14 @@ public class MathUnitGameObject extends GameObject {
     @Override
     public String getType() {
         return "math_unit";
+    }
+
+    public static class MathOperation{
+        public final String text;
+        public final BiFunction<Float,Float,Float> function;
+        public MathOperation(String text, BiFunction<Float, Float, Float> function) {
+            this.text = text;
+            this.function = function;
+        }
     }
 }
