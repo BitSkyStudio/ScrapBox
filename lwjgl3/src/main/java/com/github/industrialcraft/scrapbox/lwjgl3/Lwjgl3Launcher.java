@@ -3,12 +3,30 @@ package com.github.industrialcraft.scrapbox.lwjgl3;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.github.industrialcraft.scrapbox.client.ScrapBox;
+import com.github.industrialcraft.scrapbox.server.Server;
+
+import java.io.File;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
-        createApplication();
+
+        if((args.length == 2 || args.length == 3) && args[0].equals("host")){
+            File saveFile = null;
+            if(args.length == 3){
+                saveFile = new File(args[2]);
+            }
+
+            if(saveFile != null)
+                System.out.println("starting server without savefile");
+
+            Server server = new Server(Integer.parseInt(args[1]), saveFile);
+            server.start();
+            Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
+        } else {
+            createApplication();
+        }
     }
 
     private static Lwjgl3Application createApplication() {

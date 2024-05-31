@@ -33,6 +33,10 @@ public class ClientNetXConnection implements IConnection {
             public void disconnect(NetXClient user) {
                 ScrapBox.getInstance().setScene(new DisconnectedScene("connection lost"));
             }
+            @Override
+            public void exception(NetXClient user, Throwable exception) {
+                ScrapBox.getInstance().setScene(new DisconnectedScene("exception: " + exception.getLocalizedMessage()));
+            }
         }));
         return messages;
     }

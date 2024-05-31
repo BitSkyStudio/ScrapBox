@@ -39,7 +39,7 @@ public class Server {
     private final UUID uuid;
     public final File saveFile;
     public final ArrayList<Vector3> scheduledExplosions;
-    public Server(File saveFile) {
+    public Server(int port, File saveFile) {
         this.saveFile = saveFile;
         this.uuid = UUID.randomUUID();
         this.players = new ArrayList<>();
@@ -51,7 +51,7 @@ public class Server {
         this.gameObjects = new HashMap<>();
         this.newGameObjects = new ArrayList<>();
         this.clientWorldManager = new ClientWorldManager(this);
-        this.networkServer = new NetXServer(0, MessageRegistryCreator.create());
+        this.networkServer = new NetXServer(port, MessageRegistryCreator.create());
         this.networkServer.start();
         this.stopped = false;
         this.tickCount = 0;
@@ -333,13 +333,17 @@ public class Server {
         }).start();
     }
     public void stop(){
+        if(stopped)
+            return;
         this.stopped = true;
         this.networkServer.close();
         this.physics.dispose();
         try {
-            FileOutputStream stream = new FileOutputStream(saveFile);
-            dumpToSaveFile().toStream(new DataOutputStream(stream));
-            stream.close();
+            if(saveFile != null) {
+                FileOutputStream stream = new FileOutputStream(saveFile);
+                dumpToSaveFile().toStream(new DataOutputStream(stream));
+                stream.close();
+            }
         } catch(IOException exception){
             System.out.println("couldn't save");
         }
