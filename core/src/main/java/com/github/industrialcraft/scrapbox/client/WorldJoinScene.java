@@ -14,6 +14,10 @@ import com.github.industrialcraft.scrapbox.server.Server;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class WorldJoinScene extends StageBasedScreen {
     @Override
@@ -30,10 +34,11 @@ public class WorldJoinScene extends StageBasedScreen {
                 stage.setScrollFocus(null);
             }
         });
-        String[] saves = new File("./saves").list();
+        File[] saves = new File("./saves").listFiles();
+        Arrays.sort(saves, Comparator.comparing(File::lastModified));
         Array<String> array = new Array<>();
-        for(int i = 0;i < saves.length;i++){
-            array.add(saves[i].replace(".sbs", ""));
+        for (File save : saves) {
+            array.add(save.getName().replace(".sbs", ""));
         }
         list.setItems(array);
         table.add(scrollPane);
@@ -64,6 +69,18 @@ public class WorldJoinScene extends StageBasedScreen {
             }
         });
         buttons.add(joinButton);
+        TextButton deleteButton = new TextButton("Delete", skin);
+        deleteButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                File saveFile = new File("./saves/" + list.getSelected() + ".sbs");
+                saveFile.delete();
+                Array<String> items = list.getItems();
+                items.removeValue(list.getSelected(), false);
+                list.setItems(items);
+            }
+        });
+        buttons.add(deleteButton);
         TextButton createButton = new TextButton("Create", skin);
         createButton.addListener(new ClickListener(){
             @Override
@@ -87,6 +104,14 @@ public class WorldJoinScene extends StageBasedScreen {
             }
         });
         buttons.add(createButton);
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ScrapBox.getInstance().setScene(new MainMenuScene());
+            }
+        });
+        buttons.add(backButton);
         table.add(buttons);
     }
 
