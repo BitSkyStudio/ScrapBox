@@ -8,22 +8,20 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
-import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class WheelGameObject extends GameObject {
+public abstract class BaseWheelGameObject extends GameObject {
     private final RevoluteJoint motor;
     private final Body wheelBody;
     private final float adhesion;
-    public WheelGameObject(Vector2 position, float rotation, Server server) {
+    public BaseWheelGameObject(Vector2 position, float rotation, Server server, float adhesion, String joinType, String wheelType) {
         super(position, rotation, server);
 
-        this.adhesion = 0.f;
+        this.adhesion = adhesion;
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
@@ -36,7 +34,7 @@ public class WheelGameObject extends GameObject {
         baseFixtureDef.shape = baseShape;
         baseFixtureDef.density = 1F;
         base.createFixture(baseFixtureDef);
-        this.setBody("base", "wheel_join", base);
+        this.setBody("base", joinType, base);
 
 
         bodyDef.bullet = true;
@@ -57,7 +55,7 @@ public class WheelGameObject extends GameObject {
         revoluteJoint.localAnchorB.set(new Vector2(0, 0));
         revoluteJoint.maxMotorTorque = 300;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
-        this.setBody("wheel", "wheel", wheelBody);
+        this.setBody("wheel", wheelType, wheelBody);
     }
 
     @Override
@@ -69,6 +67,7 @@ public class WheelGameObject extends GameObject {
                     for(Vector2 point : contact.getWorldManifold().getPoints()){
                         if(point.isZero())
                             continue;
+                        System.out.println("here");
                         wheelBody.applyLinearImpulse(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion), wheelBody.getWorldCenter(), true);
                     }
                 }
@@ -97,10 +96,5 @@ public class WheelGameObject extends GameObject {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
         edges.put("up", new ConnectionEdge(new Vector2(0, 1), false));
         return edges;
-    }
-
-    @Override
-    public String getType() {
-        return "wheel";
     }
 }

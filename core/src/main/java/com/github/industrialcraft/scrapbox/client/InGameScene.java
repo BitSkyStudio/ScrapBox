@@ -80,6 +80,7 @@ public class InGameScene implements IScene {
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
+        renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
         renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1));
         renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
@@ -125,6 +126,7 @@ public class InGameScene implements IScene {
         this.toolBox = new ToolBox(this);
         this.toolBox.addPart("frame", renderDataRegistry.get("frame"));
         this.toolBox.addPart("wheel", renderDataRegistry.get("wheel"));
+        this.toolBox.addPart("sticky_wheel", renderDataRegistry.get("sticky_wheel"));
         this.toolBox.addPart("balloon", renderDataRegistry.get("balloon"));
         this.toolBox.addPart("controller", renderDataRegistry.get("controller"));
         this.toolBox.addPart("puncher", renderDataRegistry.get("puncher_box"));

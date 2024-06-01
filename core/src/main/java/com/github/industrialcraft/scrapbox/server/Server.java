@@ -6,7 +6,6 @@ import clipper2.core.PointD;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.github.industrialcraft.netx.LANBroadcaster;
@@ -102,7 +101,10 @@ public class Server {
             return spawnGameObject(position, rotation, FrameGameObject::new, uuid);
         }
         if(type.equals("wheel")){
-            return spawnGameObject(position, rotation, WheelGameObject::new, uuid);
+            return spawnGameObject(position, rotation, SimpleWheelGameObject::new, uuid);
+        }
+        if(type.equals("sticky_wheel")){
+            return spawnGameObject(position, rotation, StickyWheelGameObject::new, uuid);
         }
         if(type.equals("balloon")){
             return spawnGameObject(position, rotation, BalloonGameObject::new, uuid);
