@@ -34,7 +34,12 @@ public class Player {
         }
         for(Object message : this.connection.read()){
             if(message instanceof ToggleGamePaused){
-                server.paused = !server.paused;
+                ToggleGamePaused toggleGamePaused = (ToggleGamePaused) message;
+                if(toggleGamePaused.step){
+                    server.singleStep = true;
+                } else {
+                    server.paused = !server.paused;
+                }
             }
             if(message instanceof GameObjectPinch){
                 if(pinching != null){
@@ -54,7 +59,8 @@ public class Player {
                 mouseJointDef.target.set(gameObject.vehicle.getCenterOfMass());
                 mouseJointDef.maxForce = 10000;
                 mouseJointDef.collideConnected = true;
-                Vector2 offset = gameObject.vehicle.getCenterOfMass().sub(gameObject.getBaseBody().getWorldPoint(gameObjectPinch.offset));
+                Vector2 offset = gameObject.vehicle.getCenterOfMass().sub(gameObject.getBaseBody().getWorldCenter().cpy().add(gameObjectPinch.offset));
+                System.out.println(offset);
                 pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), offset);
             }
             if(message instanceof GameObjectRelease){

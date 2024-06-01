@@ -34,6 +34,7 @@ public class Server {
     public final NetXServer networkServer;
     private boolean stopped;
     public boolean paused;
+    public boolean singleStep;
     private int tickCount;
     private final UUID uuid;
     public final File saveFile;
@@ -56,6 +57,7 @@ public class Server {
         this.tickCount = 0;
         this.scheduledExplosions = new ArrayList<>();
         this.paused = true;
+        this.singleStep = false;
         this.physics.setContactFilter((fixtureA, fixtureB) -> {
             Filter filterA = fixtureA.getFilterData();
             Filter filterB = fixtureB.getFilterData();
@@ -165,7 +167,8 @@ public class Server {
             }
         });
         terrain.rebuildIfNeeded();
-        if(!paused) {
+        if((!paused) || singleStep) {
+            singleStep = false;
             for(GameObject gameObject : this.gameObjects.values()){
                 gameObject.tick();
             }

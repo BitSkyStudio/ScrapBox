@@ -23,7 +23,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import com.badlogic.gdx.utils.Predicate;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
@@ -312,7 +311,10 @@ public class InGameScene implements IScene {
             }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
-            connection.send(new ToggleGamePaused());
+            connection.send(new ToggleGamePaused(false));
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
+            connection.send(new ToggleGamePaused(true));
         }
         if(controllingData != null){
             connection.send(new RequestControllerState(controllingData.controllingId));
