@@ -189,7 +189,7 @@ public class InGameScene implements IScene {
                             connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
                         }
                     }
-                    if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.X)){
+                    if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.B)){
                         Vector3 mouse = cameraController.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
                         Vector2 mouse2 = new Vector2(mouse.x, mouse.y);
                         for(SendConnectionListData.Connection connection1 : connectionsShowcase){
@@ -414,6 +414,14 @@ public class InGameScene implements IScene {
         }
 
         shapeRenderer.end();
+        batch.setColor(0.5f, 0.5f, 0.5f, 1);
+        if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.B)){
+            batch.begin();
+            for(SendConnectionListData.Connection connection1 : connectionsShowcase){
+                batch.draw(jointBreakIcon, connection1.position.x * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, connection1.position.y * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, JOINT_BREAK_ICON_SIZE, JOINT_BREAK_ICON_SIZE);
+            }
+            batch.end();
+        }
 
         batch.begin();
         batch.setColor(0.5f, 0.5f, 0.5f, 1);
@@ -439,14 +447,6 @@ public class InGameScene implements IScene {
             synchronized (server.physics) {
                 debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
             }
-        }
-
-        if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.X)){
-            batch.begin();
-            for(SendConnectionListData.Connection connection1 : connectionsShowcase){
-                batch.draw(jointBreakIcon, connection1.position.x * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, connection1.position.y * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, JOINT_BREAK_ICON_SIZE, JOINT_BREAK_ICON_SIZE);
-            }
-            batch.end();
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
