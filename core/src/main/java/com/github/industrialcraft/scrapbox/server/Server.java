@@ -56,7 +56,7 @@ public class Server {
         this.stopped = false;
         this.tickCount = 0;
         this.scheduledExplosions = new ArrayList<>();
-        this.paused = true;
+        this.paused = false;
         this.singleStep = false;
         this.physics.setContactFilter((fixtureA, fixtureB) -> {
             Filter filterA = fixtureA.getFilterData();

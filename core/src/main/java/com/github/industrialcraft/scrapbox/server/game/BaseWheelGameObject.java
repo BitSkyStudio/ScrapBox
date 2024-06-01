@@ -53,7 +53,7 @@ public abstract class BaseWheelGameObject extends GameObject {
         revoluteJoint.bodyB = base;
         revoluteJoint.localAnchorA.set(new Vector2(0, 0));
         revoluteJoint.localAnchorB.set(new Vector2(0, 0));
-        revoluteJoint.maxMotorTorque = 300;
+        revoluteJoint.maxMotorTorque = 1000;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
         this.setBody("wheel", wheelType, wheelBody);
     }
@@ -67,8 +67,7 @@ public abstract class BaseWheelGameObject extends GameObject {
                     for(Vector2 point : contact.getWorldManifold().getPoints()){
                         if(point.isZero())
                             continue;
-                        System.out.println("here");
-                        wheelBody.applyLinearImpulse(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion), wheelBody.getWorldCenter(), true);
+                        wheelBody.applyLinearImpulse(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion * this.vehicle.getMass()), wheelBody.getWorldCenter(), true);
                     }
                 }
             }
