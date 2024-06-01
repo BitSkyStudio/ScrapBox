@@ -149,7 +149,7 @@ public class Server {
         player.send(this.terrain.createMessage());
         player.sendAll(messages);
     }
-    private void tick(float deltaTime) throws Exception{
+    private void tick(float deltaTime) {
         for(GameObject gameObject : this.newGameObjects){
             this.gameObjects.put(gameObject.getId(), gameObject);
         }

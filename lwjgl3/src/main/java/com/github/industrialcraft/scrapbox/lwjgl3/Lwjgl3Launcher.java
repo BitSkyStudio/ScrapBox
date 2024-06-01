@@ -3,13 +3,14 @@ package com.github.industrialcraft.scrapbox.lwjgl3;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.github.industrialcraft.scrapbox.client.ScrapBox;
+import com.github.industrialcraft.scrapbox.server.SaveFile;
 import com.github.industrialcraft.scrapbox.server.Server;
 
-import java.io.File;
+import java.io.*;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
 
         if((args.length == 2 || args.length == 3) && args[0].equals("host")){
@@ -17,11 +18,10 @@ public class Lwjgl3Launcher {
             if(args.length == 3){
                 saveFile = new File(args[2]);
             }
-
-            if(saveFile != null)
-                System.out.println("starting server without savefile");
-
             Server server = new Server(Integer.parseInt(args[1]), saveFile);
+            if(saveFile != null) {
+                server.loadSaveFile(new SaveFile(new DataInputStream(new BufferedInputStream(new FileInputStream(saveFile)))));
+            }
             server.start();
             Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
         } else {
