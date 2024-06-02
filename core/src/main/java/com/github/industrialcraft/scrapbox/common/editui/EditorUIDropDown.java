@@ -32,6 +32,7 @@ public class EditorUIDropDown extends EditorUIElement{
     }
     @Override
     public void toStream(DataOutputStream stream) throws IOException {
+        stream.writeUTF(id);
         stream.writeInt(content.size());
         for(String element : content){
             stream.writeUTF(element);
