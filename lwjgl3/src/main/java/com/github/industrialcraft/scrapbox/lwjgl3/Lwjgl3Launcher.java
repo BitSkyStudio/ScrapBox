@@ -20,7 +20,11 @@ public class Lwjgl3Launcher {
             }
             Server server = new Server(Integer.parseInt(args[1]), saveFile);
             if(saveFile != null) {
-                server.loadSaveFile(new SaveFile(new DataInputStream(new BufferedInputStream(new FileInputStream(saveFile)))));
+                try {
+                    server.loadSaveFile(new SaveFile(new DataInputStream(new BufferedInputStream(new FileInputStream(saveFile)))));
+                } catch(FileNotFoundException e){
+                    System.out.println("couldn't load savefile");
+                }
             }
             server.start();
             Runtime.getRuntime().addShutdownHook(new Thread(server::stop));

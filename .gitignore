@@ -19,6 +19,7 @@ gradle-app.setting
 *.war
 *.ear
 hs_err_pid*
+replay_pid*
 .attach_pid*
 
 ## Android:

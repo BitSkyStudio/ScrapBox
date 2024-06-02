@@ -182,7 +182,7 @@ public class InGameScene implements IScene {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if(!toolBox.isMouseInside()) {
-                    if(toolBox.tool == ToolBox.Tool.Hand) {
+                    if(toolBox.tool == ToolBox.Tool.Hand && !Gdx.input.isKeyPressed(Input.Keys.B)) {
                         selected = mouseSelector.getSelected();
                         if (selected != null) {
                             connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
