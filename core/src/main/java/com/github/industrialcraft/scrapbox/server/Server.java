@@ -220,6 +220,17 @@ public class Server {
                 } catch (Exception ignored){}
             }
         }
+        int autoSaveAfterTicks = 20*60;
+        if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1){
+            try {
+                FileOutputStream stream = new FileOutputStream(saveFile);
+                dumpToSaveFile().toStream(new DataOutputStream(stream));
+                stream.close();
+                System.out.println("autosaved");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
     public SaveFile dumpToSaveFile(){
         SaveFile saveFile = new SaveFile(new HashMap<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
