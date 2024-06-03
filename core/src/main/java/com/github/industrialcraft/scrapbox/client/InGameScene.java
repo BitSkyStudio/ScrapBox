@@ -105,6 +105,15 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("position_sensor", new RenderData(new Texture("position_sensor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("math_unit", new RenderData(new Texture("math_unit.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("explosion_particle", new RenderData(new Texture("explosion_particle.png"), 0.5f, 0.5f));
+        renderDataRegistry.put("player", new RenderData(new Texture("player.png"), 0.5f, 0.5f, (renderData, gameObject, batch1) -> {
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            int color = Integer.parseInt(gameObject.animationData, 16);
+            int r = color & 255;
+            int g = (color >> 8) & 255;
+            int b = (color >> 16) & 255;
+            batch.setColor(r*0.5f, g*0.5f, b*0.5f, 1f);
+            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+        }));
         renderDataRegistry.put("display", new RenderData(new Texture("display.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch) -> {
             renderData.draw(batch, gameObject);
             Matrix4 mx4Font = new Matrix4();

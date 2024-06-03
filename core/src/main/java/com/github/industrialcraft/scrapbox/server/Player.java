@@ -2,6 +2,7 @@ package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
@@ -10,23 +11,38 @@ import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Player {
+public class Player extends GameObject{
     public final Server server;
     public final IConnection connection;
     private PinchingData pinching;
     private boolean isDisconnected;
     public final UUID uuid;
     public Player(Server server, IConnection connection) {
+        super(Vector2.Zero.cpy(), 0, server);
         this.server = server;
         this.connection = connection;
         this.pinching = null;
         this.isDisconnected = false;
         this.uuid = UUID.randomUUID();
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.KinematicBody;
+        setBody("base", "player", server.physics.createBody(bodyDef));
     }
+
+    @Override
+    public String getAnimationData() {
+        return Integer.toHexString(((int) this.uuid.getLeastSignificantBits()) >>> 8);
+    }
+
     public void tick(){
+        if(isDisconnected){
+            remove();
+        }
         if(this.pinching != null){
             if(this.pinching.mouseJoint.getBodyB() == null){
                 this.pinching = null;
@@ -67,6 +83,7 @@ public class Player {
             }
             if(message instanceof MouseMoved){
                 MouseMoved mouseMoved = (MouseMoved) message;
+                getBaseBody().setTransform(mouseMoved.position.cpy(), 0);
                 if(pinching != null) {
                     pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
                     GameObject gameObject = getPinching();
@@ -189,6 +206,10 @@ public class Player {
             }
         }
     }
+    @Override
+    public HashMap<String, ConnectionEdge> getConnectionEdges() {
+        return new HashMap<>();
+    }
     public void disconnect(){
         this.isDisconnected = true;
         clearPinched();
@@ -235,6 +256,11 @@ public class Player {
     @Override
     public int hashCode() {
         return Objects.hash(uuid);
+    }
+
+    @Override
+    public String getType() {
+        return null;
     }
     public static class PinchingData{
         public final MouseJoint mouseJoint;

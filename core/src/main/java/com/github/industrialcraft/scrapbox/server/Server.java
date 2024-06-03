@@ -148,6 +148,7 @@ public class Server {
     }
     private void addPlayer(Player player){
         this.players.add(player);
+        this.newGameObjects.add(player);
         ArrayList<Object> messages = new ArrayList<>();
         this.clientWorldManager.addPlayer(player);
         player.send(this.terrain.createMessage());
@@ -191,7 +192,6 @@ public class Server {
         }
         this.scheduledExplosions.clear();
         this.clientWorldManager.updatePositions();
-        this.players.forEach(Player::tick);
         this.players.removeIf(Player::isDisconnected);
         while(this.networkServer.visitMessage(new ServerMessage.Visitor() {
             @Override
@@ -246,19 +246,21 @@ public class Server {
             saveFile.terrain.put(s, paths);
         });
         this.gameObjects.values().forEach(gameObject -> {
-            if(gameObject == gameObject.vehicle.gameObjects.get(0)){
-                saveFile.savedVehicles.add(gameObject.vehicle.save());
-            }
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            try {
-                gameObject.save(new DataOutputStream(outputStream));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle(), outputStream.toByteArray()));
-            for(Map.Entry<String, GameObject.ConnectionData> entry : gameObject.connections.entrySet()){
-                if(gameObject.getId() < entry.getValue().other.getId()){
-                    saveFile.savedJoints.add(new SaveFile.SavedJoint(gameObject.uuid, entry.getKey(), entry.getValue().other.uuid, entry.getValue().otherName));
+            if(gameObject.getType() != null) {
+                if (gameObject == gameObject.vehicle.gameObjects.get(0)) {
+                    saveFile.savedVehicles.add(gameObject.vehicle.save());
+                }
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                try {
+                    gameObject.save(new DataOutputStream(outputStream));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle(), outputStream.toByteArray()));
+                for (Map.Entry<String, GameObject.ConnectionData> entry : gameObject.connections.entrySet()) {
+                    if (gameObject.getId() < entry.getValue().other.getId()) {
+                        saveFile.savedJoints.add(new SaveFile.SavedJoint(gameObject.uuid, entry.getKey(), entry.getValue().other.uuid, entry.getValue().otherName));
+                    }
                 }
             }
         });

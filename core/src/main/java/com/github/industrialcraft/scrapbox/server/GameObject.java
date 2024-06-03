@@ -162,7 +162,7 @@ public abstract class GameObject {
         this.bodies.put(name, body);
         body.setUserData(this);
         boolean base = name.equals("base");
-        int id = server.clientWorldManager.addBody(this, body, type, base);
+        int id = server.clientWorldManager.addBody(this, body, type, base && getType() != null);
         if(base){
             this.baseId = id;
         }

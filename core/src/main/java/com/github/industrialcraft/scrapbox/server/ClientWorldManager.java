@@ -22,7 +22,9 @@ public class ClientWorldManager {
     public int addBody(GameObject gameObject, Body body, String type, boolean selectable){
         BodyInfo bodyInfo = new BodyInfo(body, type, gameObject, ++this.bodyIdGenerator, selectable);
         this.bodies.add(bodyInfo);
-        server.players.forEach(player -> player.send(bodyInfo.createAddMessage()));
+        server.players.forEach(player -> {
+            if(player != gameObject) player.send(bodyInfo.createAddMessage());
+        });
         return bodyInfo.id;
     }
     public void removeObject(GameObject gameObject){
@@ -35,7 +37,9 @@ public class ClientWorldManager {
         });
     }
     public void addPlayer(Player player){
-        this.bodies.forEach(bodyInfo -> player.send(bodyInfo.createAddMessage()));
+        this.bodies.forEach(bodyInfo -> {
+            if(bodyInfo.gameObject != player) player.send(bodyInfo.createAddMessage());
+        });
     }
     public void updatePositions(){
         this.bodies.forEach(bodyInfo -> server.players.forEach(player -> player.send(bodyInfo.createMoveMessage(player))));
