@@ -64,10 +64,17 @@ public class ServerJoinScene extends StageBasedScreen {
                 Dialog dialog = new Dialog("Enter Server IP and Port", skin, "dialog") {
                     public void result(Object obj) {
                         if(obj instanceof String){
-                            String[] split = input.getText().split(":");
-                            NetXClient client = new NetXClient(split[0], Integer.parseInt(split[1]), MessageRegistryCreator.create());
-                            client.start();
-                            ScrapBox.getInstance().setScene(new ConnectingScene(new ClientNetXConnection(client), client));
+                            String[] split = input.getText().trim().split(":");
+                            NetXClient client = null;
+                            try {
+                                client = new NetXClient(split[0], Integer.parseInt(split[1]), MessageRegistryCreator.create());
+                                client.start();
+                                ScrapBox.getInstance().setScene(new ConnectingScene(new ClientNetXConnection(client), client));
+                            } catch(Exception e){
+                                if(client != null)
+                                    client.disconnect();
+                                ScrapBox.getInstance().setScene(new DisconnectedScene(e.getLocalizedMessage()));
+                            }
                         }
                     }
                 };

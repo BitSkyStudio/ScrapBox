@@ -39,21 +39,25 @@ public class TerrainRenderer {
         this.terrain.clear();
         for(Map.Entry<String, ArrayList<TerrainShapeMessage.TerrainData>> entry : message.terrain.entrySet()) {
             for (TerrainShapeMessage.TerrainData data : entry.getValue()) {
-                org.poly2tri.geometry.polygon.Polygon polygon = new org.poly2tri.geometry.polygon.Polygon(data.terrain.points.stream().map(vector2 -> new PolygonPoint(vector2.x, vector2.y)).toArray(PolygonPoint[]::new));
-                for(TerrainShapeMessage.TerrainPath hole : data.holes){
-                    polygon.addHole(new org.poly2tri.geometry.polygon.Polygon(hole.points.stream().map(vector2 -> new PolygonPoint(vector2.x, vector2.y)).toArray(PolygonPoint[]::new)));
-                }
-                Poly2Tri.triangulate(polygon);
-                List<DelaunayTriangle> triangles = polygon.getTriangles();
-                short[] vertexIndexes = new short[triangles.size()*3];
-                VertexDeduplicator vertexDeduplicator = new VertexDeduplicator();
-                for(int i = 0;i < triangles.size();i++){
-                    for(int j = 0;j < 3;j++) {
-                        TriangulationPoint point = triangles.get(i).points[j];
-                        vertexIndexes[i*3+j] = vertexDeduplicator.addVertex(new Vector2((float) (point.getX()*TERRAIN_TEXTURE_SIZE), (float) (point.getY()*TERRAIN_TEXTURE_SIZE)));
+                try {
+                    org.poly2tri.geometry.polygon.Polygon polygon = new org.poly2tri.geometry.polygon.Polygon(data.terrain.points.stream().map(vector2 -> new PolygonPoint(vector2.x, vector2.y)).toArray(PolygonPoint[]::new));
+                    for (TerrainShapeMessage.TerrainPath hole : data.holes) {
+                        polygon.addHole(new org.poly2tri.geometry.polygon.Polygon(hole.points.stream().map(vector2 -> new PolygonPoint(vector2.x, vector2.y)).toArray(PolygonPoint[]::new)));
                     }
+                    Poly2Tri.triangulate(polygon);
+                    List<DelaunayTriangle> triangles = polygon.getTriangles();
+                    short[] vertexIndexes = new short[triangles.size() * 3];
+                    VertexDeduplicator vertexDeduplicator = new VertexDeduplicator();
+                    for (int i = 0; i < triangles.size(); i++) {
+                        for (int j = 0; j < 3; j++) {
+                            TriangulationPoint point = triangles.get(i).points[j];
+                            vertexIndexes[i * 3 + j] = vertexDeduplicator.addVertex(new Vector2((float) (point.getX() * TERRAIN_TEXTURE_SIZE), (float) (point.getY() * TERRAIN_TEXTURE_SIZE)));
+                        }
+                    }
+                    this.terrain.add(new PolygonRegion(this.textures.get(entry.getKey()), vertexDeduplicator.listVertices(), vertexIndexes));
+                } catch(Exception e){
+                    System.out.println("terrain crash");
                 }
-                this.terrain.add(new PolygonRegion(this.textures.get(entry.getKey()), vertexDeduplicator.listVertices(), vertexIndexes));
             }
         }
     }
@@ -61,7 +65,11 @@ public class TerrainRenderer {
         this.polygonSpriteBatch.setProjectionMatrix(cameraController.camera.combined.cpy().scl(InGameScene.BOX_TO_PIXELS_RATIO / TERRAIN_TEXTURE_SIZE));
         this.polygonSpriteBatch.begin();
         for(PolygonRegion polygonRegion : this.terrain){
-            this.polygonSpriteBatch.draw(polygonRegion, 0, 0);
+            try {
+                this.polygonSpriteBatch.draw(polygonRegion, 0, 0);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
         }
         this.polygonSpriteBatch.end();
     }
