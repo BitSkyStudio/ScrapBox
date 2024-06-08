@@ -1,13 +1,10 @@
 package com.github.industrialcraft.scrapbox.server.game;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
-import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.io.DataInputStream;
@@ -74,7 +71,7 @@ public class PositionSensorGameObject extends GameObject {
         for(int i = 0;i < outputs.length;i++){
             ArrayList<EditorUIElement> row = new ArrayList<>();
             row.add(new EditorUILabel(outputs[i]+":"));
-            row.add(new EditorUILink(i, false, 0f, isInputFilled(i)));
+            row.add(new EditorUILink(i, false, 0f, isInputFilled(i), false));
             rows.add(new EditorUIRow(row));
         }
         return rows;

@@ -18,22 +18,32 @@ public class MathUnitGameObject extends GameObject {
     public static final MathOperation[] OPERATION_LIST;
     static{
         OPERATION_LIST = new MathOperation[]{
-            new MathOperation("+", (first, second) -> first+second),
-            new MathOperation("-", (first, second) -> first-second),
-            new MathOperation("*", (first, second) -> first*second),
-            new MathOperation("/", (first, second) -> first/second)
+            new MathOperation("+", (first, second) -> first+second, false),
+            new MathOperation("-", (first, second) -> first-second, false),
+            new MathOperation("*", (first, second) -> first*second, false),
+            new MathOperation("/", (first, second) -> first/second, false),
+            new MathOperation("%", (first, second) -> first%second, false),
+            new MathOperation("pow", (first, second) -> (float) Math.pow(first, second), false),
+            new MathOperation("log", (first, second) -> (float) (Math.log(first)/Math.log(second)), false),
+            new MathOperation("max", Math::max, false),
+            new MathOperation("min", Math::min, false),
+            new MathOperation("abs", (first, second) -> Math.abs(first), true),
+            new MathOperation("round", (first, second) -> (float) Math.round(first), true),
+            new MathOperation("floor", (first, second) -> (float) Math.floor(first), true),
+            new MathOperation("ceil", (first, second) -> (float) Math.ceil(first), true),
+            new MathOperation("sin", (first, second) -> (float) Math.sin(Math.toRadians(first)), true),
+            new MathOperation("cos", (first, second) -> (float) Math.cos(Math.toRadians(first)), true),
+            new MathOperation("tan", (first, second) -> (float) Math.tan(Math.toRadians(first)), true),
+            new MathOperation("atan2", (first, second) -> (float) Math.atan2(first, second), false),
         };
     }
-
     private ArrayList<Integer> operations;
     private ArrayList<Float> outputs;
     public MathUnitGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
-
         this.operations = new ArrayList<>();
         this.outputs = new ArrayList<>();
         this.operations.add(0);
-
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
         bodyDef.angle = rotation;
@@ -87,11 +97,11 @@ public class MathUnitGameObject extends GameObject {
         ArrayList<String> calibrationSelection = Arrays.stream(OPERATION_LIST).map(mathOperation -> mathOperation.text).collect(Collectors.toCollection(ArrayList::new));
         for(int i = 0;i < operations.size();i++){
             ArrayList<EditorUIElement> row = new ArrayList<>();
-            row.add(new EditorUILink(i*2, true, defaultValues.getOrDefault(i*2, 0f), isInputFilled(i*2)));
+            row.add(new EditorUILink(i*2, true, defaultValues.getOrDefault(i*2, 0f), isInputFilled(i*2), false));
             row.add(new EditorUIDropDown("op"+i, calibrationSelection, operations.get(i)));
-            row.add(new EditorUILink(i*2 + 1, true, defaultValues.getOrDefault(i*2+1, 0f), isInputFilled(i*2 + 1)));
+            row.add(new EditorUILink(i*2 + 1, true, defaultValues.getOrDefault(i*2+1, 0f), isInputFilled(i*2 + 1), OPERATION_LIST[operations.get(i)].secondDisabled));
             row.add(new EditorUILabel("="));
-            row.add(new EditorUILink(i, false, 0f, false));
+            row.add(new EditorUILink(i, false, 0f, false, false));
             row.add(new EditorUIButton("X", "close"+i));
             rows.add(new EditorUIRow(row));
         }
@@ -157,9 +167,11 @@ public class MathUnitGameObject extends GameObject {
     public static class MathOperation{
         public final String text;
         public final BiFunction<Float,Float,Float> function;
-        public MathOperation(String text, BiFunction<Float, Float, Float> function) {
+        public final boolean secondDisabled;
+        public MathOperation(String text, BiFunction<Float, Float, Float> function, boolean secondDisabled) {
             this.text = text;
             this.function = function;
+            this.secondDisabled = secondDisabled;
         }
     }
 }

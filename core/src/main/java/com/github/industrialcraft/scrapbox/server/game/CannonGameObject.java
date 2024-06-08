@@ -9,9 +9,7 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
-import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.util.ArrayList;
@@ -62,7 +60,7 @@ public class CannonGameObject extends GameObject {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
         ArrayList<EditorUIElement> row = new ArrayList<>();
         row.add(new EditorUILabel("trigger: "));
-        row.add(new EditorUILink(0, true, defaultValues.getOrDefault(0, 0f), isInputFilled(0)));
+        row.add(new EditorUILink(0, true, defaultValues.getOrDefault(0, 0f), isInputFilled(0), false));
         rows.add(new EditorUIRow(row));
         return rows;
     }

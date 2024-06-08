@@ -4,14 +4,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
-import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,7 +34,7 @@ public class DisplayGameObject extends GameObject {
 
         ArrayList<EditorUIElement> row = new ArrayList<>();
         row.add(new EditorUILabel("value: "));
-        row.add(new EditorUILink(0, true, 0f, isInputFilled(0)));
+        row.add(new EditorUILink(0, true, 0f, isInputFilled(0), false));
         rows.add(new EditorUIRow(row));
 
         return rows;

@@ -24,17 +24,20 @@ public class EditorUILink extends EditorUIElement{
     public final boolean input;
     public final float defaultValue;
     public final boolean filled;
-    public EditorUILink(int id, boolean input, float defaultValue, boolean filled) {
+    public final boolean disabled;
+    public EditorUILink(int id, boolean input, float defaultValue, boolean filled, boolean disabled) {
         this.id = id;
         this.input = input;
         this.defaultValue = defaultValue;
         this.filled = filled;
+        this.disabled = disabled;
     }
     public EditorUILink(DataInputStream stream) throws IOException {
         this.id = stream.readInt();
         this.input = stream.readBoolean();
         this.defaultValue = stream.readFloat();
         this.filled = stream.readBoolean();
+        this.disabled = stream.readBoolean();
     }
     @Override
     public void toStream(DataOutputStream stream) throws IOException {
@@ -42,65 +45,69 @@ public class EditorUILink extends EditorUIElement{
         stream.writeBoolean(input);
         stream.writeFloat(defaultValue);
         stream.writeBoolean(filled);
+        stream.writeBoolean(disabled);
     }
     @Override
     public Actor createActor(Skin skin, ClientGameObjectEditor editor) {
         Image image = new Image(input?(filled?editor.linkInputFilled:editor.linkInput):editor.linkOutput);
-        if(input) {
-            image.addListener(new ClickListener(Input.Buttons.LEFT){
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    TextField input = new TextField(defaultValue+"", skin);
-                    Dialog dialog = new Dialog("Enter default value", skin, "dialog") {
-                        public void result(Object obj) {
-                            if(obj instanceof String){
-                                editor.scene.connection.send(new EditorUIInput(editor.gameObjectID, ""+id, input.getText()));
+        if(!disabled) {
+            if (input) {
+                image.addListener(new ClickListener(Input.Buttons.LEFT) {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        TextField input = new TextField(defaultValue + "", skin);
+                        Dialog dialog = new Dialog("Enter default value", skin, "dialog") {
+                            public void result(Object obj) {
+                                if (obj instanceof String) {
+                                    editor.scene.connection.send(new EditorUIInput(editor.gameObjectID, "" + id, input.getText()));
+                                }
                             }
-                        }
-                    };
-                    dialog.setMovable(false);
-                    dialog.button("Cancel");
-                    dialog.button("Ok", "");
-                    dialog.getContentTable().add(input);
-                    dialog.show(editor.scene.stage);
-                }
-            });
-            image.addListener(new ClickListener(Input.Buttons.RIGHT){
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    editor.scene.connection.send(new DestroyValueConnection(editor.gameObjectID, EditorUILink.this.id));
-                }
-            });
-            editor.scene.dragAndDrop.addTarget(new DragAndDrop.Target(image) {
-                @Override
-                public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-                    return payload.getObject() instanceof ConnectionData;
-                }
-                @Override
-                public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-                    ConnectionData output = (ConnectionData) payload.getObject();
-                    editor.scene.connection.send(new CreateValueConnection(editor.gameObjectID, EditorUILink.this.id, output.gameObject, output.connectionId));
-                }
-            });
-        } else {
-            editor.scene.dragAndDrop.addSource(new DragAndDrop.Source(image) {
-                @Override
-                public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
-                    image.setVisible(false);
-                    DragAndDrop.Payload payload = new DragAndDrop.Payload();
-                    Image connection = new Image(editor.linkOutput);
-                    payload.setDragActor(connection);
-                    payload.setObject(new ConnectionData(editor.gameObjectID, EditorUILink.this.id, image.localToStageCoordinates(new Vector2(image.getWidth()/2, image.getHeight()/2))));
-                    editor.scene.dragAndDrop.setDragActorPosition(image.getWidth(), -image.getHeight()/2);
-                    return payload;
-                }
+                        };
+                        dialog.setMovable(false);
+                        dialog.button("Cancel");
+                        dialog.button("Ok", "");
+                        dialog.getContentTable().add(input);
+                        dialog.show(editor.scene.stage);
+                    }
+                });
+                image.addListener(new ClickListener(Input.Buttons.RIGHT) {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        editor.scene.connection.send(new DestroyValueConnection(editor.gameObjectID, EditorUILink.this.id));
+                    }
+                });
+                editor.scene.dragAndDrop.addTarget(new DragAndDrop.Target(image) {
+                    @Override
+                    public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                        return payload.getObject() instanceof ConnectionData;
+                    }
 
-                @Override
-                public void dragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target) {
-                    image.setVisible(true);
-                    super.dragStop(event, x, y, pointer, payload, target);
-                }
-            });
+                    @Override
+                    public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                        ConnectionData output = (ConnectionData) payload.getObject();
+                        editor.scene.connection.send(new CreateValueConnection(editor.gameObjectID, EditorUILink.this.id, output.gameObject, output.connectionId));
+                    }
+                });
+            } else {
+                editor.scene.dragAndDrop.addSource(new DragAndDrop.Source(image) {
+                    @Override
+                    public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+                        image.setVisible(false);
+                        DragAndDrop.Payload payload = new DragAndDrop.Payload();
+                        Image connection = new Image(editor.linkOutput);
+                        payload.setDragActor(connection);
+                        payload.setObject(new ConnectionData(editor.gameObjectID, EditorUILink.this.id, image.localToStageCoordinates(new Vector2(image.getWidth() / 2, image.getHeight() / 2))));
+                        editor.scene.dragAndDrop.setDragActorPosition(image.getWidth(), -image.getHeight() / 2);
+                        return payload;
+                    }
+
+                    @Override
+                    public void dragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target) {
+                        image.setVisible(true);
+                        super.dragStop(event, x, y, pointer, payload, target);
+                    }
+                });
+            }
         }
         return image;
     }
