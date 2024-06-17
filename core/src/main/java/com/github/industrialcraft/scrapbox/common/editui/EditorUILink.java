@@ -50,6 +50,8 @@ public class EditorUILink extends EditorUIElement{
     @Override
     public Actor createActor(Skin skin, ClientGameObjectEditor editor) {
         Image image = new Image(input?(filled?editor.linkInputFilled:editor.linkInput):editor.linkOutput);
+        float color = disabled?0.5f:1f;
+        image.setColor(color, color, color, 1f);
         if(!disabled) {
             if (input) {
                 image.addListener(new ClickListener(Input.Buttons.LEFT) {
