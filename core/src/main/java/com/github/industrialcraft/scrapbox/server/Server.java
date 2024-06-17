@@ -135,6 +135,9 @@ public class Server {
         if(type.equals("position_sensor")){
             return spawnGameObject(position, rotation, PositionSensorGameObject::new, uuid);
         }
+        if(type.equals("distance_sensor")){
+            return spawnGameObject(position, rotation, DistanceSensorGameObject::new, uuid);
+        }
         if(type.equals("display")){
             return spawnGameObject(position, rotation, DisplayGameObject::new, uuid);
         }

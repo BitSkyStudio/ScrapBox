@@ -85,6 +85,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("puncher", new RenderData(new Texture("puncher.png"), 1, 1));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
+        renderDataRegistry.put("distance_sensor", new RenderData(new Texture("distance_sensor.png"), 1, 0.25f));
         renderDataRegistry.put("propeller", new RenderData(new Texture("propeller.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
             float time = gameObject.internalRendererData!=null? (float) gameObject.internalRendererData :0f;
@@ -145,6 +146,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("position_sensor", renderDataRegistry.get("position_sensor"));
         this.toolBox.addPart("display", renderDataRegistry.get("display"));
         this.toolBox.addPart("math_unit", renderDataRegistry.get("math_unit"));
+        this.toolBox.addPart("distance_sensor", renderDataRegistry.get("distance_sensor"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
