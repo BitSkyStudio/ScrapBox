@@ -4,10 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.github.industrialcraft.scrapbox.client.ClientGameObjectEditor;
@@ -72,6 +69,7 @@ public class EditorUILink extends EditorUIElement{
                         dialog.show(editor.scene.stage);
                     }
                 });
+                image.addListener(new TextTooltip("default: " + defaultValue, skin));
                 image.addListener(new ClickListener(Input.Buttons.RIGHT) {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
