@@ -121,9 +121,11 @@ public class MathUnitGameObject extends GameObject {
             for(int j = i;j < operations.size();j++){
                 valueConnections.put(j*2, valueConnections.get((j+1)*2));
                 valueConnections.put(j*2+1, valueConnections.get((j+1)*2+1));
+                defaultValues.put(j, defaultValues.getOrDefault(j+1, 0f));
             }
             destroyValueConnection(operations.size()*2);
             destroyValueConnection(operations.size()*2+1);
+            defaultValues.remove(operations.size());
         }
         if(elementId.equals("new")){
             operations.add(0);
