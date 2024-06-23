@@ -171,11 +171,13 @@ public class Server {
             }
         });
         terrain.rebuildIfNeeded();
-        if((!paused) || singleStep) {
-            singleStep = false;
-            for(GameObject gameObject : this.gameObjects.values()){
+        boolean runTick = (!paused) || singleStep;
+        for(GameObject gameObject : this.gameObjects.values()){
+            if(runTick || gameObject instanceof Player)
                 gameObject.tick();
-            }
+        }
+        if(runTick) {
+            singleStep = false;
             int internalSteps = 20;
             for(int i = 0;i < internalSteps;i++) {
                 for(GameObject gameObject : this.gameObjects.values()){
