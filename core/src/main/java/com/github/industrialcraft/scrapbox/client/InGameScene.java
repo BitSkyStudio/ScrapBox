@@ -106,6 +106,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("position_sensor", new RenderData(new Texture("position_sensor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("math_unit", new RenderData(new Texture("math_unit.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("explosion_particle", new RenderData(new Texture("explosion_particle.png"), 0.5f, 0.5f));
+        renderDataRegistry.put("pid_controller", new RenderData(new Texture("pid_controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("player", new RenderData(new Texture("player.png"), 0.5f, 0.5f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
             int color = Integer.parseInt(gameObject.animationData, 16);
@@ -147,6 +148,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("display", renderDataRegistry.get("display"));
         this.toolBox.addPart("math_unit", renderDataRegistry.get("math_unit"));
         this.toolBox.addPart("distance_sensor", renderDataRegistry.get("distance_sensor"));
+        this.toolBox.addPart("pid_controller", renderDataRegistry.get("pid_controller"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

@@ -52,7 +52,6 @@ public class DistanceSensorGameObject extends GameObject {
                 length.set(fraction * max);
             return fraction;
         }, getBaseBody().getPosition().cpy(), getBaseBody().getPosition().add(new Vector2(max, 0).setAngleRad((float) (getBaseBody().getAngle()+Math.PI/2))));
-        System.out.println(length.get());
         return length.get();
     }
 
