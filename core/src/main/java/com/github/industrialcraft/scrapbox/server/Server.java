@@ -84,6 +84,11 @@ public class Server {
             return true;
         });
     }
+
+    public int getTicks() {
+        return tickCount;
+    }
+
     public LocalConnection joinLocalPlayer(){
         ConcurrentLinkedQueue<Object> write = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Object> read = new ConcurrentLinkedQueue<>();
