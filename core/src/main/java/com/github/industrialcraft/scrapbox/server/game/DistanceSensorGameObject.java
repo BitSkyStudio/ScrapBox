@@ -22,7 +22,7 @@ public class DistanceSensorGameObject extends GameObject {
         Body base = server.physics.createBody(bodyDef);
         FixtureDef fixtureDef = new FixtureDef();
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(1, 0.25f);
+        shape.setAsBox(0.5f, 0.25f);
         fixtureDef.shape = shape;
         fixtureDef.density = 1F;
         base.createFixture(fixtureDef);

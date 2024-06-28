@@ -36,6 +36,7 @@ public class Server {
     public boolean paused;
     public boolean singleStep;
     private int tickCount;
+    private int runningTickCount;
     private final UUID uuid;
     public final File saveFile;
     public final ArrayList<Vector3> scheduledExplosions;
@@ -55,6 +56,7 @@ public class Server {
         this.networkServer.start();
         this.stopped = false;
         this.tickCount = 0;
+        this.runningTickCount = 0;
         this.scheduledExplosions = new ArrayList<>();
         this.paused = false;
         this.singleStep = false;
@@ -86,7 +88,7 @@ public class Server {
     }
 
     public int getTicks() {
-        return tickCount;
+        return runningTickCount;
     }
 
     public LocalConnection joinLocalPlayer(){
@@ -185,6 +187,7 @@ public class Server {
                 gameObject.tick();
         }
         if(runTick) {
+            runningTickCount++;
             singleStep = false;
             int internalSteps = 20;
             for(int i = 0;i < internalSteps;i++) {
