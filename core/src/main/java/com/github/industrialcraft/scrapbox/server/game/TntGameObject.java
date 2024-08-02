@@ -62,7 +62,7 @@ public class TntGameObject extends GameObject {
 
     public void explode(){
         remove();
-        server.createExplosion(getBaseBody().getPosition(), 1);
+        server.createExplosion(getBaseBody().getPosition(), 3);
     }
 
     @Override

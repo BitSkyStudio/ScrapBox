@@ -206,6 +206,7 @@ public class Server {
             Random random = new Random();
             for(int i = 0;i < 100;i++){
                 ExplosionParticleGameObject go = spawnGameObject(position, 0f, ExplosionParticleGameObject::new, null);
+                go.power = explosion.z;
                 go.getBaseBody().applyLinearImpulse(Vector2.Y.cpy().setAngleRad((float) (random.nextFloat()*Math.PI*2f)).scl(explosion.z*10*random.nextFloat()), go.getBaseBody().getWorldCenter(), true);
             }
         }

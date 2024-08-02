@@ -18,6 +18,7 @@ import java.util.UUID;
 public class ExplosionParticleGameObject extends GameObject {
     private int ttl;
     private boolean cancelled;
+    public float power;
     public ExplosionParticleGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
 
@@ -36,7 +37,8 @@ public class ExplosionParticleGameObject extends GameObject {
         base.createFixture(fixtureDef);
         this.setBody("base", "explosion_particle", base);
         this.cancelled = false;
-        this.ttl = 3;
+        this.ttl = 4;
+        this.power = 1;
     }
 
     @Override
@@ -62,6 +64,10 @@ public class ExplosionParticleGameObject extends GameObject {
             return false;
         if(go != null)
             go.getBaseBody().applyLinearImpulse(this.getBaseBody().getLinearVelocity().cpy().scl(1.2f), this.getBaseBody().getWorldCenter(), true);
+        if(other.getType() == BodyDef.BodyType.StaticBody){
+            System.out.println("here");
+            server.terrain.place("", thisBody.getWorldCenter(), power/Math.max(3-ttl, 1), false);
+        }
         this.cancelled = true;
         return true;
     }
