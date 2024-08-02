@@ -346,8 +346,8 @@ public class Server {
         }
         Body firstBase = first.getBaseBody();
         Body secondBase = second.getBaseBody();
-        float rotationOffset = (secondBase.getAngle()-firstBase.getAngle())-((float) (Math.round((secondBase.getAngle()-firstBase.getAngle())/HALF_PI)*HALF_PI));
-        secondBase.setTransform(secondBase.getPosition(), secondBase.getAngle()-rotationOffset);
+        float rotationOffset = firstBase.getAngle()+((float) (Math.round((secondBase.getAngle()-firstBase.getAngle())/HALF_PI)*HALF_PI));
+        secondBase.setTransform(secondBase.getPosition(), rotationOffset);
         secondBase.setTransform(secondBase.getPosition().add(first.getOpenConnections().get(firstName).getPosition().sub(second.getOpenConnections().get(secondName).getPosition())), secondBase.getAngle());
         Joint joint = second.createJoint(secondName, first, firstName);
         first.connect(firstName, second, secondName, joint);
