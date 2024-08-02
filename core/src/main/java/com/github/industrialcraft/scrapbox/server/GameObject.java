@@ -10,6 +10,7 @@ import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.common.net.msg.OpenGameObjectEditUI;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
+import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -237,9 +238,11 @@ public abstract class GameObject {
                 if(other == this){
                     continue;
                 }
-                for(Map.Entry<String, GameObjectConnectionEdge> edge2: other.getOpenConnections().entrySet()){
-                    if(edge1.getValue().collides(edge2.getValue())){
-                        weldCandidates.add(new WeldCandidate(edge1.getValue(), edge1.getKey(), edge2.getValue(), edge2.getKey()));
+                if(this instanceof FrameGameObject || other instanceof FrameGameObject) {
+                    for (Map.Entry<String, GameObjectConnectionEdge> edge2 : other.getOpenConnections().entrySet()) {
+                        if (edge1.getValue().collides(edge2.getValue())) {
+                            weldCandidates.add(new WeldCandidate(edge1.getValue(), edge1.getKey(), edge2.getValue(), edge2.getKey()));
+                        }
                     }
                 }
             }

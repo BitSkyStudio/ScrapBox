@@ -22,6 +22,8 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static com.github.industrialcraft.scrapbox.server.GameObject.HALF_PI;
+
 public class Server {
     public static Vector2 GRAVITY = new Vector2(0, -9.81f);
 
@@ -342,6 +344,11 @@ public class Server {
         if(!(first instanceof FrameGameObject)){
             throw new RuntimeException("one of joined must be frame");
         }
+        Body firstBase = first.getBaseBody();
+        Body secondBase = second.getBaseBody();
+        float rotationOffset = (secondBase.getAngle()-firstBase.getAngle())-((float) (Math.round((secondBase.getAngle()-firstBase.getAngle())/HALF_PI)*HALF_PI));
+        secondBase.setTransform(secondBase.getPosition(), secondBase.getAngle()-rotationOffset);
+        secondBase.setTransform(secondBase.getPosition().add(first.getOpenConnections().get(firstName).getPosition().sub(second.getOpenConnections().get(secondName).getPosition())), secondBase.getAngle());
         Joint joint = second.createJoint(secondName, first, firstName);
         first.connect(firstName, second, secondName, joint);
         second.connect(secondName, first, firstName, joint);
