@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -63,6 +64,7 @@ public class InGameScene implements IScene {
     private static final float JOINT_BREAK_ICON_SIZE = 48;
     private static final float CONTROLLER_BUTTON_SIZE = 80;
     public Dialog escapeMenu;
+    private TextureRegion puncherSpringTexture;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -76,14 +78,24 @@ public class InGameScene implements IScene {
         editors = new HashMap<>();
         cameraController = new CameraController(this, new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         debugRenderer = new Box2DDebugRenderer();
+        puncherSpringTexture = new TextureRegion(new Texture("puncher_spring.png"));
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
         renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
         renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1));
-        renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
-        renderDataRegistry.put("puncher", new RenderData(new Texture("puncher.png"), 1, 1));
+        renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch1) -> {
+            float animation = Float.parseFloat(gameObject.animationData);
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            lerpedPosition.add(new Vector2(0, 1f).rotateRad(gameObject.getRealAngle()));
+            batch.draw(puncherSpringTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1 * 2f * animation * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+            renderData.draw(batch1, gameObject);
+        }));
+        renderDataRegistry.put("puncher", new RenderData(new Texture("puncher.png"), 1, 1, (renderData, gameObject, batch1) -> {
+            if(Float.parseFloat(gameObject.animationData) > 0.1)
+                renderData.draw(batch, gameObject);
+        }));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("weight", new RenderData(new Texture("weight.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("distance_sensor", new RenderData(new Texture("distance_sensor.png"), 1, 0.25f));

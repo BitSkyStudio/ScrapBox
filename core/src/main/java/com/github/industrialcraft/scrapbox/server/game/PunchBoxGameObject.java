@@ -73,6 +73,11 @@ public class PunchBoxGameObject extends GameObject {
     }
 
     @Override
+    public String getAnimationData() {
+        return ""+(motor.getJointTranslation()/4f);
+    }
+
+    @Override
     public Joint createJoint(String thisName, GameObject other, String otherName) {
         float rotationOffset = (float) (Math.round((other.getBaseBody().getAngle()-this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
         Transform transform = other.getBaseBody().getTransform();
