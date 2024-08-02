@@ -157,6 +157,9 @@ public class Server {
         if(type.equals("pid_controller")){
             return spawnGameObject(position, rotation, PIDControllerGameObject::new, uuid);
         }
+        if(type.equals("weight")){
+            return spawnGameObject(position, rotation, WeightGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
