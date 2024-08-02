@@ -28,7 +28,7 @@ public class BulletGameObject extends GameObject {
         CircleShape shape = new CircleShape();
         shape.setRadius(0.1f);
         fixtureDef.shape = shape;
-        fixtureDef.density = 1F;
+        fixtureDef.density = 100F;
         base.createFixture(fixtureDef);
         this.setBody("base", "bullet", base);
 
@@ -70,7 +70,6 @@ public class BulletGameObject extends GameObject {
     public boolean collidesWith(Body thisBody, Body other) {
         if(other.getUserData() != parent){
             this.remove();
-            server.createExplosion(getBaseBody().getPosition(), 0.5f);
             return true;
         } else {
             return false;
