@@ -91,13 +91,14 @@ public class InGameScene implements IScene {
             if(otherId > gameObject.id){
                 batch1.end();
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+                shapeRenderer.setColor(217f/255f, 160f/255f, 100f/255f, 1f);
                 Vector2 first = gameObject.getRealPosition();
                 Vector2 second = gameObjects.get(otherId).getRealPosition();
                 Bezier<Vector2> bezier = new Bezier<>(first, new Vector2((first.x+second.x)/2f, (first.y+second.y)/2f-(length-first.dst(second))), second);
                 Vector2 previous = gameObject.getRealPosition();
                 for(float n = 0;n < 1;n+=0.01f) {
                     Vector2 point = bezier.valueAt(new Vector2(), n);
-                    shapeRenderer.line(previous.scl(BOX_TO_PIXELS_RATIO),point.cpy().scl(BOX_TO_PIXELS_RATIO));
+                    shapeRenderer.rectLine(previous.scl(BOX_TO_PIXELS_RATIO),point.cpy().scl(BOX_TO_PIXELS_RATIO), 3);
                     previous = point;
                 }
 
