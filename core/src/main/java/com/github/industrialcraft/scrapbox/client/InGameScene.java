@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Bezier;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -81,6 +82,29 @@ public class InGameScene implements IScene {
         puncherSpringTexture = new TextureRegion(new Texture("puncher_spring.png"));
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
+        renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
+        renderDataRegistry.put("rope_connector", new RenderData(new Texture("rope_connector.png"), 0.2f, 0.2f, (renderData, gameObject, batch1) -> {
+            String[] animationParts = gameObject.animationData.split(":");
+            float length = Float.parseFloat(animationParts[0]);
+            int otherId = Integer.parseInt(animationParts[1]);
+            renderData.draw(batch1, gameObject);
+            if(otherId > gameObject.id){
+                batch1.end();
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+                Vector2 first = gameObject.getRealPosition();
+                Vector2 second = gameObjects.get(otherId).getRealPosition();
+                Bezier<Vector2> bezier = new Bezier<>(first, new Vector2((first.x+second.x)/2f, (first.y+second.y)/2f-(length-first.dst(second))), second);
+                Vector2 previous = gameObject.getRealPosition();
+                for(float n = 0;n < 1;n+=0.01f) {
+                    Vector2 point = bezier.valueAt(new Vector2(), n);
+                    shapeRenderer.line(previous.scl(BOX_TO_PIXELS_RATIO),point.cpy().scl(BOX_TO_PIXELS_RATIO));
+                    previous = point;
+                }
+
+                shapeRenderer.end();
+                batch1.begin();
+            }
+        }));
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
         renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
@@ -163,6 +187,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("distance_sensor", renderDataRegistry.get("distance_sensor"));
         this.toolBox.addPart("pid_controller", renderDataRegistry.get("pid_controller"));
         this.toolBox.addPart("weight", renderDataRegistry.get("weight"));
+        this.toolBox.addPart("rope", renderDataRegistry.get("rope"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

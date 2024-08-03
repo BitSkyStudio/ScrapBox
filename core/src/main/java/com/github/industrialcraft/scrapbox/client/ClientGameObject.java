@@ -8,6 +8,7 @@ import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
 
 public class ClientGameObject {
     public final String type;
+    public final int id;
     public Vector2 lastPosition;
     public Vector2 position;
     public float rotation;
@@ -21,6 +22,7 @@ public class ClientGameObject {
     public Object internalRendererData;
     public ClientGameObject(AddGameObjectMessage message) {
         this.type = message.type;
+        this.id = message.id;
         this.lastPosition = message.position;
         this.position = message.position;
         this.lastRotation = message.rotation;

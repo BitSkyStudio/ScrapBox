@@ -9,6 +9,7 @@ import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
+import com.github.industrialcraft.scrapbox.server.game.RopeGameObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -147,7 +148,14 @@ public class Player extends GameObject{
                 PinchingRotate pinchingRotate = (PinchingRotate) message;
                 GameObject pinching = getPinching();
                 if(pinching != null){
-                    pinching.getBaseBody().applyAngularImpulse(-pinchingRotate.rotation*pinching.vehicle.getMass(), true);
+                    if(pinching instanceof RopeGameObject){
+                        RopeGameObject rope = (RopeGameObject) pinching;
+                        if(rope.joint != null){
+                            rope.joint.setMaxLength(Math.max(Math.min(rope.joint.getMaxLength()-pinchingRotate.rotation, 10), 1));
+                        }
+                    } else {
+                        pinching.getBaseBody().applyAngularImpulse(-pinchingRotate.rotation * pinching.vehicle.getMass(), true);
+                    }
                 }
             }
             if(message instanceof OpenGameObjectEditUI){

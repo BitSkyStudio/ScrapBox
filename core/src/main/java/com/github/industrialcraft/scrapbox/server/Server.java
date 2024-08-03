@@ -162,6 +162,9 @@ public class Server {
         if(type.equals("weight")){
             return spawnGameObject(position, rotation, WeightGameObject::new, uuid);
         }
+        if(type.equals("rope")){
+            return spawnGameObject(position, rotation, RopeGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
