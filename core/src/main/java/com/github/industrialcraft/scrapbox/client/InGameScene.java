@@ -84,13 +84,12 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
         renderDataRegistry.put("rope_connector", new RenderData(new Texture("rope_connector.png"), 0.2f, 0.2f, (renderData, gameObject, batch1) -> {
-            String[] animationParts = gameObject.animationData.split(":");
-            float length = Float.parseFloat(animationParts[0]);
-            int otherId = Integer.parseInt(animationParts[1]);
+            float length = gameObject.getAnimationNumber("length", 3);
+            int otherId = Integer.parseInt(gameObject.getAnimationString("other", "0"));
             renderData.draw(batch1, gameObject);
             if(otherId > gameObject.id){
                 batch1.end();
-                shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 shapeRenderer.setColor(217f/255f, 160f/255f, 100f/255f, 1f);
                 Vector2 first = gameObject.getRealPosition();
                 Vector2 second = gameObjects.get(otherId).getRealPosition();
@@ -111,14 +110,14 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
         renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1));
         renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch1) -> {
-            float animation = Float.parseFloat(gameObject.animationData);
+            float animation = gameObject.getAnimationNumber("animation", 0);
             Vector2 lerpedPosition = gameObject.getRealPosition();
             lerpedPosition.add(new Vector2(0, 1f).rotateRad(gameObject.getRealAngle()));
             batch.draw(puncherSpringTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1 * 2f * animation * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
             renderData.draw(batch1, gameObject);
         }));
         renderDataRegistry.put("puncher", new RenderData(new Texture("puncher.png"), 1, 1, (renderData, gameObject, batch1) -> {
-            if(Float.parseFloat(gameObject.animationData) > 0.1)
+            if(gameObject.getAnimationNumber("animation", 0) > 0.1)
                 renderData.draw(batch, gameObject);
         }));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
@@ -127,7 +126,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("propeller", new RenderData(new Texture("propeller.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
             float time = gameObject.internalRendererData!=null? (float) gameObject.internalRendererData :0f;
-            float speed = Float.parseFloat(gameObject.animationData);
+            float speed = gameObject.getAnimationNumber("speed", 0);
             time += Gdx.graphics.getDeltaTime() * Math.max(speed * 30, time != 0?5:0);
             if(speed == 0 && Math.cos(time) > 0.9 && Math.cos(time) < 1.){
                 time = 0;
@@ -147,7 +146,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("pid_controller", new RenderData(new Texture("pid_controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("player", new RenderData(new Texture("player.png"), 0.5f, 0.5f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
-            int color = Integer.parseInt(gameObject.animationData, 16);
+            int color = Integer.parseInt(gameObject.getAnimationString("color", "000000"), 16);
             int r = color & 255;
             int g = (color >> 8) & 255;
             int b = (color >> 16) & 255;
@@ -161,9 +160,10 @@ public class InGameScene implements IScene {
             mx4Font.translate(translation).rotateRad(new Vector3(0, 0, 1), gameObject.rotation).translate(translation.cpy().scl(-1));
             batch.setTransformMatrix(mx4Font);
             GlyphLayout layout = new GlyphLayout();
-            layout.setText(font, gameObject.animationData);
+            String text = gameObject.getAnimationString("text", "");
+            layout.setText(font, text);
             float realWidth = Math.min(layout.width, FrameGameObject.INSIDE_SIZE*2);
-            font.draw(batch, gameObject.animationData, translation.x - layout.width / 2, translation.y);
+            font.draw(batch, text, translation.x - layout.width / 2, translation.y);
             mx4Font.idt();
             batch.setTransformMatrix(mx4Font);
         }));

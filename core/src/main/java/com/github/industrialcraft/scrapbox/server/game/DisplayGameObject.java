@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
+import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -62,8 +63,8 @@ public class DisplayGameObject extends GameObject {
     }
 
     @Override
-    public String getAnimationData() {
-        return ""+Math.floor(getValueOnInput(0)*1000)/1000;
+    public void getAnimationData(ClientWorldManager.AnimationData animationData) {
+        animationData.addString("text", ""+Math.floor(getValueOnInput(0)*1000)/1000);
     }
 
     @Override

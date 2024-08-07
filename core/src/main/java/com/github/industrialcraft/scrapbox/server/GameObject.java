@@ -282,8 +282,8 @@ public abstract class GameObject {
 
     public abstract String getType();
 
-    public String getAnimationData(){
-        return "";
+    public void getAnimationData(ClientWorldManager.AnimationData animationData){
+
     }
 
     @FunctionalInterface

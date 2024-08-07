@@ -7,6 +7,7 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
+import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -73,8 +74,9 @@ public class PunchBoxGameObject extends GameObject {
     }
 
     @Override
-    public String getAnimationData() {
-        return ""+(motor.getJointTranslation()/4f);
+    public void getAnimationData(ClientWorldManager.AnimationData animationData) {
+        if(motor != null)
+            animationData.addNumber("animation", motor.getJointTranslation()/4);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.server.game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.*;
+import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -36,8 +37,11 @@ public class RopeGameObject extends GameObject {
     }
 
     @Override
-    public String getAnimationData() {
-        return (joint!=null?joint.getMaxLength():0)+":"+(other!=null?other.getId():0);
+    public void getAnimationData(ClientWorldManager.AnimationData animationData) {
+        if(joint != null)
+            animationData.addNumber("length", joint.getMaxLength());
+        if(other != null)
+            animationData.addString("other", ""+other.getId());
     }
 
     @Override

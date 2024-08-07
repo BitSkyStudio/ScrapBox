@@ -9,6 +9,7 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
+import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -37,8 +38,8 @@ public class PropellerGameObject extends GameObject {
     }
 
     @Override
-    public String getAnimationData() {
-        return "" + speed;
+    public void getAnimationData(ClientWorldManager.AnimationData animationData) {
+        animationData.addNumber("speed", this.speed);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
+import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 
 public class ClientGameObject {
     public final String type;
@@ -18,7 +19,8 @@ public class ClientGameObject {
     public boolean selected;
     public int lastUpdateLength;
     public long lastUpdate;
-    public String animationData;
+    public ClientWorldManager.AnimationData animationData;
+    public ClientWorldManager.AnimationData lastAnimationData;
     public Object internalRendererData;
     public ClientGameObject(AddGameObjectMessage message) {
         this.type = message.type;
@@ -33,6 +35,7 @@ public class ClientGameObject {
         this.lastUpdate = System.currentTimeMillis();
         this.lastUpdateLength = 0;
         this.animationData = message.animation;
+        this.lastAnimationData = message.animation;
         this.internalRendererData = null;
     }
     public void move(MoveGameObjectMessage message){
@@ -44,6 +47,7 @@ public class ClientGameObject {
         this.selected = message.selected;
         this.lastUpdateLength = (int) (System.currentTimeMillis() - this.lastUpdate);
         this.lastUpdate = System.currentTimeMillis();
+        this.lastAnimationData = this.animationData;
         this.animationData = message.animation;
     }
     private float getProgress(){
@@ -54,5 +58,13 @@ public class ClientGameObject {
     }
     public float getRealAngle(){
         return MathUtils.lerpAngle(lastRotation, rotation, getProgress());
+    }
+    public String getAnimationString(String name, String defaultString){
+        return animationData.getString(name, defaultString);
+    }
+    public float getAnimationNumber(String name, float defaultNumber){
+        float newNumber = animationData.getNumber(name, defaultNumber);
+        float oldNumber = lastAnimationData.getNumber(name, newNumber);
+        return MathUtils.lerp(oldNumber, newNumber, getProgress());
     }
 }

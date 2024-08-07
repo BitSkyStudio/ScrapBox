@@ -36,8 +36,8 @@ public class Player extends GameObject{
     }
 
     @Override
-    public String getAnimationData() {
-        return Integer.toHexString(((int) this.uuid.getLeastSignificantBits()) >>> 8);
+    public void getAnimationData(ClientWorldManager.AnimationData animationData) {
+        animationData.addString("color", Integer.toHexString(((int) this.uuid.getLeastSignificantBits()) >>> 8));
     }
 
     public void tick(){

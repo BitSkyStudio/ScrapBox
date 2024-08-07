@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.common.net.msg;
 import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.netx.MessageRegistry;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,9 +14,9 @@ public class MoveGameObjectMessage {
     public final Vector2 position;
     public final float rotation;
     public final EObjectInteractionMode mode;
-    public final String animation;
+    public final ClientWorldManager.AnimationData animation;
     public final boolean selected;
-    public MoveGameObjectMessage(int id, Vector2 position, float rotation, EObjectInteractionMode mode, String animation, boolean selected) {
+    public MoveGameObjectMessage(int id, Vector2 position, float rotation, EObjectInteractionMode mode, ClientWorldManager.AnimationData animation, boolean selected) {
         this.id = id;
         this.position = position;
         this.rotation = rotation;
@@ -28,7 +29,7 @@ public class MoveGameObjectMessage {
         this.position = new Vector2(stream.readFloat(), stream.readFloat());
         this.rotation = stream.readFloat();
         this.mode = EObjectInteractionMode.fromId(stream.readByte());
-        this.animation = stream.readUTF();
+        this.animation = new ClientWorldManager.AnimationData(stream);
         this.selected = stream.readBoolean();
     }
     public void toStream(DataOutputStream stream) throws IOException {
@@ -36,8 +37,7 @@ public class MoveGameObjectMessage {
         stream.writeFloat(position.x);
         stream.writeFloat(position.y);
         stream.writeFloat(rotation);
-        stream.writeByte(mode.id);
-        stream.writeUTF(animation);
+        animation.toStream(stream);
         stream.writeBoolean(selected);
     }
     public static MessageRegistry.MessageDescriptor<MoveGameObjectMessage> createDescriptor(){

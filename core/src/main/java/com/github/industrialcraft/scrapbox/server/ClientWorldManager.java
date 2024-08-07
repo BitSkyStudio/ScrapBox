@@ -6,6 +6,9 @@ import com.github.industrialcraft.scrapbox.common.net.msg.DeleteGameObject;
 import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.SendConnectionListData;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +74,9 @@ public class ClientWorldManager {
             this.selectable = selectable;
         }
         public AddGameObjectMessage createAddMessage(){
-            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.getAnimationData(), selectable);
+            AnimationData animationData = new AnimationData();
+            gameObject.getAnimationData(animationData);
+            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), animationData, selectable);
         }
         public MoveGameObjectMessage createMoveMessage(Player player){
             GameObject pinching = player.getPinching();
@@ -81,7 +86,53 @@ public class ClientWorldManager {
                     selected = true;
                 }
             }
-            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.vehicle.getMode(), gameObject.getAnimationData(), selected);
+            AnimationData animationData = new AnimationData();
+            gameObject.getAnimationData(animationData);
+            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.vehicle.getMode(), animationData, selected);
+        }
+    }
+    public static class AnimationData{
+        private HashMap<String, Float> numbers;
+        private HashMap<String, String> strings;
+        public AnimationData(){
+            this.numbers = new HashMap<>();
+            this.strings = new HashMap<>();
+        }
+        public AnimationData(DataInputStream stream) throws IOException {
+            this.numbers = new HashMap<>();
+            int count = stream.readInt();
+            for(int i = 0;i < count;i++){
+                this.numbers.put(stream.readUTF(), stream.readFloat());
+            }
+            this.strings = new HashMap<>();
+            count = stream.readInt();
+            for(int i = 0;i < count;i++){
+                this.strings.put(stream.readUTF(), stream.readUTF());
+            }
+        }
+        public void toStream(DataOutputStream stream) throws IOException {
+            stream.writeInt(numbers.size());
+            for(Map.Entry<String, Float> entry : numbers.entrySet()){
+                stream.writeUTF(entry.getKey());
+                stream.writeFloat(entry.getValue());
+            }
+            stream.writeInt(strings.size());
+            for(Map.Entry<String, String> entry : strings.entrySet()){
+                stream.writeUTF(entry.getKey());
+                stream.writeUTF(entry.getValue());
+            }
+        }
+        public void addNumber(String name, float number){
+            this.numbers.put(name, number);
+        }
+        public void addString(String name, String text){
+            this.strings.put(name, text);
+        }
+        public float getNumber(String name, float defaultNumber){
+            return this.numbers.getOrDefault(name, defaultNumber);
+        }
+        public String getString(String name, String defaultString){
+            return this.strings.getOrDefault(name, defaultString);
         }
     }
 }
