@@ -80,7 +80,7 @@ public class PositionSensorGameObject extends GameObject {
     public void handleEditorUIInput(String elementId, String value) {
         super.handleEditorUIInput(elementId, value);
         if(elementId.equals("calibration")){
-            if(value.equals("global")){
+            if(value.equals("0")){
                 this.calibration = null;
             } else {
                 this.calibration = new PositionSensorCalibration(getBaseBody().getPosition().cpy(), getBaseBody().getAngle());
