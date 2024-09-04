@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
+import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class DistanceSensorGameObject extends GameObject {
+    private float max;
     public DistanceSensorGameObject(Vector2 position, float rotation, Server server) {
         super(position, rotation, server);
 
@@ -26,6 +28,7 @@ public class DistanceSensorGameObject extends GameObject {
         fixtureDef.shape = shape;
         fixtureDef.density = 1F;
         base.createFixture(fixtureDef);
+        this.max = 10;
         this.setBody("base", "distance_sensor", base);
     }
     @Override
@@ -45,7 +48,6 @@ public class DistanceSensorGameObject extends GameObject {
 
     @Override
     public float getValueOnOutput(int id) {
-        float max = 10;
         AtomicReference<Float> length = new AtomicReference<>(max);
         server.physics.rayCast((fixture, point, normal, fraction) -> {
             if(length.get() > fraction * max)
@@ -53,6 +55,12 @@ public class DistanceSensorGameObject extends GameObject {
             return fraction;
         }, getBaseBody().getPosition().cpy(), getBaseBody().getPosition().add(new Vector2(max, 0).setAngleRad((float) (getBaseBody().getAngle()+Math.PI/2))));
         return length.get();
+    }
+
+    @Override
+    public void getAnimationData(ClientWorldManager.AnimationData animationData) {
+        animationData.addNumber("length", getValueOnOutput(0));
+        animationData.addNumber("max", max);
     }
 
     @Override

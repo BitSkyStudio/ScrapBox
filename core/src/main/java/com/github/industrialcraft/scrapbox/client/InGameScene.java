@@ -122,7 +122,20 @@ public class InGameScene implements IScene {
         }));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("weight", new RenderData(new Texture("weight.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
-        renderDataRegistry.put("distance_sensor", new RenderData(new Texture("distance_sensor.png"), 1, 0.25f));
+        renderDataRegistry.put("distance_sensor", new RenderData(new Texture("distance_sensor.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
+            renderData.draw(batch1, gameObject);
+            batch1.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(1, 0, 0, 1f);
+            Vector2 rotation = new Vector2(1, 0).setAngleRad((float) (gameObject.getRealAngle()+Math.PI/2));
+            Vector2 target = gameObject.getRealPosition().add(rotation.scl(gameObject.animationData.getNumber("length", 10))).scl(InGameScene.BOX_TO_PIXELS_RATIO);
+            shapeRenderer.rectLine(gameObject.getRealPosition().scl(InGameScene.BOX_TO_PIXELS_RATIO), target, 5);
+            if(gameObject.animationData.getNumber("length", 10) < gameObject.animationData.getNumber("max", 10)){
+                shapeRenderer.circle(target.x, target.y, 10);
+            }
+            shapeRenderer.end();
+            batch1.begin();
+        }));
         renderDataRegistry.put("propeller", new RenderData(new Texture("propeller.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
             float time = gameObject.internalRendererData!=null? (float) gameObject.internalRendererData :0f;
@@ -413,6 +426,7 @@ public class InGameScene implements IScene {
         }
         this.terrainRenderer.draw(this.cameraController);
         batch.setProjectionMatrix(cameraController.camera.combined);
+        shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
         batch.begin();
         for (ClientGameObject gameObject : gameObjects.values()) {
             switch (gameObject.mode){
