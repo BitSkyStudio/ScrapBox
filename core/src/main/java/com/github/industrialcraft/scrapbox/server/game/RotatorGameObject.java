@@ -11,6 +11,9 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -52,6 +55,18 @@ public class RotatorGameObject extends GameObject {
         revoluteJoint.enableMotor = true;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
         this.setBody("end", "rotator_end", wheelBody);
+    }
+
+    @Override
+    public void save(DataOutputStream stream) throws IOException {
+        super.save(stream);
+        stream.writeFloat(getBody("end").getAngle()-getBaseBody().getAngle());
+    }
+
+    @Override
+    public void load(DataInputStream stream) throws IOException {
+        super.load(stream);
+        getBody("end").setTransform(getBody("end").getPosition(), getBaseBody().getAngle()+stream.readFloat());
     }
 
     @Override

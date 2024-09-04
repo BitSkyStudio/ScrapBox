@@ -306,11 +306,6 @@ public class Server {
             spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id);
             data.put(gameObject.id, gameObject.data);
         }
-        for(SaveFile.SavedJoint joint : saveFile.savedJoints){
-            GameObject first = getGameObjectByUUID(joint.first);
-            GameObject second = getGameObjectByUUID(joint.second);
-            joinGameObject(first, joint.firstName, second, joint.secondName);
-        }
         this.terrain.terrain.clear();
         for(Map.Entry<String, ArrayList<ArrayList<Vector2>>> entry : saveFile.terrain.entrySet()){
             PathsD paths = new PathsD();
@@ -330,6 +325,11 @@ public class Server {
                 e.printStackTrace();
             }
         });
+        for(SaveFile.SavedJoint joint : saveFile.savedJoints){
+            GameObject first = getGameObjectByUUID(joint.first);
+            GameObject second = getGameObjectByUUID(joint.second);
+            joinGameObject(first, joint.firstName, second, joint.secondName);
+        }
         saveFile.savedVehicles.forEach(vehicle -> {
             GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);
             gameObject.vehicle.load(vehicle);
