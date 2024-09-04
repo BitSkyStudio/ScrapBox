@@ -249,7 +249,12 @@ public abstract class GameObject {
         }
         return weldCandidates;
     }
+    private EObjectInteractionMode localMode = EObjectInteractionMode.Normal;
+    public EObjectInteractionMode getLocalMode() {
+        return localMode;
+    }
     public void setMode(EObjectInteractionMode mode){
+        this.localMode = mode;
         BodyDef.BodyType type;
         Filter filter = new Filter();
         if(mode == EObjectInteractionMode.Static){

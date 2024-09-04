@@ -88,7 +88,7 @@ public class ClientWorldManager {
             }
             AnimationData animationData = new AnimationData();
             gameObject.getAnimationData(animationData);
-            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.vehicle.getMode(), animationData, selected);
+            return new MoveGameObjectMessage(this.id, this.body.getPosition().cpy(), this.body.getAngle(), gameObject.getLocalMode(), animationData, selected);
         }
     }
     public static class AnimationData{

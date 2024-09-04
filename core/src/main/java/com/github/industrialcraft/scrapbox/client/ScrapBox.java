@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.client;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.codedisaster.steamworks.*;
 
 import java.io.File;
 
@@ -17,9 +18,21 @@ public class ScrapBox extends ApplicationAdapter {
         scene.create();
         scene.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         new File("./saves").mkdir();
+        try {
+            SteamAPI.loadLibraries();
+            if (!SteamAPI.init()) {
+                System.out.println("couldnt initialize");
+            }
+
+        } catch (SteamException e) {
+            // Error extracting or loading native libraries
+        }
     }
     @Override
     public void render() {
+        if (SteamAPI.isSteamRunning()) {
+            SteamAPI.runCallbacks();
+        }
         scene.render();
     }
     @Override

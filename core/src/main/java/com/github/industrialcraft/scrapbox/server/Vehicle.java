@@ -2,6 +2,7 @@ package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.server.game.RopeGameObject;
 
 import java.util.ArrayList;
 
@@ -40,6 +41,11 @@ public class Vehicle {
         this.mode = mode;
         for(GameObject go : this.gameObjects){
             go.setMode(mode);
+            if(go instanceof RopeGameObject){
+                GameObject other = ((RopeGameObject)go).other;
+                if(other != null)
+                    other.setMode(mode);
+            }
         }
     }
     public Vector2 getCenterOfMass(){

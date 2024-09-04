@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.server.game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.*;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
@@ -49,6 +50,7 @@ public class RopeGameObject extends GameObject {
         super.tick();
         if(other == null){
             RopeGameObject other = server.spawnGameObject(getBaseBody().getPosition(), getBaseBody().getAngle(), RopeGameObject::new, UUID.randomUUID());
+            other.setMode(EObjectInteractionMode.Ghost);
             other.other = this;
             this.other = other;
             RopeJointDef jointDef = new RopeJointDef();
