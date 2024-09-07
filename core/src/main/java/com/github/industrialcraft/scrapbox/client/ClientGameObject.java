@@ -22,6 +22,8 @@ public class ClientGameObject {
     public ClientWorldManager.AnimationData animationData;
     public ClientWorldManager.AnimationData lastAnimationData;
     public Object internalRendererData;
+    public float maxHealth;
+    public float health;
     public ClientGameObject(AddGameObjectMessage message) {
         this.type = message.type;
         this.id = message.id;
@@ -37,6 +39,8 @@ public class ClientGameObject {
         this.animationData = message.animation;
         this.lastAnimationData = message.animation;
         this.internalRendererData = null;
+        this.maxHealth = message.maxHealth;
+        this.health = message.health;
     }
     public void move(MoveGameObjectMessage message){
         this.lastPosition = this.position;
@@ -49,6 +53,7 @@ public class ClientGameObject {
         this.lastUpdate = System.currentTimeMillis();
         this.lastAnimationData = this.animationData;
         this.animationData = message.animation;
+        this.health = message.health;
     }
     private float getProgress(){
         return ((float)(System.currentTimeMillis() - this.lastUpdate))/this.lastUpdateLength;

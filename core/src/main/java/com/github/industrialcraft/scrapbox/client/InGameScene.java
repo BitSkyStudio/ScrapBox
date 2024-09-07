@@ -66,6 +66,8 @@ public class InGameScene implements IScene {
     private static final float CONTROLLER_BUTTON_SIZE = 80;
     public Dialog escapeMenu;
     private TextureRegion puncherSpringTexture;
+    private boolean isPaused;
+    private TextureRegion pausedTexture;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -80,6 +82,7 @@ public class InGameScene implements IScene {
         cameraController = new CameraController(this, new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         debugRenderer = new Box2DDebugRenderer();
         puncherSpringTexture = new TextureRegion(new Texture("puncher_spring.png"));
+        pausedTexture = new TextureRegion(new Texture("paused.png"));
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
@@ -327,6 +330,10 @@ public class InGameScene implements IScene {
         Gdx.gl.glClearColor(79f / 255f, 201f / 255f, 232f / 255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         for(Object message : connection.read()){
+            if(message instanceof GamePausedState){
+                GamePausedState gamePausedStateMessage = (GamePausedState) message;
+                isPaused = gamePausedStateMessage.paused;
+            }
             if(message instanceof AddGameObjectMessage){
                 AddGameObjectMessage addGameObjectMessage = (AddGameObjectMessage) message;
                 gameObjects.put(addGameObjectMessage.id, new ClientGameObject(addGameObjectMessage));
@@ -451,6 +458,15 @@ public class InGameScene implements IScene {
         }
         batch.end();
 
+        if(debugRendering && server != null){
+            Matrix4 matrix = cameraController.camera.combined.cpy();
+            synchronized (server.physics) {
+                try {
+                    debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
+                } catch(Exception e){}
+            }
+        }
+
         stage.act();
         stage.draw();
 
@@ -483,8 +499,23 @@ public class InGameScene implements IScene {
                 shapeRenderer.circle(position.x * BOX_TO_PIXELS_RATIO, position.y * BOX_TO_PIXELS_RATIO, toolBox.brushSize * 2 * BOX_TO_PIXELS_RATIO);
             }
         }
-
         shapeRenderer.end();
+        if(toolBox.tool == ToolBox.Tool.Wrench) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            MouseSelector.Selection selected = mouseSelector.getSelected();
+            if(selected != null){
+                ClientGameObject gameObject = gameObjects.get(selected.id);
+                Vector2 position = mouseSelector.getWorldMousePosition();
+                float healthPercent = gameObject.health/gameObject.maxHealth;
+                final float HEALTH_OFFSET = 100;
+                final float BAR_WIDTH = 200;
+                shapeRenderer.setColor(89f/255f, 9f/255f, 0, 1);
+                shapeRenderer.rect((position.x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2), position.y*InGameScene.BOX_TO_PIXELS_RATIO + HEALTH_OFFSET, BAR_WIDTH, 50);
+                shapeRenderer.setColor(1, 0, 0, 1);
+                shapeRenderer.rect(position.x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2+5, position.y*InGameScene.BOX_TO_PIXELS_RATIO + HEALTH_OFFSET + 5, (BAR_WIDTH-10)*healthPercent, 50 - 10);
+            }
+            shapeRenderer.end();
+        }
         batch.setColor(0.5f, 0.5f, 0.5f, 1);
         if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.B)){
             batch.begin();
@@ -499,8 +530,8 @@ public class InGameScene implements IScene {
         batch.setProjectionMatrix(uiMatrix);
         toolBox.render(batch);
         batch.end();
+        float realWidth = Gdx.graphics.getWidth()-toolBox.getWidth();
         if(controllingData != null){
-            float realWidth = Gdx.graphics.getWidth()-toolBox.getWidth();
             float stripWidth = CONTROLLER_BUTTON_SIZE*10 + CONTROLLER_BUTTON_SIZE*9/2;
             batch.begin();
             for(int i = 0;i < 10;i++){
@@ -513,11 +544,12 @@ public class InGameScene implements IScene {
             }
             batch.end();
         }
-        if(debugRendering && server != null){
-            Matrix4 matrix = cameraController.camera.combined.cpy();
-            synchronized (server.physics) {
-                debugRenderer.render(server.physics, matrix.scl(BOX_TO_PIXELS_RATIO, BOX_TO_PIXELS_RATIO, 0));
-            }
+        if(isPaused){
+            batch.begin();
+            float width = pausedTexture.getRegionWidth()*3;
+            float height = pausedTexture.getRegionHeight()*3;
+            batch.draw(pausedTexture, realWidth/2- width/2, Gdx.graphics.getHeight()-50-height, width, height);
+            batch.end();
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F)){

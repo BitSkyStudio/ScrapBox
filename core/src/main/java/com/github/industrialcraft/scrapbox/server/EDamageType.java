@@ -5,4 +5,5 @@ public enum EDamageType {
     Explosion,
     Impact,
     Bullet,
+    Wrench
 }

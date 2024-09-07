@@ -30,6 +30,8 @@ public class Player extends GameObject{
         this.isDisconnected = false;
         this.uuid = UUID.randomUUID();
 
+        connection.send(new GamePausedState(server.paused));
+
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
         setBody("base", "player", server.physics.createBody(bodyDef));
@@ -39,7 +41,8 @@ public class Player extends GameObject{
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {
         animationData.addString("color", Integer.toHexString(((int) this.uuid.getLeastSignificantBits()) >>> 8));
     }
-
+    @Override
+    public void damage(float amount, EDamageType damageType) {}
     public void tick(){
         if(isDisconnected){
             remove();
@@ -56,6 +59,10 @@ public class Player extends GameObject{
                     server.singleStep = true;
                 } else {
                     server.paused = !server.paused;
+                    GamePausedState pausedStateMessage = new GamePausedState(server.paused);
+                    for(Player client : server.players){
+                        client.send(pausedStateMessage);
+                    }
                 }
             }
             if(message instanceof GameObjectPinch){

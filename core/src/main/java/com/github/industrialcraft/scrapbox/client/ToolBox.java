@@ -32,6 +32,7 @@ public class ToolBox {
         this.tools = new ArrayList<>();
         this.tools.add(new ToolType(Tool.Hand, new Texture("mode_hand.png"), null));
         this.tools.add(new ToolType(Tool.TerrainModify, new Texture("mode_terrain_modify_circle.png"), new Texture("mode_terrain_modify_rect.png")));
+        this.tools.add(new ToolType(Tool.Wrench, new Texture("mode_wrench.png"), null));
         this.selectedTerrain = 0;
         this.terrainTypes = new ArrayList<>();
         this.brushSize = 1;
@@ -66,7 +67,7 @@ public class ToolBox {
                 }
                 batch.draw(texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - terrainScroll - toolHeight, width, width);
             }
-        } else {
+        } else if(tool == Tool.Hand) {
             for (int i = 0; i < this.parts.size(); i++) {
                 Part part = this.parts.get(i);
                 float maxLength = Math.max(part.renderData.width, part.renderData.height);
@@ -153,6 +154,7 @@ public class ToolBox {
     }
     public enum Tool{
         Hand,
-        TerrainModify
+        TerrainModify,
+        Wrench
     }
 }

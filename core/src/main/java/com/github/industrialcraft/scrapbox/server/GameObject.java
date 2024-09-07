@@ -49,6 +49,8 @@ public abstract class GameObject {
     }
     public void damage(float amount, EDamageType damageType){
         this.health -= amount * this.damageModifiers.getOrDefault(damageType, 1f);
+        if(this.health > getMaxHealth())
+            health = getMaxHealth();
         if(health <= 0){
             this.remove();
         }
