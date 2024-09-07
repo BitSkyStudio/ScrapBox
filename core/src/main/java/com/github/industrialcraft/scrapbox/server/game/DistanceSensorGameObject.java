@@ -28,7 +28,7 @@ public class DistanceSensorGameObject extends GameObject {
         fixtureDef.shape = shape;
         fixtureDef.density = 1F;
         base.createFixture(fixtureDef);
-        this.max = 10;
+        this.max = 100;
         this.setBody("base", "distance_sensor", base);
     }
     @Override
