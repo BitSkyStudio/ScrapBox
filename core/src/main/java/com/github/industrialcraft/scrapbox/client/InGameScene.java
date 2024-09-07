@@ -147,6 +147,8 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("propeller", new RenderData(new Texture("propeller.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
             float time = gameObject.internalRendererData!=null? (float) gameObject.internalRendererData :0f;
+            if(Float.isNaN(time))
+                time = 0;
             float speed = gameObject.getAnimationNumber("speed", 0);
             time += Gdx.graphics.getDeltaTime() * Math.max(speed * 30, time != 0?5:0);
             if(speed == 0 && Math.cos(time) > 0.9 && Math.cos(time) < 1.){
