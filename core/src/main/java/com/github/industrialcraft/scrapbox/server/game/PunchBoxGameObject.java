@@ -8,6 +8,7 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
+import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -39,7 +40,8 @@ public class PunchBoxGameObject extends GameObject {
         puncherShape.setRadius(0.5f);
         puncherFixtureDef.shape = puncherShape;
         puncherFixtureDef.density = 1F;
-        puncherBody.createFixture(puncherFixtureDef);
+        Fixture puncherFixture = puncherBody.createFixture(puncherFixtureDef);
+        puncherFixture.setUserData("");
         PrismaticJointDef prismaticJointDef = new PrismaticJointDef();
         prismaticJointDef.bodyA = puncherBody;
         prismaticJointDef.bodyB = base;
@@ -64,6 +66,18 @@ public class PunchBoxGameObject extends GameObject {
             return true;
         }
         return other.getBody().getUserData() != connections.get("center").other;
+    }
+
+    @Override
+    public void onCollision(Fixture thisFixture, Fixture other) {
+        if(thisFixture.getUserData() instanceof String){
+            if(motor.getJointSpeed() > 1){
+                if(other.getBody().getUserData() instanceof GameObject){
+                    GameObject otherObject = (GameObject) other.getBody().getUserData();
+                    otherObject.damage(20, EDamageType.Impact);
+                }
+            }
+        }
     }
 
     @Override

@@ -64,8 +64,11 @@ public abstract class BaseWheelGameObject extends GameObject {
         for(Contact contact : server.physics.getContactList()){
             if(contact.isTouching()){
                 if((contact.getFixtureA().getBody().getUserData() == this && (contact.getFixtureA().getUserData() instanceof String)) || (contact.getFixtureB().getBody().getUserData() == this && (contact.getFixtureB().getUserData() instanceof String))){
-                    if(contact.getFixtureA().getBody().getType() != BodyDef.BodyType.StaticBody && contact.getFixtureB().getBody().getType() != BodyDef.BodyType.StaticBody)
-                        continue;
+                    if(contact.getFixtureA().getBody().getType() != BodyDef.BodyType.StaticBody && contact.getFixtureB().getBody().getType() != BodyDef.BodyType.StaticBody) {
+                        Body otherBody = contact.getFixtureA().getBody().getUserData()==this?contact.getFixtureB().getBody():contact.getFixtureA().getBody();
+                        if(otherBody.getUserData() instanceof GameObject)
+                            handleContact((GameObject) otherBody.getUserData());
+                    }
                     for(Vector2 point : contact.getWorldManifold().getPoints()){
                         if(point.isZero())
                             continue;
@@ -80,6 +83,9 @@ public abstract class BaseWheelGameObject extends GameObject {
         } else {
             motor.enableMotor(false);
         }
+    }
+    public void handleContact(GameObject gameObject){
+
     }
 
     @Override

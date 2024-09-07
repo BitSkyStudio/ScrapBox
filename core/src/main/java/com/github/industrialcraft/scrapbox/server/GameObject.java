@@ -89,6 +89,7 @@ public abstract class GameObject {
     }
     public void remove(){
         this.isRemoved = true;
+        this.vehicle.gameObjects.remove(this);
     }
     public void destroy(){
         this.bodies.forEach((s, body) -> server.physics.destroyBody(body));

@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.server.game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -63,8 +64,10 @@ public class ExplosionParticleGameObject extends GameObject {
         GameObject go = (GameObject) other.getBody().getUserData();
         if(go != null && (go.isRemoved() || go instanceof ExplosionParticleGameObject))
             return;
-        if(go != null)
+        if(go != null) {
             go.getBaseBody().applyLinearImpulse(this.getBaseBody().getLinearVelocity().cpy().scl(1.2f), this.getBaseBody().getWorldCenter(), true);
+            go.damage(30, EDamageType.Explosion);
+        }
         if(other.getBody().getType() == BodyDef.BodyType.StaticBody){
             server.terrain.place("", thisFixture.getBody().getWorldCenter(), power/Math.max(3-ttl, 1), false);
         }
