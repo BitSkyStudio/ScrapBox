@@ -106,6 +106,7 @@ public class InGameScene implements IScene {
             }
         }));
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
+        renderDataRegistry.put("cutting_wheel", new RenderData(new Texture("cutting_wheel.png"), 1, 1));
         renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
         renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1));
@@ -202,6 +203,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("pid_controller", renderDataRegistry.get("pid_controller"));
         this.toolBox.addPart("weight", renderDataRegistry.get("weight"));
         this.toolBox.addPart("rope", renderDataRegistry.get("rope"));
+        this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

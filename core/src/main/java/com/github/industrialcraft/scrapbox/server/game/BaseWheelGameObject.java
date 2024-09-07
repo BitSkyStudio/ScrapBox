@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class BaseWheelGameObject extends GameObject {
-    private final RevoluteJoint motor;
+    protected final RevoluteJoint motor;
     private final Body wheelBody;
     private final float adhesion;
     public BaseWheelGameObject(Vector2 position, float rotation, Server server, float adhesion, String joinType, String wheelType) {

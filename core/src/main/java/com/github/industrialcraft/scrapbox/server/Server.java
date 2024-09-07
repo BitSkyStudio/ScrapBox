@@ -165,6 +165,9 @@ public class Server {
         if(type.equals("rope")){
             return spawnGameObject(position, rotation, RopeGameObject::new, uuid);
         }
+        if(type.equals("cutting_wheel")){
+            return spawnGameObject(position, rotation, CuttingWheelGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
@@ -378,22 +381,22 @@ public class Server {
                     throw new RuntimeException(e);
                 }
             }
+            this.networkServer.close();
+            this.physics.dispose();
+            try {
+                if(saveFile != null) {
+                    FileOutputStream stream = new FileOutputStream(saveFile);
+                    dumpToSaveFile().toStream(new DataOutputStream(stream));
+                    stream.close();
+                }
+            } catch(IOException exception){
+                System.out.println("couldn't save");
+            }
         }).start();
     }
     public void stop(){
         if(stopped)
             return;
         this.stopped = true;
-        this.networkServer.close();
-        this.physics.dispose();
-        try {
-            if(saveFile != null) {
-                FileOutputStream stream = new FileOutputStream(saveFile);
-                dumpToSaveFile().toStream(new DataOutputStream(stream));
-                stream.close();
-            }
-        } catch(IOException exception){
-            System.out.println("couldn't save");
-        }
     }
 }

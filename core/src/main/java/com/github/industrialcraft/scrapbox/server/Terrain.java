@@ -85,7 +85,11 @@ public class Terrain {
                     points[i * 2] = (float) path.get(i).x;
                     points[(i * 2) + 1] = (float) path.get(i).y;
                 }
-                shape.createLoop(points);
+                if(points.length <= 2){
+                    shape.createChain(points);
+                } else {
+                    shape.createLoop(points);
+                }
                 FixtureDef fixtureDef = new FixtureDef();
                 fixtureDef.shape = shape;
                 TerrainType terrainType = this.terrainTypes.get(type.getKey());
