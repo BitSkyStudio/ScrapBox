@@ -68,6 +68,7 @@ public class InGameScene implements IScene {
     private TextureRegion puncherSpringTexture;
     private boolean isPaused;
     private TextureRegion pausedTexture;
+    private TextureRegion grabberStickyTexture;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -83,6 +84,7 @@ public class InGameScene implements IScene {
         debugRenderer = new Box2DDebugRenderer();
         puncherSpringTexture = new TextureRegion(new Texture("puncher_spring.png"));
         pausedTexture = new TextureRegion(new Texture("paused.png"));
+        grabberStickyTexture = new TextureRegion(new Texture("grabber_sticky.png"));
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
@@ -91,6 +93,8 @@ public class InGameScene implements IScene {
             int otherId = Integer.parseInt(gameObject.getAnimationString("other", "0"));
             renderData.draw(batch1, gameObject);
             if(otherId > gameObject.id){
+                if(!gameObjects.containsKey(otherId))
+                    return;
                 batch1.end();
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 shapeRenderer.setColor(217f/255f, 160f/255f, 100f/255f, 1f);
@@ -152,6 +156,15 @@ public class InGameScene implements IScene {
             gameObject.internalRendererData = time;
             batch.draw(renderData.texture, (lerpedPosition.x - realWidth) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height) * InGameScene.BOX_TO_PIXELS_RATIO, realWidth * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO, realWidth * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
         }));
+        renderDataRegistry.put("grabber", new RenderData(new Texture("grabber.png"), 1, 0.1875f, (renderData, gameObject, batch1) -> {
+            renderData.draw(batch1, gameObject);
+            if(gameObject.getAnimationNumber("suction", 0) > 0) {
+                Vector2 lerpedPosition = gameObject.getRealPosition();
+                Vector2 offset = new Vector2(0.1875f, 0f);
+                offset.setAngleRad((float) (gameObject.getRealAngle() + Math.PI/2));
+                batch.draw(grabberStickyTexture, (lerpedPosition.x - renderData.width + offset.x) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 0.0625f + offset.y) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO * 2, 0.0625f * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+            }
+        }));
         renderDataRegistry.put("tnt", new RenderData(new Texture("tnt.png"), 1, 1));
         renderDataRegistry.put("rotator_join", new RenderData(new Texture("rotator_join.png"), 1, 1));
         renderDataRegistry.put("rotator_end", new RenderData(new Texture("rotator_end.png"), 1, 1));
@@ -207,6 +220,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("weight", renderDataRegistry.get("weight"));
         this.toolBox.addPart("rope", renderDataRegistry.get("rope"));
         this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"));
+        this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

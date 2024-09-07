@@ -1,10 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Filter;
-import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
@@ -139,8 +136,11 @@ public abstract class GameObject {
             }
         }
     }
-    public boolean collidesWith(Body thisBody, Body other){
+    public boolean collidesWith(Fixture thisFixture, Fixture other){
         return true;
+    }
+    public void onCollision(Fixture thisFixture, Fixture other){
+
     }
     public boolean isSideUsed(String name){
         return this.connections.containsKey(name);

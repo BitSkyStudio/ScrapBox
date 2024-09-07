@@ -56,14 +56,14 @@ public class PunchBoxGameObject extends GameObject {
     }
 
     @Override
-    public boolean collidesWith(Body thisBody, Body other) {
-        if(thisBody != motor.getBodyA()){
+    public boolean collidesWith(Fixture thisFixture, Fixture other) {
+        if(thisFixture.getBody() != motor.getBodyA()){
             return true;
         }
         if(connections.get("center") == null){
             return true;
         }
-        return other.getUserData() != connections.get("center").other;
+        return other.getBody().getUserData() != connections.get("center").other;
     }
 
     @Override

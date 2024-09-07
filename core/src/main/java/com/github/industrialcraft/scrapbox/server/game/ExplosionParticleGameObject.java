@@ -1,10 +1,7 @@
 package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.*;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
@@ -56,21 +53,24 @@ public class ExplosionParticleGameObject extends GameObject {
     }
 
     @Override
-    public boolean collidesWith(Body thisBody, Body other) {
+    public boolean collidesWith(Fixture thisFixture, Fixture other) {
+        return !cancelled;
+    }
+    @Override
+    public void onCollision(Fixture thisFixture, Fixture other) {
         if(cancelled)
-            return false;
-        GameObject go = (GameObject) other.getUserData();
+            return;
+        GameObject go = (GameObject) other.getBody().getUserData();
         if(go != null && (go.isRemoved() || go instanceof ExplosionParticleGameObject))
-            return false;
+            return;
         if(go != null)
             go.getBaseBody().applyLinearImpulse(this.getBaseBody().getLinearVelocity().cpy().scl(1.2f), this.getBaseBody().getWorldCenter(), true);
-        if(other.getType() == BodyDef.BodyType.StaticBody){
-            System.out.println("here");
-            server.terrain.place("", thisBody.getWorldCenter(), power/Math.max(3-ttl, 1), false);
+        if(other.getBody().getType() == BodyDef.BodyType.StaticBody){
+            server.terrain.place("", thisFixture.getBody().getWorldCenter(), power/Math.max(3-ttl, 1), false);
         }
         this.cancelled = true;
-        return true;
     }
+
     @Override
     public String getType() {
         return "explosion_particle";

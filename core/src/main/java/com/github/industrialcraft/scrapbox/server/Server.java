@@ -76,16 +76,39 @@ public class Server {
             Object userDataA = bodyA.getUserData();
             Object userDataB = bodyB.getUserData();
             if(userDataA instanceof GameObject){
-                if(!((GameObject) userDataA).collidesWith(bodyA, bodyB)){
+                if(!((GameObject) userDataA).collidesWith(fixtureA, fixtureB)){
                     return false;
                 }
             }
             if(userDataB instanceof GameObject){
-                if(!((GameObject) userDataB).collidesWith(bodyB, bodyA)){
+                if(!((GameObject) userDataB).collidesWith(fixtureB, fixtureA)){
                     return false;
                 }
             }
             return true;
+        });
+        this.physics.setContactListener(new ContactListener() {
+            @Override
+            public void beginContact(Contact contact) {
+                Fixture fixtureA = contact.getFixtureA();
+                Fixture fixtureB = contact.getFixtureB();
+                Body bodyA = fixtureA.getBody();
+                Body bodyB = fixtureB.getBody();
+                Object userDataA = bodyA.getUserData();
+                Object userDataB = bodyB.getUserData();
+                if(userDataA instanceof GameObject){
+                    ((GameObject) userDataA).onCollision(fixtureA, fixtureB);
+                }
+                if(userDataB instanceof GameObject){
+                    ((GameObject) userDataB).onCollision(fixtureB, fixtureA);
+                }
+            }
+            @Override
+            public void endContact(Contact contact) {}
+            @Override
+            public void preSolve(Contact contact, Manifold oldManifold) {}
+            @Override
+            public void postSolve(Contact contact, ContactImpulse impulse) {}
         });
     }
 
@@ -168,6 +191,9 @@ public class Server {
         if(type.equals("cutting_wheel")){
             return spawnGameObject(position, rotation, CuttingWheelGameObject::new, uuid);
         }
+        if(type.equals("grabber")){
+            return spawnGameObject(position, rotation, GrabberGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
@@ -249,7 +275,7 @@ public class Server {
             }
         }
         int autoSaveAfterTicks = 20*60;
-        if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1){
+        if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1&&false){//todo: enable back
             try {
                 FileOutputStream stream = new FileOutputStream(saveFile);
                 dumpToSaveFile().toStream(new DataOutputStream(stream));

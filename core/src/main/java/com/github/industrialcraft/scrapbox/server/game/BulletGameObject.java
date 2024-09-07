@@ -67,14 +67,15 @@ public class BulletGameObject extends GameObject {
     }
 
     @Override
-    public boolean collidesWith(Body thisBody, Body other) {
-        if(other.getUserData() != parent){
-            this.remove();
-            return true;
-        } else {
-            return false;
-        }
+    public boolean collidesWith(Fixture thisFixture, Fixture other) {
+        return other.getBody().getUserData() != parent;
     }
+
+    @Override
+    public void onCollision(Fixture thisFixture, Fixture other) {
+        this.remove();
+    }
+
     @Override
     public String getType() {
         return "bullet";
