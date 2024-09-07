@@ -219,6 +219,13 @@ public class Player extends GameObject{
                     this.send(new ResponseControllerState(state));
                 }
             }
+            if(message instanceof ChangeObjectHealth){
+                ChangeObjectHealth changeObjectHealthMessage = (ChangeObjectHealth) message;
+                GameObject gameObject = server.gameObjects.get(changeObjectHealthMessage.gameObjectId);
+                if(gameObject != null){
+                    gameObject.damage(changeObjectHealthMessage.health, EDamageType.Wrench);
+                }
+            }
         }
     }
     @Override

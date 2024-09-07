@@ -43,6 +43,7 @@ public abstract class GameObject {
         this.uuid = UUID.randomUUID();
         this.uiViewers = new HashSet<>();
         this.health = getMaxHealth();
+        this.damageModifiers = new EnumMap<>(EDamageType.class);
     }
     public float getMaxHealth(){
         return 100;

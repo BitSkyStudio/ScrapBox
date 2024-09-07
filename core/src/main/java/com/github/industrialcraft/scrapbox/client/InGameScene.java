@@ -513,6 +513,14 @@ public class InGameScene implements IScene {
                 shapeRenderer.rect((position.x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2), position.y*InGameScene.BOX_TO_PIXELS_RATIO + HEALTH_OFFSET, BAR_WIDTH, 50);
                 shapeRenderer.setColor(1, 0, 0, 1);
                 shapeRenderer.rect(position.x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2+5, position.y*InGameScene.BOX_TO_PIXELS_RATIO + HEALTH_OFFSET + 5, (BAR_WIDTH-10)*healthPercent, 50 - 10);
+
+                float healthChange = 50*Gdx.graphics.getDeltaTime();
+                if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+                    connection.send(new ChangeObjectHealth(selected.id, -healthChange));
+                }
+                if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)){
+                    connection.send(new ChangeObjectHealth(selected.id, healthChange));
+                }
             }
             shapeRenderer.end();
         }
