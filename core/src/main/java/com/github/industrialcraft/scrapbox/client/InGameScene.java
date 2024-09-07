@@ -129,9 +129,9 @@ public class InGameScene implements IScene {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(1, 0, 0, 1f);
             Vector2 rotation = new Vector2(1, 0).setAngleRad((float) (gameObject.getRealAngle()+Math.PI/2));
-            Vector2 target = gameObject.getRealPosition().add(rotation.scl(gameObject.animationData.getNumber("length", 10))).scl(InGameScene.BOX_TO_PIXELS_RATIO);
+            Vector2 target = gameObject.getRealPosition().add(rotation.scl(gameObject.getAnimationNumber("length", 10))).scl(InGameScene.BOX_TO_PIXELS_RATIO);
             shapeRenderer.rectLine(gameObject.getRealPosition().scl(InGameScene.BOX_TO_PIXELS_RATIO), target, 5);
-            if(gameObject.animationData.getNumber("length", 10) < gameObject.animationData.getNumber("max", 10)){
+            if(gameObject.getAnimationNumber("length", 10) < gameObject.getAnimationNumber("max", 10)){
                 shapeRenderer.circle(target.x, target.y, 10);
             }
             shapeRenderer.end();

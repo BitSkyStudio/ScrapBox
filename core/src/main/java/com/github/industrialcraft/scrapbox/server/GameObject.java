@@ -30,6 +30,8 @@ public abstract class GameObject {
     private int baseId;
     public UUID uuid;
     public HashSet<Player> uiViewers;
+    public float health;
+    public EnumMap<EDamageType, Float> damageModifiers;
     protected GameObject(Vector2 position, float rotation, Server server){
         this.server = server;
         this.bodies = new HashMap<>();
@@ -40,6 +42,19 @@ public abstract class GameObject {
         new Vehicle().add(this);
         this.uuid = UUID.randomUUID();
         this.uiViewers = new HashSet<>();
+        this.health = getMaxHealth();
+    }
+    public float getMaxHealth(){
+        return 100;
+    }
+    public void damage(float amount, EDamageType damageType){
+        this.health -= amount * this.damageModifiers.getOrDefault(damageType, 1f);
+        if(health <= 0){
+            this.remove();
+        }
+    }
+    public void setDamageModifier(EDamageType damageType, float modifier){
+        this.damageModifiers.put(damageType, modifier);
     }
     public void load(DataInputStream stream) throws IOException{
         int valueConnectionSize = stream.readInt();

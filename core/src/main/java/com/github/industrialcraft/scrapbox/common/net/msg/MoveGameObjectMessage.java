@@ -16,13 +16,15 @@ public class MoveGameObjectMessage {
     public final EObjectInteractionMode mode;
     public final ClientWorldManager.AnimationData animation;
     public final boolean selected;
-    public MoveGameObjectMessage(int id, Vector2 position, float rotation, EObjectInteractionMode mode, ClientWorldManager.AnimationData animation, boolean selected) {
+    public final float health;
+    public MoveGameObjectMessage(int id, Vector2 position, float rotation, EObjectInteractionMode mode, ClientWorldManager.AnimationData animation, boolean selected, float health) {
         this.id = id;
         this.position = position;
         this.rotation = rotation;
         this.mode = mode;
         this.animation = animation;
         this.selected = selected;
+        this.health = health;
     }
     public MoveGameObjectMessage(DataInputStream stream) throws IOException {
         this.id = stream.readInt();
@@ -31,6 +33,7 @@ public class MoveGameObjectMessage {
         this.mode = EObjectInteractionMode.fromId(stream.readByte());
         this.animation = new ClientWorldManager.AnimationData(stream);
         this.selected = stream.readBoolean();
+        this.health = stream.readFloat();
     }
     public void toStream(DataOutputStream stream) throws IOException {
         stream.writeInt(id);
@@ -39,6 +42,7 @@ public class MoveGameObjectMessage {
         stream.writeFloat(rotation);
         animation.toStream(stream);
         stream.writeBoolean(selected);
+        stream.writeFloat(health);
     }
     public static MessageRegistry.MessageDescriptor<MoveGameObjectMessage> createDescriptor(){
         return new MessageRegistry.MessageDescriptor<>(MoveGameObjectMessage.class, MoveGameObjectMessage::new, MoveGameObjectMessage::toStream);
