@@ -194,6 +194,9 @@ public class Server {
         if(type.equals("grabber")){
             return spawnGameObject(position, rotation, GrabberGameObject::new, uuid);
         }
+        if(type.equals("timer")){
+            return spawnGameObject(position, rotation, TimerGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){

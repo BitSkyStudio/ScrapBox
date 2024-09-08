@@ -129,6 +129,7 @@ public class InGameScene implements IScene {
                 renderData.draw(batch, gameObject);
         }));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
+        renderDataRegistry.put("timer", new RenderData(new Texture("timer.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("weight", new RenderData(new Texture("weight.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("distance_sensor", new RenderData(new Texture("distance_sensor.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
             renderData.draw(batch1, gameObject);
@@ -223,6 +224,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("rope", renderDataRegistry.get("rope"));
         this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"));
         this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"));
+        this.toolBox.addPart("timer", renderDataRegistry.get("timer"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
