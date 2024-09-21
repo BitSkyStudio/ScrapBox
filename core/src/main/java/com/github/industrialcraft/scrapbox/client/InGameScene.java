@@ -423,7 +423,7 @@ public class InGameScene implements IScene {
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
             if(escapeMenu == null) {
-                escapeMenu = new Dialog("Escape Menu", ScrapBox.getInstance().getSkin(), "dialog"){
+                escapeMenu = new Dialog("", ScrapBox.getInstance().getSkin(), "dialog"){
                     @Override
                     protected void result(Object object) {
                         InGameScene.this.escapeMenu = null;

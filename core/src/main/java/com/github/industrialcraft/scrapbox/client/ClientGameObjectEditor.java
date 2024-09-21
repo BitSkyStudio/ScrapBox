@@ -26,7 +26,7 @@ public class ClientGameObjectEditor {
         this.linkOutput = new Texture("link_output.png");
         this.scene = scene;
         Skin skin = ScrapBox.getInstance().getSkin();
-        this.window = new Window("go: "+data.id, skin){
+        this.window = new Window("", skin){
             @Override
             public void keepWithinStage () {
                 Stage stage = getStage();
