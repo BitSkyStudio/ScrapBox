@@ -72,7 +72,7 @@ public class RopeGameObject extends GameObject {
         super.load(stream);
         if(stream.readBoolean()) {
             this.other = server.getGameObjectByUUID(new UUID(stream.readLong(), stream.readLong()));
-            if(this.getId() < other.getId()){
+            if(other != null && this.getId() < other.getId()){
                 RopeJointDef jointDef = new RopeJointDef();
                 jointDef.maxLength = stream.readFloat();
                 jointDef.bodyA = this.getBaseBody();

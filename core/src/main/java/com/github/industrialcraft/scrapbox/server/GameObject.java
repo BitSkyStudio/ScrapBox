@@ -57,6 +57,7 @@ public abstract class GameObject {
         this.damageModifiers.put(damageType, modifier);
     }
     public void load(DataInputStream stream) throws IOException{
+        this.health = stream.readFloat();
         int valueConnectionSize = stream.readInt();
         valueConnections.clear();
         for(int i = 0;i < valueConnectionSize;i++){
@@ -73,6 +74,7 @@ public abstract class GameObject {
         }
     }
     public void save(DataOutputStream stream) throws IOException {
+        stream.writeFloat(health);
         valueConnections.entrySet().removeIf(entry -> entry.getValue() == null);
         stream.writeInt(valueConnections.size());
         for(Map.Entry<Integer, ValueConnection> entry : valueConnections.entrySet()){

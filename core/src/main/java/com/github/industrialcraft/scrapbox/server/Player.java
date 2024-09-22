@@ -109,7 +109,9 @@ public class Player extends GameObject{
             }
             if(message instanceof TrashObject){
                 TrashObject trashObject = (TrashObject) message;
-                server.gameObjects.get(trashObject.id).vehicle.gameObjects.forEach(GameObject::remove);
+                for(GameObject go : server.gameObjects.get(trashObject.id).vehicle.gameObjects.toArray(GameObject[]::new)){
+                    go.remove();
+                }
             }
             if(message instanceof TakeObject){
                 TakeObject takeObject = (TakeObject) message;

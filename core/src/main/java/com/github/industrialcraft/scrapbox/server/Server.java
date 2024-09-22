@@ -278,7 +278,7 @@ public class Server {
             }
         }
         int autoSaveAfterTicks = 20*60;
-        if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1&&false){//todo: enable back
+        if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1){
             try {
                 FileOutputStream stream = new FileOutputStream(saveFile);
                 dumpToSaveFile().toStream(new DataOutputStream(stream));
@@ -303,7 +303,7 @@ public class Server {
             saveFile.terrain.put(s, paths);
         });
         this.gameObjects.values().forEach(gameObject -> {
-            if(gameObject.getType() != null) {
+            if(gameObject.getType() != null && !gameObject.isRemoved()) {
                 if (gameObject == gameObject.vehicle.gameObjects.get(0)) {
                     saveFile.savedVehicles.add(gameObject.vehicle.save());
                 }

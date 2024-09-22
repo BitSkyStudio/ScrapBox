@@ -73,6 +73,8 @@ public class WorldJoinScene extends StageBasedScreen {
         deleteButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(list.getItems().isEmpty())
+                    return;
                 String saveFileName = list.getSelected();
                 Dialog dialog = new Dialog("Do you want to delete \"" + saveFileName + "\" savefile?", skin, "dialog") {
                     public void result(Object obj) {

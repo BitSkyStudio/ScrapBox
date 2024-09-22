@@ -131,7 +131,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("timer", new RenderData(new Texture("timer.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("weight", new RenderData(new Texture("weight.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
-        renderDataRegistry.put("distance_sensor", new RenderData(new Texture("distance_sensor.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
+        renderDataRegistry.put("distance_sensor", new RenderData(new Texture("distance_sensor.png"), 0.45f, 0.15f, (renderData, gameObject, batch1) -> {
             renderData.draw(batch1, gameObject);
             batch1.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -163,9 +163,9 @@ public class InGameScene implements IScene {
             renderData.draw(batch1, gameObject);
             if(gameObject.getAnimationNumber("suction", 0) > 0) {
                 Vector2 lerpedPosition = gameObject.getRealPosition();
-                Vector2 offset = new Vector2(0.1875f, 0f);
+                Vector2 offset = new Vector2(renderData.height*2f, 0f);
                 offset.setAngleRad((float) (gameObject.getRealAngle() + Math.PI/2));
-                batch.draw(grabberStickyTexture, (lerpedPosition.x - renderData.width + offset.x) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 0.0625f + offset.y) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO * 2, 0.0625f * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+                batch.draw(grabberStickyTexture, (lerpedPosition.x - renderData.width + offset.x) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height + offset.y) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO * 2, 0.0625f * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
             }
         }));
         renderDataRegistry.put("tnt", new RenderData(new Texture("tnt.png"), 1, 1));
