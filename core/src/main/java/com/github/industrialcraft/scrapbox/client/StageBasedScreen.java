@@ -37,7 +37,7 @@ public class StageBasedScreen implements IScene{
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().setWorldSize(width, height);
+        stage.getViewport().setWorldSize(width/2f, height/2f);
         stage.getViewport().update(width, height, true);
         background.setRegion(0, 0, width/2, height/2);
     }

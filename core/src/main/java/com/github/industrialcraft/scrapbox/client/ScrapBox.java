@@ -2,6 +2,8 @@ package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.codedisaster.steamworks.*;
 
@@ -14,6 +16,7 @@ public class ScrapBox extends ApplicationAdapter {
     @Override
     public void create() {
         skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+        skin.get("default-font", BitmapFont.class).getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         scene = new MainMenuScene();
         scene.create();
         scene.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
