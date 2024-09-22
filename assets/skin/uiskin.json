@@ -287,7 +287,7 @@ TextFieldStyle: {
 		font: default-font
 		fontColor: white
 		disabledFontColor: grey
-		background: textfield
+		background: button
 		cursor: cursor
 		selection: selection
 		messageFont: default-font
@@ -326,6 +326,11 @@ TreeStyle: {
 }
 WindowStyle: {
 	default: {
+		background: win2
+		titleFont: default-font
+		titleFontColor: white
+	}
+	noborder: {
 		background: window
 		titleFont: default-font
 		titleFontColor: white
@@ -335,13 +340,8 @@ WindowStyle: {
 		titleFont: default-font
 		titleFontColor: white
 	}
-	noborder: {
-		background: window-noborder
-		titleFont: default-font
-		titleFontColor: white
-	}
 	dialog: {
-		background: window
+		background: win2
 		titleFont: default-font
 		titleFontColor: white
 		stageBackground: dialogDim

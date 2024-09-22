@@ -73,11 +73,21 @@ public class WorldJoinScene extends StageBasedScreen {
         deleteButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                File saveFile = new File("./saves/" + list.getSelected() + ".sbs");
-                saveFile.delete();
-                Array<String> items = list.getItems();
-                items.removeValue(list.getSelected(), false);
-                list.setItems(items);
+                String saveFileName = list.getSelected();
+                Dialog dialog = new Dialog("Do you want to delete \"" + saveFileName + "\" savefile?", skin, "dialog") {
+                    public void result(Object obj) {
+                        if(obj instanceof String){
+                            File saveFile = new File("./saves/" + saveFileName + ".sbs");
+                            saveFile.delete();
+                            Array<String> items = list.getItems();
+                            items.removeValue(saveFileName, false);
+                            list.setItems(items);
+                        }
+                    }
+                };
+                dialog.button("Cancel");
+                dialog.button("Delete", "");
+                dialog.show(stage);
             }
         });
         buttons.add(deleteButton);
