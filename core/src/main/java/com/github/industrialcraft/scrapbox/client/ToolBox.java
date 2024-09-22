@@ -17,6 +17,7 @@ public class ToolBox {
     private final ArrayList<Part> parts;
     private float partScroll;
     private float terrainScroll;
+    private float scrollVelocity;
     public Tool tool;
     public ArrayList<ToolType> tools;
     private final ArrayList<String> terrainTypes;
@@ -37,6 +38,7 @@ public class ToolBox {
         this.terrainTypes = new ArrayList<>();
         this.brushSize = 1;
         this.brushRectangle = false;
+        this.scrollVelocity = 0;
     }
     public void addTerrainType(String type){
         this.terrainTypes.add(type);
@@ -45,8 +47,18 @@ public class ToolBox {
         return width;
     }
     public void render(Batch batch){
+        if(isTerrainSelectionOpen()){
+            this.terrainScroll += -scrollVelocity * 600 * Gdx.graphics.getDeltaTime();
+        } else {
+            this.partScroll += -scrollVelocity * 600 * Gdx.graphics.getDeltaTime();
+        }
+        scrollVelocity -= scrollVelocity*Gdx.graphics.getDeltaTime()*5;
+        if(Math.abs(scrollVelocity) < 0.01){
+            scrollVelocity = 0;
+        }
+
         float leftOffset = Gdx.graphics.getWidth()-width;
-        batch.draw(background, leftOffset, 0, width, Gdx.graphics.getHeight());
+        batch.draw(background, leftOffset-width/32f, 0, width*33f/32f, Gdx.graphics.getHeight());
         int toolHeight = width/tools.size();
 
         if(isTerrainSelectionOpen()){
@@ -127,11 +139,7 @@ public class ToolBox {
         this.parts.add(new Part(type, renderData));
     }
     public void scroll(int value){
-        if(isTerrainSelectionOpen()){
-            this.terrainScroll += -value * 40;
-        } else {
-            this.partScroll += -value * 40;
-        }
+        this.scrollVelocity += value;
     }
 
     public static class Part{
