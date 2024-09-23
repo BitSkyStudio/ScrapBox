@@ -223,7 +223,7 @@ SelectBoxStyle: {
 		font: default-font
 		fontColor: white
 		disabledFontColor: grey
-		background: default-select
+		background: select-box
 		scrollStyle: default
 		listStyle: default
 	}
