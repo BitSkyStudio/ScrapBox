@@ -40,6 +40,7 @@ public class MoveGameObjectMessage {
         stream.writeFloat(position.x);
         stream.writeFloat(position.y);
         stream.writeFloat(rotation);
+        stream.writeByte(mode.id);
         animation.toStream(stream);
         stream.writeBoolean(selected);
         stream.writeFloat(health);
