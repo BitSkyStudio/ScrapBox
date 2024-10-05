@@ -112,6 +112,21 @@ public class InGameScene implements IScene {
                 batch1.begin();
             }
         }));
+        renderDataRegistry.put("stick", new RenderData(new Texture("stick.png"), 1, 1));//only icon
+        renderDataRegistry.put("stick_connector", new RenderData(new Texture("rope_connector.png"), 0.2f, 0.2f, (renderData, gameObject, batch1) -> {
+            int otherId = Integer.parseInt(gameObject.getAnimationString("other", "0"));
+            renderData.draw(batch1, gameObject);
+            if(otherId > gameObject.id){
+                if(!gameObjects.containsKey(otherId))
+                    return;
+                batch1.end();
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(100f/255f, 100f/255f, 100f/255f, 1f);
+                shapeRenderer.rectLine(gameObject.getRealPosition().scl(BOX_TO_PIXELS_RATIO),gameObjects.get(otherId).getRealPosition().scl(BOX_TO_PIXELS_RATIO), 3);
+                shapeRenderer.end();
+                batch1.begin();
+            }
+        }));
         renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
         renderDataRegistry.put("cutting_wheel", new RenderData(new Texture("cutting_wheel.png"), 1, 1));
         renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1));
@@ -222,6 +237,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("pid_controller", renderDataRegistry.get("pid_controller"));
         this.toolBox.addPart("weight", renderDataRegistry.get("weight"));
         this.toolBox.addPart("rope", renderDataRegistry.get("rope"));
+        this.toolBox.addPart("stick", renderDataRegistry.get("stick"));
         this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"));
         this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"));
         this.toolBox.addPart("timer", renderDataRegistry.get("timer"));

@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.server;
 import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.server.game.RopeGameObject;
+import com.github.industrialcraft.scrapbox.server.game.StickGameObject;
 
 import java.util.ArrayList;
 
@@ -43,6 +44,11 @@ public class Vehicle {
             go.setMode(mode);
             if(go instanceof RopeGameObject){
                 GameObject other = ((RopeGameObject)go).other;
+                if(other != null)
+                    other.setMode(mode);
+            }
+            if(go instanceof StickGameObject){
+                GameObject other = ((StickGameObject)go).other;
                 if(other != null)
                     other.setMode(mode);
             }

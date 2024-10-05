@@ -10,6 +10,7 @@ import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
 import com.github.industrialcraft.scrapbox.server.game.RopeGameObject;
+import com.github.industrialcraft.scrapbox.server.game.StickGameObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -161,6 +162,11 @@ public class Player extends GameObject{
                         RopeGameObject rope = (RopeGameObject) pinching;
                         if(rope.joint != null){
                             rope.joint.setMaxLength(Math.max(Math.min(rope.joint.getMaxLength()-pinchingRotate.rotation, 10), 1));
+                        }
+                    } else if(pinching instanceof StickGameObject){
+                        StickGameObject rope = (StickGameObject) pinching;
+                        if(rope.joint != null){
+                            rope.joint.setLength(Math.max(Math.min(rope.joint.getLength()-pinchingRotate.rotation, 10), 1));
                         }
                     } else {
                         pinching.getBaseBody().applyAngularImpulse(-pinchingRotate.rotation * pinching.vehicle.getMass(), true);

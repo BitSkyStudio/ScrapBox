@@ -197,6 +197,9 @@ public class Server {
         if(type.equals("timer")){
             return spawnGameObject(position, rotation, TimerGameObject::new, uuid);
         }
+        if(type.equals("stick")){
+            return spawnGameObject(position, rotation, StickGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
