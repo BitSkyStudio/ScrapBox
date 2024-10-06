@@ -35,10 +35,10 @@ public class TntGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("up", new ConnectionEdge(new Vector2(0, 1), false));
-        edges.put("down", new ConnectionEdge(new Vector2(0, -1), false));
-        edges.put("left", new ConnectionEdge(new Vector2(-1, 0), false));
-        edges.put("right", new ConnectionEdge(new Vector2(1, 0), false));
+        edges.put("up", new ConnectionEdge(new Vector2(0, 1), ConnectionEdgeType.Normal));
+        edges.put("down", new ConnectionEdge(new Vector2(0, -1), ConnectionEdgeType.Normal));
+        edges.put("left", new ConnectionEdge(new Vector2(-1, 0), ConnectionEdgeType.Normal));
+        edges.put("right", new ConnectionEdge(new Vector2(1, 0), ConnectionEdgeType.Normal));
         return edges;
     }
 

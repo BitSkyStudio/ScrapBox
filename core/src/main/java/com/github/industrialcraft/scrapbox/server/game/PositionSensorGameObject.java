@@ -114,7 +114,7 @@ public class PositionSensorGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("center", new ConnectionEdge(new Vector2(0, 0), true));
+        edges.put("center", new ConnectionEdge(new Vector2(0, 0), ConnectionEdgeType.Internal));
         return edges;
     }
 

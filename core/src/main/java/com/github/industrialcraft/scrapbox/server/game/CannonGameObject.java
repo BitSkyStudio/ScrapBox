@@ -37,7 +37,7 @@ public class CannonGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("down", new ConnectionEdge(new Vector2(0, -1), false));
+        edges.put("down", new ConnectionEdge(new Vector2(0, -1), ConnectionEdgeType.Normal));
         return edges;
     }
 

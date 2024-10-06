@@ -89,6 +89,15 @@ public abstract class BaseWheelGameObject extends GameObject {
     }
 
     @Override
+    public boolean collidesWith(Fixture thisFixture, Fixture other) {
+        for(ConnectionData connection : connections.values()){
+            if(connection.other == other.getBody().getUserData())
+                return false;
+        }
+        return super.collidesWith(thisFixture, other);
+    }
+
+    @Override
     public ArrayList<EditorUIRow> createEditorUI() {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
         ArrayList<EditorUIElement> row = new ArrayList<>();
@@ -101,7 +110,11 @@ public abstract class BaseWheelGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("up", new ConnectionEdge(new Vector2(0, 1), false));
+        edges.put("up", new ConnectionEdge(new Vector2(0, 1), ConnectionEdgeType.Normal));
+        edges.put("connector_up", new ConnectionEdge(new Vector2(0, 0.9f), ConnectionEdgeType.WheelConnector, "wheel"));
+        edges.put("connector_down", new ConnectionEdge(new Vector2(0, -0.9f), ConnectionEdgeType.WheelConnector, "wheel"));
+        edges.put("connector_left", new ConnectionEdge(new Vector2(-0.9f, 0), ConnectionEdgeType.WheelConnector, "wheel"));
+        edges.put("connector_right", new ConnectionEdge(new Vector2(0.9f, 0), ConnectionEdgeType.WheelConnector, "wheel"));
         return edges;
     }
 }

@@ -244,11 +244,9 @@ public abstract class GameObject {
                 if(other == this){
                     continue;
                 }
-                if(this instanceof FrameGameObject || other instanceof FrameGameObject) {
-                    for (Map.Entry<String, GameObjectConnectionEdge> edge2 : other.getOpenConnections().entrySet()) {
-                        if (edge1.getValue().collides(edge2.getValue())) {
-                            weldCandidates.add(new WeldCandidate(edge1.getValue(), edge1.getKey(), edge2.getValue(), edge2.getKey()));
-                        }
+                for (Map.Entry<String, GameObjectConnectionEdge> edge2 : other.getOpenConnections().entrySet()) {
+                    if (edge1.getValue().collides(edge2.getValue())) {
+                        weldCandidates.add(new WeldCandidate(edge1.getValue(), edge1.getKey(), edge2.getValue(), edge2.getKey()));
                     }
                 }
             }
@@ -303,17 +301,26 @@ public abstract class GameObject {
     }
     public static class ConnectionEdge{
         public final Vector2 offset;
-        public final boolean internal;
+        public final ConnectionEdgeType type;
         public final String bodyName;
-        public ConnectionEdge(Vector2 offset, boolean internal) {
+        public ConnectionEdge(Vector2 offset, ConnectionEdgeType type) {
             this.offset = offset;
-            this.internal = internal;
+            this.type = type;
             this.bodyName = "base";
         }
-        public ConnectionEdge(Vector2 offset, boolean internal, String bodyName) {
+        public ConnectionEdge(Vector2 offset, ConnectionEdgeType type, String bodyName) {
             this.offset = offset;
-            this.internal = internal;
+            this.type = type;
             this.bodyName = bodyName;
+        }
+    }
+    public enum ConnectionEdgeType{
+        Normal,
+        Internal,
+        Connector,
+        WheelConnector;
+        public static boolean connects(ConnectionEdgeType first, ConnectionEdgeType second){
+            return (first == Normal && second == Normal) || (first == Internal && second == Internal) || (first == Connector && (second == Normal || second == WheelConnector)) || ((first == Normal || first == WheelConnector) && second == Connector);
         }
     }
     public static class GameObjectConnectionEdge{
@@ -329,7 +336,7 @@ public abstract class GameObject {
             return gameObject.getBody(connectionEdge.bodyName).getWorldPoint(connectionEdge.offset);
         }
         public boolean collides(GameObjectConnectionEdge other){
-            return this.getPosition().dst(other.getPosition()) < 0.2 && (this.connectionEdge.internal==other.connectionEdge.internal);
+            return this.getPosition().dst(other.getPosition()) < 0.2 && ConnectionEdgeType.connects(this.connectionEdge.type, other.connectionEdge.type);
         }
     }
     public static class ConnectionData{

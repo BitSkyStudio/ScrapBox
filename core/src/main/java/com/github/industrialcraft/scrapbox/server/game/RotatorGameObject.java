@@ -88,8 +88,8 @@ public class RotatorGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("down", new ConnectionEdge(new Vector2(0, -1), false));
-        edges.put("rotator", new ConnectionEdge(new Vector2(0, 0), false, "end"));
+        edges.put("down", new ConnectionEdge(new Vector2(0, -1), ConnectionEdgeType.Normal));
+        edges.put("rotator", new ConnectionEdge(new Vector2(0, 0), ConnectionEdgeType.Normal, "end"));
         return edges;
     }
 
