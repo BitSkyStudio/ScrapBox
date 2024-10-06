@@ -201,6 +201,9 @@ public class Server {
         if(type.equals("stick")){
             return spawnGameObject(position, rotation, StickGameObject::new, uuid);
         }
+        if(type.equals("piston")){
+            return spawnGameObject(position, rotation, PistonGameObject::new, uuid);
+        }
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){

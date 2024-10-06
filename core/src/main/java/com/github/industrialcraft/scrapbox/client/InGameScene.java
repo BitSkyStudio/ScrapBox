@@ -188,6 +188,14 @@ public class InGameScene implements IScene {
             }
         }));
         renderDataRegistry.put("tnt", new RenderData(new Texture("tnt.png"), 1, 1));
+        renderDataRegistry.put("piston_box", new RenderData(new Texture("piston_box.png"), 1, 1, (renderData, gameObject, batch1) -> {
+            float animation = gameObject.getAnimationNumber("length", 0);
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            lerpedPosition.add(new Vector2(0, 1f).rotateRad(gameObject.getRealAngle()));
+            batch.draw(puncherSpringTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO * 2, (animation + 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+            renderData.draw(batch1, gameObject);
+        }));
+        renderDataRegistry.put("piston_end", new RenderData(new Texture("piston_end.png"), 1, 0.125f));
         renderDataRegistry.put("rotator_join", new RenderData(new Texture("rotator_join.png"), 1, 1));
         renderDataRegistry.put("rotator_end", new RenderData(new Texture("rotator_end.png"), 1, 1));
         renderDataRegistry.put("cannon", new RenderData(new Texture("cannon.png"), 1, 1));
@@ -245,6 +253,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"));
         this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"));
         this.toolBox.addPart("timer", renderDataRegistry.get("timer"));
+        this.toolBox.addPart("piston", renderDataRegistry.get("piston_box"));
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
