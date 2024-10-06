@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.joints.*;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
+import com.github.industrialcraft.scrapbox.server.IPairObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.io.DataInputStream;
@@ -14,7 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class StickGameObject extends GameObject {
+public class StickGameObject extends GameObject implements IPairObject {
     public GameObject other;
     public DistanceJoint joint;
     public StickGameObject(Vector2 position, float rotation, Server server) {
@@ -55,8 +56,8 @@ public class StickGameObject extends GameObject {
             jointDef.length = 2f;
             jointDef.bodyA = this.getBaseBody();
             jointDef.bodyB = other.getBaseBody();
-            jointDef.localAnchorA.setZero();
-            jointDef.localAnchorB.setZero();
+            jointDef.localAnchorA.set(this.getPairJointOffset());
+            jointDef.localAnchorB.set(other.getPairJointOffset());
             DistanceJoint joint = (DistanceJoint) server.physics.createJoint(jointDef);
             this.joint = joint;
             other.joint = joint;
@@ -75,8 +76,8 @@ public class StickGameObject extends GameObject {
                 jointDef.length = stream.readFloat();
                 jointDef.bodyA = this.getBaseBody();
                 jointDef.bodyB = other.getBaseBody();
-                jointDef.localAnchorA.setZero();
-                jointDef.localAnchorB.setZero();
+                jointDef.localAnchorA.set(this.getPairJointOffset());
+                jointDef.localAnchorB.set(((IPairObject)other).getPairJointOffset());
                 DistanceJoint joint = (DistanceJoint) server.physics.createJoint(jointDef);
                 this.joint = joint;
                 ((StickGameObject)other).joint = joint;
@@ -115,5 +116,20 @@ public class StickGameObject extends GameObject {
     @Override
     public String getType() {
         return "stick";
+    }
+
+    @Override
+    public void changeDistance(float by) {
+        if(this.joint != null)
+            joint.setLength(Math.max(Math.min(joint.getLength()-by, 10), 1));
+    }
+    @Override
+    public GameObject getOther() {
+        return other;
+    }
+
+    @Override
+    public Vector2 getPairJointOffset() {
+        return Vector2.Zero;
     }
 }

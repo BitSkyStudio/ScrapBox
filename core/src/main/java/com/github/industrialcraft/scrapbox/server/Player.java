@@ -158,16 +158,8 @@ public class Player extends GameObject{
                 PinchingRotate pinchingRotate = (PinchingRotate) message;
                 GameObject pinching = getPinching();
                 if(pinching != null){
-                    if(pinching instanceof RopeGameObject){
-                        RopeGameObject rope = (RopeGameObject) pinching;
-                        if(rope.joint != null){
-                            rope.joint.setMaxLength(Math.max(Math.min(rope.joint.getMaxLength()-pinchingRotate.rotation, 10), 1));
-                        }
-                    } else if(pinching instanceof StickGameObject){
-                        StickGameObject rope = (StickGameObject) pinching;
-                        if(rope.joint != null){
-                            rope.joint.setLength(Math.max(Math.min(rope.joint.getLength()-pinchingRotate.rotation, 10), 1));
-                        }
+                    if(pinching instanceof IPairObject){
+                        ((IPairObject)pinching).changeDistance(pinchingRotate.rotation);
                     } else {
                         pinching.getBaseBody().applyAngularImpulse(-pinchingRotate.rotation * pinching.vehicle.getMass(), true);
                     }

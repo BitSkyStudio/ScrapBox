@@ -42,13 +42,8 @@ public class Vehicle {
         this.mode = mode;
         for(GameObject go : this.gameObjects){
             go.setMode(mode);
-            if(go instanceof RopeGameObject){
-                GameObject other = ((RopeGameObject)go).other;
-                if(other != null)
-                    other.setMode(mode);
-            }
-            if(go instanceof StickGameObject){
-                GameObject other = ((StickGameObject)go).other;
+            if(mode != EObjectInteractionMode.Static && go instanceof IPairObject){
+                GameObject other = ((IPairObject) go).getOther();
                 if(other != null)
                     other.setMode(mode);
             }

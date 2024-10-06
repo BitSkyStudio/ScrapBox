@@ -363,7 +363,11 @@ public class Server {
         for(SaveFile.SavedJoint joint : saveFile.savedJoints){
             GameObject first = getGameObjectByUUID(joint.first);
             GameObject second = getGameObjectByUUID(joint.second);
-            joinGameObject(first, joint.firstName, second, joint.secondName);
+            try {
+                joinGameObject(first, joint.firstName, second, joint.secondName);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
         }
         saveFile.savedVehicles.forEach(vehicle -> {
             GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);

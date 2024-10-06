@@ -88,7 +88,7 @@ public class InGameScene implements IScene {
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
-        renderDataRegistry.put("rope_connector", new RenderData(new Texture("rope_connector.png"), 0.2f, 0.2f, (renderData, gameObject, batch1) -> {
+        RenderData.CustomRenderFunction ropeRenderer = (renderData, gameObject, batch1) -> {
             float length = gameObject.getAnimationNumber("length", 3);
             int otherId = Integer.parseInt(gameObject.getAnimationString("other", "0"));
             renderData.draw(batch1, gameObject);
@@ -98,10 +98,13 @@ public class InGameScene implements IScene {
                 batch1.end();
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 shapeRenderer.setColor(217f/255f, 160f/255f, 100f/255f, 1f);
-                Vector2 first = gameObject.getRealPosition();
-                Vector2 second = gameObjects.get(otherId).getRealPosition();
+                ClientGameObject otherGo = gameObjects.get(otherId);
+                Vector2 firstOffset = new Vector2(gameObject.getAnimationNumber("offsetX", 5), gameObject.getAnimationNumber("offsetY", 5)).rotateRad(gameObject.getRealAngle());
+                Vector2 secondOffset = new Vector2(otherGo.getAnimationNumber("offsetX", 5), otherGo.getAnimationNumber("offsetY", 5)).rotateRad(otherGo.getRealAngle());
+                Vector2 first = gameObject.getRealPosition().add(firstOffset);
+                Vector2 second = otherGo.getRealPosition().add(secondOffset);
                 Bezier<Vector2> bezier = new Bezier<>(first, new Vector2((first.x+second.x)/2f, (first.y+second.y)/2f-(length-first.dst(second))), second);
-                Vector2 previous = gameObject.getRealPosition();
+                Vector2 previous = gameObject.getRealPosition().add(firstOffset);
                 for(float n = 0;n < 1;n+=0.01f) {
                     Vector2 point = bezier.valueAt(new Vector2(), n);
                     shapeRenderer.rectLine(previous.scl(BOX_TO_PIXELS_RATIO),point.cpy().scl(BOX_TO_PIXELS_RATIO), 3);
@@ -111,7 +114,8 @@ public class InGameScene implements IScene {
                 shapeRenderer.end();
                 batch1.begin();
             }
-        }));
+        };
+        renderDataRegistry.put("rope_connector", new RenderData(new Texture("rope_connector.png"), 0.2f, 0.2f, ropeRenderer));
         renderDataRegistry.put("stick", new RenderData(new Texture("stick.png"), 1, 1));//only icon
         renderDataRegistry.put("stick_connector", new RenderData(new Texture("rope_connector.png"), 0.2f, 0.2f, (renderData, gameObject, batch1) -> {
             int otherId = Integer.parseInt(gameObject.getAnimationString("other", "0"));
@@ -131,9 +135,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("cutting_wheel", new RenderData(new Texture("cutting_wheel.png"), 1, 1));
         renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
-        renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1, (renderData, gameObject, batch1) -> {
-            renderData.draw(batch1, gameObject);
-        }));
+        renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1, ropeRenderer));
         renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch1) -> {
             float animation = gameObject.getAnimationNumber("animation", 0);
             Vector2 lerpedPosition = gameObject.getRealPosition();

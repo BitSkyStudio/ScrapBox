@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.joints.*;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
+import com.github.industrialcraft.scrapbox.server.IPairObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.io.DataInputStream;
@@ -14,7 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class RopeGameObject extends GameObject {
+public class RopeGameObject extends GameObject implements IPairObject {
     public GameObject other;
     public RopeJoint joint;
     public RopeGameObject(Vector2 position, float rotation, Server server) {
@@ -29,7 +30,7 @@ public class RopeGameObject extends GameObject {
         CircleShape shape = new CircleShape();
         shape.setRadius(0.1f);
         fixtureDef.shape = shape;
-        fixtureDef.density = 5F;
+        fixtureDef.density = 1F;
         base.createFixture(fixtureDef);
         this.setBody("base", "rope_connector", base);
 
@@ -43,6 +44,8 @@ public class RopeGameObject extends GameObject {
             animationData.addNumber("length", joint.getMaxLength());
         if(other != null)
             animationData.addString("other", ""+other.getId());
+        animationData.addNumber("offsetX", getPairJointOffset().x);
+        animationData.addNumber("offsetY", getPairJointOffset().y);
     }
 
     @Override
@@ -57,8 +60,9 @@ public class RopeGameObject extends GameObject {
             jointDef.maxLength = 2f;
             jointDef.bodyA = this.getBaseBody();
             jointDef.bodyB = other.getBaseBody();
-            jointDef.localAnchorA.setZero();
-            jointDef.localAnchorB.setZero();
+            jointDef.localAnchorA.set(this.getPairJointOffset());
+            jointDef.localAnchorB.set(other.getPairJointOffset());
+            jointDef.collideConnected = true;
             RopeJoint joint = (RopeJoint) server.physics.createJoint(jointDef);
             this.joint = joint;
             other.joint = joint;
@@ -77,8 +81,9 @@ public class RopeGameObject extends GameObject {
                 jointDef.maxLength = stream.readFloat();
                 jointDef.bodyA = this.getBaseBody();
                 jointDef.bodyB = other.getBaseBody();
-                jointDef.localAnchorA.setZero();
-                jointDef.localAnchorB.setZero();
+                jointDef.localAnchorA.set(this.getPairJointOffset());
+                jointDef.localAnchorB.set(((IPairObject)other).getPairJointOffset());
+                jointDef.collideConnected = true;
                 RopeJoint joint = (RopeJoint) server.physics.createJoint(jointDef);
                 this.joint = joint;
                 ((RopeGameObject)other).joint = joint;
@@ -112,6 +117,21 @@ public class RopeGameObject extends GameObject {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
         edges.put("center", new ConnectionEdge(new Vector2(0, 0), false));
         return edges;
+    }
+
+    @Override
+    public void changeDistance(float by) {
+        if(this.joint != null)
+            joint.setMaxLength(Math.max(Math.min(joint.getMaxLength()-by, 10), 1));
+    }
+    @Override
+    public GameObject getOther() {
+        return other;
+    }
+
+    @Override
+    public Vector2 getPairJointOffset() {
+        return Vector2.Zero;
     }
 
     @Override
