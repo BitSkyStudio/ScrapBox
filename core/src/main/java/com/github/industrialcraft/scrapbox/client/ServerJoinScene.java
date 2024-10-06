@@ -1,18 +1,13 @@
 package com.github.industrialcraft.scrapbox.client;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.github.industrialcraft.netx.LanReceiver;
 import com.github.industrialcraft.netx.NetXClient;
-import com.github.industrialcraft.scrapbox.ClientNetXConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
-import com.github.industrialcraft.scrapbox.common.net.msg.EditorUIInput;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

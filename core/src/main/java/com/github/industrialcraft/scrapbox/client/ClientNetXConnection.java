@@ -1,11 +1,8 @@
-package com.github.industrialcraft.scrapbox;
+package com.github.industrialcraft.scrapbox.client;
 
 import com.github.industrialcraft.netx.ClientMessage;
 import com.github.industrialcraft.netx.NetXClient;
-import com.github.industrialcraft.scrapbox.client.ConnectingScene;
-import com.github.industrialcraft.scrapbox.client.DisconnectedScene;
 import com.github.industrialcraft.scrapbox.client.InGameScene;
-import com.github.industrialcraft.scrapbox.client.ScrapBox;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 
 import java.util.ArrayList;

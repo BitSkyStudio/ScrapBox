@@ -131,7 +131,9 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("cutting_wheel", new RenderData(new Texture("cutting_wheel.png"), 1, 1));
         renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1));
         renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
-        renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1));
+        renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1, (renderData, gameObject, batch1) -> {
+            renderData.draw(batch1, gameObject);
+        }));
         renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch1) -> {
             float animation = gameObject.getAnimationNumber("animation", 0);
             Vector2 lerpedPosition = gameObject.getRealPosition();

@@ -1,13 +1,8 @@
 package com.github.industrialcraft.scrapbox.client;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.github.industrialcraft.netx.NetXClient;
-import com.github.industrialcraft.scrapbox.ClientNetXConnection;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 
 public class ConnectingScene extends StageBasedScreen {
