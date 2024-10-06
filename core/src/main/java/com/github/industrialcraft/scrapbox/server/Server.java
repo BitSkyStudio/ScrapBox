@@ -6,6 +6,7 @@ import clipper2.core.PointD;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.github.industrialcraft.netx.LANBroadcaster;
@@ -375,7 +376,7 @@ public class Server {
         });
     }
     public void joinGameObject(GameObject first, String firstName, GameObject second, String secondName){
-        if(second instanceof FrameGameObject){
+        /*if(second instanceof FrameGameObject){
             GameObject tmpGameObject = first;
             first = second;
             second = tmpGameObject;
@@ -385,16 +386,34 @@ public class Server {
         }
         if(!(first instanceof FrameGameObject)){
             throw new RuntimeException("one of joined must be frame");
-        }
+        }*/
         Body firstBase = first.getBaseBody();
         Body secondBase = second.getBaseBody();
         float rotationOffset = firstBase.getAngle()+((float) (Math.round((secondBase.getAngle()-firstBase.getAngle())/HALF_PI)*HALF_PI));
         secondBase.setTransform(secondBase.getPosition(), rotationOffset);
         secondBase.setTransform(secondBase.getPosition().add(first.getOpenConnections().get(firstName).getPosition().sub(second.getOpenConnections().get(secondName).getPosition())), secondBase.getAngle());
-        Joint joint = second.createJoint(secondName, first, firstName);
+        //Joint joint = second.createJoint(secondName, first, firstName);
+        Joint joint = createFixedJoint(first, firstName, second, secondName);
         first.connect(firstName, second, secondName, joint);
         second.connect(secondName, first, firstName, joint);
         first.vehicle.add(second);
+    }
+    private Joint createFixedJoint(GameObject first, String firstName, GameObject second, String secondName){
+        RevoluteJointDef joint = new RevoluteJointDef();
+        GameObject.ConnectionEdge firstEdge = first.getConnectionEdges().get(firstName);
+        GameObject.ConnectionEdge secondEdge = second.getConnectionEdges().get(secondName);
+        joint.bodyA = first.getBody(firstEdge.bodyName);
+        joint.bodyB = second.getBody(secondEdge.bodyName);
+        joint.localAnchorA.set(firstEdge.offset);
+        joint.localAnchorB.set(secondEdge.offset);
+        joint.enableLimit = true;
+        //System.out.println(weldCandidate.angle);
+        //joint.referenceAngle = (float) -weldCandidate.angle;
+        //joint.referenceAngle = (float) Math.PI;
+        joint.referenceAngle = (float) (Math.round((joint.bodyB.getAngle() - joint.bodyA.getAngle())/HALF_PI)*HALF_PI);
+        joint.lowerAngle = 0f;
+        joint.upperAngle = 0f;
+        return physics.createJoint(joint);
     }
     public void start(){
         new Thread(() -> {

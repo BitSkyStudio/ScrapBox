@@ -101,17 +101,6 @@ public class RopeGameObject extends GameObject implements IPairObject {
         }
         stream.writeFloat(joint==null?2:joint.getMaxLength());
     }
-
-    @Override
-    public Joint createJoint(String thisName, GameObject other, String otherName) {
-        WeldJointDef joint = new WeldJointDef();
-        joint.bodyA = this.getBaseBody();
-        joint.bodyB = other.getBaseBody();
-        joint.localAnchorA.set(this.getConnectionEdges().get(thisName).offset);
-        joint.localAnchorB.set(other.getConnectionEdges().get(otherName).offset);
-        return this.server.physics.createJoint(joint);
-    }
-
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();

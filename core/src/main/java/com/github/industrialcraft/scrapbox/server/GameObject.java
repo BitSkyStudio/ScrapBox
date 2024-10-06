@@ -148,21 +148,6 @@ public abstract class GameObject {
     public boolean isSideUsed(String name){
         return this.connections.containsKey(name);
     }
-    public Joint createJoint(String thisName, GameObject other, String otherName){
-        RevoluteJointDef joint = new RevoluteJointDef();
-        joint.bodyA = this.getBaseBody();
-        joint.bodyB = other.getBaseBody();
-        joint.localAnchorA.set(this.getConnectionEdges().get(thisName).offset);
-        joint.localAnchorB.set(other.getConnectionEdges().get(otherName).offset);
-        joint.enableLimit = true;
-        //System.out.println(weldCandidate.angle);
-        //joint.referenceAngle = (float) -weldCandidate.angle;
-        //joint.referenceAngle = (float) Math.PI;
-        joint.referenceAngle = (float) (Math.round((other.getBaseBody().getAngle() - this.getBaseBody().getAngle())/HALF_PI)*HALF_PI);
-        joint.lowerAngle = 0f;
-        joint.upperAngle = 0f;
-        return this.server.physics.createJoint(joint);
-    }
     public ArrayList<EditorUIRow> createEditorUI(){
         return null;
     }
@@ -319,11 +304,17 @@ public abstract class GameObject {
     public static class ConnectionEdge{
         public final Vector2 offset;
         public final boolean internal;
+        public final String bodyName;
         public ConnectionEdge(Vector2 offset, boolean internal) {
             this.offset = offset;
             this.internal = internal;
+            this.bodyName = "base";
         }
-
+        public ConnectionEdge(Vector2 offset, boolean internal, String bodyName) {
+            this.offset = offset;
+            this.internal = internal;
+            this.bodyName = bodyName;
+        }
     }
     public static class GameObjectConnectionEdge{
         public final ConnectionEdge connectionEdge;
@@ -335,7 +326,7 @@ public abstract class GameObject {
             this.gameObject = gameObject;
         }
         public Vector2 getPosition(){
-            return gameObject.getBaseBody().getWorldPoint(connectionEdge.offset);
+            return gameObject.getBody(connectionEdge.bodyName).getWorldPoint(connectionEdge.offset);
         }
         public boolean collides(GameObjectConnectionEdge other){
             return this.getPosition().dst(other.getPosition()) < 0.2 && (this.connectionEdge.internal==other.connectionEdge.internal);

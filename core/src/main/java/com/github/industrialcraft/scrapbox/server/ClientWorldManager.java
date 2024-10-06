@@ -1,5 +1,6 @@
 package com.github.industrialcraft.scrapbox.server;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.DeleteGameObject;
@@ -52,7 +53,8 @@ public class ClientWorldManager {
             HashMap<String, GameObject.ConnectionEdge> connectionPositions = gameObject.getConnectionEdges();
             for(Map.Entry<String, GameObject.ConnectionData> connection : gameObject.connections.entrySet()){
                 if(gameObject.getId() < connection.getValue().other.getId()) {
-                    connections.add(new SendConnectionListData.Connection(gameObject.getBaseBody().getWorldPoint(connectionPositions.get(connection.getKey()).offset).cpy(), gameObject.getId(), connection.getKey()));
+                    Vector2 position = new GameObject.GameObjectConnectionEdge(connectionPositions.get(connection.getKey()), connection.getKey(), gameObject).getPosition();
+                    connections.add(new SendConnectionListData.Connection(position, gameObject.getId(), connection.getKey()));
                 }
             }
         }

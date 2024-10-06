@@ -141,8 +141,8 @@ public class Player extends GameObject{
                         pinching = pinching.connections.get("center").other;
                     }
                     for(GameObject.WeldCandidate weldCandidate : pinching.getPossibleWelds()){
-                        GameObject.GameObjectConnectionEdge go1 = weldCandidate.first;
-                        GameObject.GameObjectConnectionEdge go2 = weldCandidate.second;
+                        GameObject.GameObjectConnectionEdge go1 = weldCandidate.second;
+                        GameObject.GameObjectConnectionEdge go2 = weldCandidate.first;
                         server.joinGameObject(go1.gameObject, go1.name, go2.gameObject, go2.name);
                     }
                 }
