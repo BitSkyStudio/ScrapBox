@@ -239,6 +239,7 @@ public abstract class GameObject {
     }
     public ArrayList<WeldCandidate> getPossibleWelds(){
         ArrayList<WeldCandidate> weldCandidates = new ArrayList<>();
+        int highestPriority = -1;
         for(Map.Entry<String, GameObjectConnectionEdge> edge1 : this.getOpenConnections().entrySet()){
             for(GameObject other : this.server.gameObjects.values()){
                 if(other == this){
@@ -246,7 +247,13 @@ public abstract class GameObject {
                 }
                 for (Map.Entry<String, GameObjectConnectionEdge> edge2 : other.getOpenConnections().entrySet()) {
                     if (edge1.getValue().collides(edge2.getValue())) {
-                        weldCandidates.add(new WeldCandidate(edge1.getValue(), edge1.getKey(), edge2.getValue(), edge2.getKey()));
+                        int newPriority = Math.max(edge1.getValue().connectionEdge.priority, edge2.getValue().connectionEdge.priority);
+                        if(newPriority >= highestPriority) {
+                            if(newPriority > highestPriority)
+                                weldCandidates.clear();
+                            highestPriority = newPriority;
+                            weldCandidates.add(new WeldCandidate(edge1.getValue(), edge1.getKey(), edge2.getValue(), edge2.getKey()));
+                        }
                     }
                 }
             }
@@ -303,15 +310,18 @@ public abstract class GameObject {
         public final Vector2 offset;
         public final ConnectionEdgeType type;
         public final String bodyName;
+        public final int priority;
         public ConnectionEdge(Vector2 offset, ConnectionEdgeType type) {
-            this.offset = offset;
-            this.type = type;
-            this.bodyName = "base";
+            this(offset, type, "base");
         }
         public ConnectionEdge(Vector2 offset, ConnectionEdgeType type, String bodyName) {
+            this(offset, type, bodyName, 0);
+        }
+        public ConnectionEdge(Vector2 offset, ConnectionEdgeType type, String bodyName, int priority) {
             this.offset = offset;
             this.type = type;
             this.bodyName = bodyName;
+            this.priority = priority;
         }
     }
     public enum ConnectionEdgeType{
