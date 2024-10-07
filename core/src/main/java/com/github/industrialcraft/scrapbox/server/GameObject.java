@@ -1,5 +1,8 @@
 package com.github.industrialcraft.scrapbox.server;
 
+import clipper2.Clipper;
+import clipper2.core.PathD;
+import clipper2.core.PointD;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
@@ -104,12 +107,37 @@ public abstract class GameObject {
         return this.isRemoved;
     }
     public void tick(){
-        float yPosition = this.getBaseBody().getPosition().y;
-        if(yPosition < -100 || yPosition > 1000){
+        if(Math.abs(this.getBaseBody().getPosition().y) > 1000){
             remove();
         }
     }
-    public void internalTick(){}
+    public void internalTick(){
+        for(Body body : bodies.values()){
+            if(body.getMassData().center.y + body.getWorldCenter().y < -100){
+                float area = 0;
+                for(Fixture fixture : body.getFixtureList()){
+                    Shape shape = fixture.getShape();
+                    if(shape instanceof CircleShape){
+                        area += (float) (Math.PI * Math.pow(shape.getRadius(), 2));
+                    }
+                    if(shape instanceof PolygonShape){
+                        PolygonShape polygonShape = (PolygonShape) shape;
+                        PathD path = new PathD();
+                        Vector2 p = new Vector2();
+                        for(int i = 0;i < polygonShape.getVertexCount();i++){
+                            polygonShape.getVertex(i, p);
+                            path.add(new PointD(p.x, p.y));
+                        }
+                        area += (float) Clipper.Area(path);
+                    }
+                }
+                body.applyForceToCenter(new Vector2(0, area*15), true);
+                float drag = (float) (Math.pow(body.getLinearVelocity().len(), 2) * 0.3);
+                if(drag > 0)
+                    body.applyForceToCenter(body.getLinearVelocity().nor().scl(-drag), true);
+            }
+        }
+    }
     public void disconnect(String name){
         ConnectionData connectionData = connections.remove(name);
         connectionData.other.connections.remove(connectionData.otherName);

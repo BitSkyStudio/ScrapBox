@@ -505,6 +505,20 @@ public class InGameScene implements IScene {
         }
         batch.end();
 
+        Matrix4 uiMatrix = new Matrix4();
+        uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        shapeRenderer.setProjectionMatrix(uiMatrix);
+        shapeRenderer.setAutoShapeType(true);
+        float waterLevel = cameraController.camera.project(new Vector3(0, -100*BOX_TO_PIXELS_RATIO, 0)).y;
+        if(waterLevel > 0){
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0, 0, 1, 0.5f);
+            shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), waterLevel);
+            shapeRenderer.end();
+            Gdx.gl.glDisable(GL20.GL_BLEND);
+        }
         if(debugRendering && server != null){
             Matrix4 matrix = cameraController.camera.combined.cpy();
             synchronized (server.physics) {
@@ -517,11 +531,7 @@ public class InGameScene implements IScene {
         stage.act();
         stage.draw();
 
-        Matrix4 uiMatrix = new Matrix4();
-        uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
-        shapeRenderer.setAutoShapeType(true);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for(ShowActivePossibleWelds.PossibleWeld weld: weldShowcase){
             shapeRenderer.setColor(Color.GREEN);
