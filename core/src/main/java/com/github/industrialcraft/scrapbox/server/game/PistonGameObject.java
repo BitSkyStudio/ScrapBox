@@ -1,10 +1,7 @@
 package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
@@ -35,7 +32,7 @@ public class PistonGameObject extends GameObject {
         Body base = server.physics.createBody(bodyDef);
         FixtureDef baseFixtureDef = new FixtureDef();
         PolygonShape baseShape = new PolygonShape();
-        baseShape.setAsBox(1, 1);
+        baseShape.setAsBox(FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE);
         baseFixtureDef.shape = baseShape;
         baseFixtureDef.density = 1F;
         base.createFixture(baseFixtureDef);
@@ -89,7 +86,7 @@ public class PistonGameObject extends GameObject {
     public void tick() {
         super.tick();
         float value = Math.max(Math.min(getValueOnInput(0),2.5f),0)*2;
-        motor.setMotorSpeed((float) -((motor.getJointTranslation())-value)*5);
+        motor.setMotorSpeed(-((motor.getJointTranslation())-value)*5);
     }
     @Override
     public ArrayList<EditorUIRow> createEditorUI() {
@@ -102,11 +99,16 @@ public class PistonGameObject extends GameObject {
     }
 
     @Override
+    public boolean collidesWith(Fixture thisFixture, Fixture other) {
+        if(connections.containsKey("center") && other.getBody().getUserData() == connections.get("center").other)
+            return false;
+        return super.collidesWith(thisFixture, other);
+    }
+
+    @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("down", new ConnectionEdge(new Vector2(0, -1), ConnectionEdgeType.Normal));
-        edges.put("left", new ConnectionEdge(new Vector2(-1, 0), ConnectionEdgeType.Normal));
-        edges.put("right", new ConnectionEdge(new Vector2(1, 0), ConnectionEdgeType.Normal));
+        edges.put("center", new ConnectionEdge(new Vector2(0, 0), ConnectionEdgeType.Internal));
         edges.put("end", new ConnectionEdge(new Vector2(0, 0), ConnectionEdgeType.Normal, "end"));
         return edges;
     }

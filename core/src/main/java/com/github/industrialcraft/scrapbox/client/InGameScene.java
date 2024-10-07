@@ -188,7 +188,7 @@ public class InGameScene implements IScene {
             }
         }));
         renderDataRegistry.put("tnt", new RenderData(new Texture("tnt.png"), 1, 1));
-        renderDataRegistry.put("piston_box", new RenderData(new Texture("piston_box.png"), 1, 1, (renderData, gameObject, batch1) -> {
+        renderDataRegistry.put("piston_box", new RenderData(new Texture("piston_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch1) -> {
             float animation = gameObject.getAnimationNumber("length", 0);
             Vector2 lerpedPosition = gameObject.getRealPosition();
             lerpedPosition.add(new Vector2(0, 1f).rotateRad(gameObject.getRealAngle()));
