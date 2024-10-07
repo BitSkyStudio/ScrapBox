@@ -60,6 +60,7 @@ public abstract class BaseWheelGameObject extends GameObject {
 
     @Override
     public void internalTick() {
+        super.internalTick();
         float value = Math.max(Math.min(getValueOnInput(0),1),-1);
         for(Contact contact : server.physics.getContactList()){
             if(contact.isTouching()){
