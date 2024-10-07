@@ -9,10 +9,9 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
-import com.github.industrialcraft.netx.LANBroadcaster;
-import com.github.industrialcraft.netx.NetXServer;
-import com.github.industrialcraft.netx.ServerMessage;
-import com.github.industrialcraft.netx.SocketUser;
+import com.codedisaster.steamworks.*;
+import com.github.industrialcraft.netx.*;
+import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
 import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
@@ -20,6 +19,7 @@ import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -35,6 +35,7 @@ public class Server {
     public final Terrain terrain;
     public final ClientWorldManager clientWorldManager;
     public final NetXServer networkServer;
+    public final SteamGameServerNetworking steamNetworkServer;
     private boolean stopped;
     public boolean paused;
     public boolean singleStep;
@@ -44,6 +45,81 @@ public class Server {
     public final File saveFile;
     public final ArrayList<Vector3> scheduledExplosions;
     public Server(int port, File saveFile) {
+        if(SteamAPI.isSteamRunning()){
+            this.steamNetworkServer = new SteamGameServerNetworking(new SteamNetworkingCallback() {
+                @Override
+                public void onP2PSessionConnectFail(SteamID steamID, SteamNetworking.P2PSessionError p2PSessionError) {
+
+                }
+                @Override
+                public void onP2PSessionRequest(SteamID steamID) {
+                    System.out.println("request");
+                    steamNetworkServer.acceptP2PSessionWithUser(steamID);
+                    addPlayer(new Player(Server.this, new IConnection() {
+                        @Override
+                        public void send(Object message) {
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            MessageRegistry.MessageDescriptor md = MessageRegistryCreator.CACHE.byClass(message.getClass());
+                            if (md == null) {
+                                throw new RuntimeException("attempting to serialize message with no assigned id, class: " + message.getClass().getSimpleName());
+                            } else if (md.writer == null) {
+                                throw new RuntimeException("trying to send packet without writer implemented, class: " + message.getClass().getSimpleName());
+                            } else {
+                                DataOutputStream dos = new DataOutputStream(stream);
+                                try {
+                                    dos.writeInt(md.getId());
+                                    md.writer.write(message, dos);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                            try {
+                                steamNetworkServer.sendP2PPacket(steamID, ByteBuffer.wrap(stream.toByteArray()), SteamNetworking.P2PSend.Reliable, 0);
+                            } catch (SteamException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        @Override
+                        public ArrayList<Object> read() {
+                            ArrayList<Object> messages = new ArrayList<>();
+                            int[] size = new int[]{0};
+                            while(steamNetworkServer.isP2PPacketAvailable(0, size)) {
+                                System.out.println("size: " + size[0]);
+                                ByteBuffer buffer = ByteBuffer.allocate(8192);
+                                try {
+                                    steamNetworkServer.readP2PPacket(steamID, buffer, 0);
+                                } catch (SteamException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                ByteArrayInputStream stream = new ByteArrayInputStream(buffer.array());
+                                DataInputStream dis = new DataInputStream(stream);
+                                int id = 0;
+                                try {
+                                    id = dis.readInt();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                MessageRegistry.MessageDescriptor descriptor = MessageRegistryCreator.CACHE.byID(id);
+                                if (descriptor == null) {
+                                    throw new RuntimeException("unknown packet id: " + id);
+                                } else if (descriptor.reader == null) {
+                                    throw new RuntimeException("received packet without reader implemented, id: " + id);
+                                } else {
+                                    try {
+                                        messages.add(descriptor.reader.read(new DataInputStream(dis)));
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            }
+                            return messages;
+                        }
+                    }));
+                }
+            });
+        } else {
+            this.steamNetworkServer = null;
+        }
         this.saveFile = saveFile;
         this.uuid = UUID.randomUUID();
         this.players = new ArrayList<>();

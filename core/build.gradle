@@ -8,6 +8,7 @@ dependencies {
   implementation 'com.github.tommyettinger:colorful:0.8.5'
   implementation 'com.github.IndustrialCraft:NetX:v1.1.4'
   implementation 'org.orbisgis:poly2tri-core:0.1.2'
+  apply plugin: 'java-library'
   implementation "com.code-disaster.steamworks4j:steamworks4j:1.9.0"
   implementation "com.code-disaster.steamworks4j:steamworks4j-server:1.9.0"
 }

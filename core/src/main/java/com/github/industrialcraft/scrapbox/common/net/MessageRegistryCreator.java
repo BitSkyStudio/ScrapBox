@@ -4,6 +4,7 @@ import com.github.industrialcraft.netx.MessageRegistry;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 
 public class MessageRegistryCreator {
+    public static MessageRegistry CACHE = create();
     public static MessageRegistry create(){
         MessageRegistry messageRegistry = new MessageRegistry();
         messageRegistry.register(1, AddGameObjectMessage.createDescriptor());
