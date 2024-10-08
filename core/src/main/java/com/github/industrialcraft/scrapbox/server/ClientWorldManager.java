@@ -53,8 +53,7 @@ public class ClientWorldManager {
             HashMap<String, GameObject.ConnectionEdge> connectionPositions = gameObject.getConnectionEdges();
             for(Map.Entry<String, GameObject.ConnectionData> connection : gameObject.connections.entrySet()){
                 if(gameObject.getId() < connection.getValue().other.getId()) {
-                    Vector2 position = new GameObject.GameObjectConnectionEdge(connectionPositions.get(connection.getKey()), connection.getKey(), gameObject).getPosition();
-                    connections.add(new SendConnectionListData.Connection(position, gameObject.getId(), connection.getKey()));
+                    connections.add(new SendConnectionListData.Connection(gameObject.getBody(connectionPositions.get(connection.getKey()).bodyName).getWorldPoint(connectionPositions.get(connection.getKey()).offset).cpy(), gameObject.getId(), connection.getKey()));
                 }
             }
         }

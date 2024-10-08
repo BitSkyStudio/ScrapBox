@@ -141,6 +141,9 @@ public class Server {
         if(type.equals("sticky_wheel")){
             return spawnGameObject(position, rotation, StickyWheelGameObject::new, uuid);
         }
+        if(type.equals("cutting_wheel")){
+            return spawnGameObject(position, rotation, CuttingWheelGameObject::new, uuid);
+        }
         if(type.equals("balloon")){
             return spawnGameObject(position, rotation, BalloonGameObject::new, uuid);
         }
@@ -188,9 +191,6 @@ public class Server {
         }
         if(type.equals("rope")){
             return spawnGameObject(position, rotation, RopeGameObject::new, uuid);
-        }
-        if(type.equals("cutting_wheel")){
-            return spawnGameObject(position, rotation, CuttingWheelGameObject::new, uuid);
         }
         if(type.equals("grabber")){
             return spawnGameObject(position, rotation, GrabberGameObject::new, uuid);
@@ -342,8 +342,12 @@ public class Server {
         this.players.forEach(Player::clearPinched);
         HashMap<UUID,byte[]> data = new HashMap<>();
         for(SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects){
-            spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id);
-            data.put(gameObject.id, gameObject.data);
+            try {
+                spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id);
+                data.put(gameObject.id, gameObject.data);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         this.terrain.terrain.clear();
         for(Map.Entry<String, ArrayList<ArrayList<Vector2>>> entry : saveFile.terrain.entrySet()){

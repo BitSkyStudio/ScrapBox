@@ -131,10 +131,26 @@ public class InGameScene implements IScene {
                 batch1.begin();
             }
         }));
-        renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1));
-        renderDataRegistry.put("cutting_wheel", new RenderData(new Texture("cutting_wheel.png"), 1, 1));
-        renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1));
-        renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1));
+        renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1, (renderData, gameObject, batch1) -> {
+            float size = gameObject.getAnimationNumber("wheelSize", 1);
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width * size) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height * size) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+        }));
+        renderDataRegistry.put("cutting_wheel", new RenderData(new Texture("cutting_wheel.png"), 1, 1, (renderData, gameObject, batch1) -> {
+            float size = gameObject.getAnimationNumber("wheelSize", 1);
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width * size) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height * size) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+        }));
+        renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1, (renderData, gameObject, batch1) -> {
+            float size = gameObject.getAnimationNumber("wheelSize", 1);
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width * size) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height * size) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+        }));
+        renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1, (renderData, gameObject, batch1) -> {
+            float size = gameObject.getAnimationNumber("wheelSize", 1);
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height * size) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
+        }));
         renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1, ropeRenderer));
         renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch1) -> {
             float animation = gameObject.getAnimationNumber("animation", 0);
@@ -235,6 +251,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("frame", renderDataRegistry.get("frame"));
         this.toolBox.addPart("wheel", renderDataRegistry.get("wheel"));
         this.toolBox.addPart("sticky_wheel", renderDataRegistry.get("sticky_wheel"));
+        this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"));
         this.toolBox.addPart("balloon", renderDataRegistry.get("balloon"));
         this.toolBox.addPart("controller", renderDataRegistry.get("controller"));
         this.toolBox.addPart("puncher", renderDataRegistry.get("puncher_box"));
@@ -250,7 +267,6 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("weight", renderDataRegistry.get("weight"));
         this.toolBox.addPart("rope", renderDataRegistry.get("rope"));
         this.toolBox.addPart("stick", renderDataRegistry.get("stick"));
-        this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"));
         this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"));
         this.toolBox.addPart("timer", renderDataRegistry.get("timer"));
         this.toolBox.addPart("piston", renderDataRegistry.get("piston_box"));
@@ -533,6 +549,7 @@ public class InGameScene implements IScene {
 
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
         for(ShowActivePossibleWelds.PossibleWeld weld: weldShowcase){
             shapeRenderer.setColor(Color.GREEN);
             shapeRenderer.rectLine(weld.first.cpy().scl(BOX_TO_PIXELS_RATIO), weld.second.cpy().scl(BOX_TO_PIXELS_RATIO), 5);

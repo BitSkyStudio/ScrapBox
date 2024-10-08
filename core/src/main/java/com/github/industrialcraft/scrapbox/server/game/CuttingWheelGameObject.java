@@ -7,13 +7,18 @@ import com.github.industrialcraft.scrapbox.server.Server;
 
 public class CuttingWheelGameObject extends BaseWheelGameObject{
     public CuttingWheelGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server, 0.01f, "wheel_join", "cutting_wheel");
+        super(position, rotation, server, 0.01f, "wheel_join", "cutting_wheel", 1);
     }
     @Override
     public void tick() {
         super.tick();
         if(motor.isMotorEnabled())
             server.terrain.place("", getBody("wheel").getWorldCenter(), 1.05f, false);
+    }
+
+    @Override
+    public float getWheelFriction() {
+        return 0;
     }
 
     @Override

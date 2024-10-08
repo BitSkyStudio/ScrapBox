@@ -5,7 +5,7 @@ import com.github.industrialcraft.scrapbox.server.Server;
 
 public class SimpleWheelGameObject extends BaseWheelGameObject{
     public SimpleWheelGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server, 0f, "wheel_join", "wheel");
+        super(position, rotation, server, 0f, "wheel_join", "wheel", 1);
     }
 
     @Override
