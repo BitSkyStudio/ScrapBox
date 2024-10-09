@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static com.github.industrialcraft.scrapbox.server.GameObject.HALF_PI;
 
 public class Server {
-    public static Vector2 GRAVITY = new Vector2(0, -9.81f);
+    public static Vector2 GRAVITY = new Vector2(0, -9.81f * 1.2f);
 
     public final ArrayList<Player> players;
     public final HashMap<Integer,GameObject> gameObjects;

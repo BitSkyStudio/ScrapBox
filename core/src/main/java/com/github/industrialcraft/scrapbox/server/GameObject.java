@@ -194,6 +194,11 @@ public abstract class GameObject {
     }
     public void setBody(String name, String type, Body body){
         //todo: overwrites
+        MassData massData = body.getMassData();
+        //massData.I *= 0.9f;
+        body.setMassData(massData);
+        //body.setAngularDamping(3);
+
         this.bodies.put(name, body);
         body.setUserData(this);
         boolean base = name.equals("base");

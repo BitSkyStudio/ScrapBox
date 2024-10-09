@@ -86,14 +86,14 @@ public abstract class BaseWheelGameObject extends GameObject {
                     for(Vector2 point : contact.getWorldManifold().getPoints()){
                         if(point.isZero())
                             continue;
-                        wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion * 5000), wheelBody.getWorldCenter(), true);
+                        wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion * 300 * vehicle.getMass()), wheelBody.getWorldCenter(), true);
                     }
                 }
             }
         }
         if(value != 0){
             motor.enableMotor(true);
-            motor.setMotorSpeed(value*12);
+            motor.setMotorSpeed(value*12*2);
         } else {
             motor.enableMotor(false);
         }
