@@ -93,7 +93,7 @@ public abstract class BaseWheelGameObject extends GameObject {
         }
         if(value != 0){
             motor.enableMotor(true);
-            motor.setMotorSpeed(value*12*2);
+            motor.setMotorSpeed(value*12*1.6f);
         } else {
             motor.enableMotor(false);
         }

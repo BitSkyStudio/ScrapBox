@@ -11,10 +11,9 @@ import com.github.industrialcraft.scrapbox.common.net.msg.EditorUIInput;
 import com.github.industrialcraft.scrapbox.server.SaveFile;
 import com.github.industrialcraft.scrapbox.server.Server;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -69,6 +68,37 @@ public class WorldJoinScene extends StageBasedScreen {
             }
         });
         buttons.add(joinButton);
+        TextButton copyButton = new TextButton("Copy", skin);
+        copyButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(list.getItems().isEmpty())
+                    return;
+                String saveFileName = list.getSelected();
+
+                TextField input = new TextField("", skin);
+                Dialog dialog = new Dialog("Copy World", skin, "dialog") {
+                    public void result(Object obj) {
+                        if(obj instanceof String && !input.getText().isEmpty()){
+                            File saveFile = new File("./saves/" + input.getText() + ".sbs");
+                            try {
+                                File oldFile = new File("./saves/" + saveFileName + ".sbs");
+                                Files.copy(oldFile.toPath(), saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            ScrapBox.getInstance().setScene(new WorldJoinScene());
+                        }
+                    }
+                };
+                dialog.button("Cancel");
+                dialog.button("Ok", "");
+                dialog.getContentTable().add(input);
+                dialog.show(stage);
+            }
+        });
+        buttons.add(copyButton);
         TextButton deleteButton = new TextButton("Delete", skin);
         deleteButton.addListener(new ClickListener(){
             @Override
