@@ -69,6 +69,7 @@ public class InGameScene implements IScene {
     private boolean isPaused;
     private TextureRegion pausedTexture;
     private TextureRegion grabberStickyTexture;
+    private BuildAreaRenderer buildAreaRenderer;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -85,6 +86,7 @@ public class InGameScene implements IScene {
         puncherSpringTexture = new TextureRegion(new Texture("puncher_spring.png"));
         pausedTexture = new TextureRegion(new Texture("paused.png"));
         grabberStickyTexture = new TextureRegion(new Texture("grabber_sticky.png"));
+        buildAreaRenderer = new BuildAreaRenderer();
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
@@ -535,6 +537,16 @@ public class InGameScene implements IScene {
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
+
+        buildAreaRenderer.drawFrameBuffer(cameraController.camera);
+        batch.setProjectionMatrix(uiMatrix);
+        batch.begin();
+        TextureRegion buildAreaRegion = new TextureRegion(buildAreaRenderer.frameBuffer.getColorBufferTexture());
+        buildAreaRegion.flip(false, true);
+        batch.draw(buildAreaRegion, 0, 0);
+        batch.end();
+        batch.setProjectionMatrix(cameraController.camera.combined);
+
         if(debugRendering && server != null){
             Matrix4 matrix = cameraController.camera.combined.cpy();
             synchronized (server.physics) {
@@ -670,6 +682,7 @@ public class InGameScene implements IScene {
         Vector3 position = cameraController.camera.position.cpy();
         cameraController.camera.setToOrtho(false, width, height);
         cameraController.camera.position.set(position);
+        buildAreaRenderer.resize(width, height);
     }
     @Override
     public void dispose() {
