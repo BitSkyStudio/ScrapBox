@@ -36,6 +36,7 @@ public class MessageRegistryCreator {
         messageRegistry.register(28, CloseGameObjectEditUI.createDescriptor());
         messageRegistry.register(29, GamePausedState.createDescriptor());
         messageRegistry.register(30, ChangeObjectHealth.createDescriptor());
+        messageRegistry.register(31, UpdateBuildableAreas.createDescriptor());
         return messageRegistry;
     }
 }

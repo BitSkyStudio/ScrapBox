@@ -449,6 +449,10 @@ public class InGameScene implements IScene {
                 ResponseControllerState responseControllerState = (ResponseControllerState) message;
                 this.controllerState = responseControllerState.state;
             }
+            if(message instanceof UpdateBuildableAreas){
+                UpdateBuildableAreas updateBuildableAreas = (UpdateBuildableAreas) message;
+                buildAreaRenderer.buildableAreas = updateBuildableAreas.areas;
+            }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             connection.send(new ToggleGamePaused(false));
@@ -538,14 +542,17 @@ public class InGameScene implements IScene {
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
 
-        buildAreaRenderer.drawFrameBuffer(cameraController.camera);
-        batch.setProjectionMatrix(uiMatrix);
-        batch.begin();
-        TextureRegion buildAreaRegion = new TextureRegion(buildAreaRenderer.frameBuffer.getColorBufferTexture());
-        buildAreaRegion.flip(false, true);
-        batch.draw(buildAreaRegion, 0, 0);
-        batch.end();
-        batch.setProjectionMatrix(cameraController.camera.combined);
+        if(!buildAreaRenderer.buildableAreas.isEmpty()) {
+            batch.setColor(0.5f, 0.5f, 0.5f, 1);
+            buildAreaRenderer.drawFrameBuffer(cameraController.camera);
+            batch.setProjectionMatrix(uiMatrix);
+            batch.begin();
+            TextureRegion buildAreaRegion = new TextureRegion(buildAreaRenderer.frameBuffer.getColorBufferTexture());
+            buildAreaRegion.flip(false, true);
+            batch.draw(buildAreaRegion, 0, 0);
+            batch.end();
+            batch.setProjectionMatrix(cameraController.camera.combined);
+        }
 
         if(debugRendering && server != null){
             Matrix4 matrix = cameraController.camera.combined.cpy();

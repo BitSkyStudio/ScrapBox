@@ -14,18 +14,17 @@ import java.util.ArrayList;
 
 public class BuildAreaRenderer {
     public FrameBuffer frameBuffer;
-    public final ArrayList<Rectangle> buildableAreas;
+    public ArrayList<Rectangle> buildableAreas;
     private ShapeRenderer shapeRenderer;
     public BuildAreaRenderer() {
         this.frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         this.buildableAreas = new ArrayList<>();
-        this.buildableAreas.add(new Rectangle(0, 0, 10, 10));
         this.shapeRenderer = new ShapeRenderer();
         this.shapeRenderer.setAutoShapeType(true);
     }
     public void drawFrameBuffer(Camera camera){
         frameBuffer.bind();
-        Gdx.gl.glClearColor(1, 0, 0, 0.5f);
+        Gdx.gl.glClearColor(1, 0, 0, 0.4f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -34,10 +33,11 @@ public class BuildAreaRenderer {
         uiMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer.setProjectionMatrix(uiMatrix);
 
-        shapeRenderer.setColor(1, 0, 0, 1);
+        shapeRenderer.setColor(1, 0, 0, 0.8f);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         int lineWidth = 20;
-        float shift = (camera.project(new Vector3((camera.position.x-camera.position.y)/InGameScene.BOX_TO_PIXELS_RATIO, 0, 0)).x)%lineWidth;
+        Vector3 projected = camera.project(new Vector3(camera.position.x/InGameScene.BOX_TO_PIXELS_RATIO, camera.position.y/InGameScene.BOX_TO_PIXELS_RATIO, 0));
+        float shift = (projected.x-projected.y)%lineWidth;
         for(int i = 0;i < (Gdx.graphics.getWidth()+Gdx.graphics.getHeight())/lineWidth;i++){
             float x = i*lineWidth - Gdx.graphics.getHeight() + shift;
             shapeRenderer.line(x, Gdx.graphics.getHeight(), x+Gdx.graphics.getHeight(), 0);

@@ -1,5 +1,6 @@
 package com.github.industrialcraft.scrapbox.server;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -36,6 +37,9 @@ public class Player extends GameObject{
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
         setBody("base", "player", server.physics.createBody(bodyDef));
+    }
+    public void setBuildableAreas(ArrayList<Rectangle> buildableAreas){
+        connection.send(new UpdateBuildableAreas(buildableAreas));
     }
 
     @Override
