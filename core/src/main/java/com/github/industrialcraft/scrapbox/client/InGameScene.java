@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.github.industrialcraft.netx.NetXClient;
@@ -395,6 +396,10 @@ public class InGameScene implements IScene {
         Gdx.gl.glClearColor(79f / 255f, 201f / 255f, 232f / 255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         for(Object message : connection.read()){
+            if(message instanceof DisconnectMessage) {
+                ScrapBox.getInstance().setScene(new DisconnectedScene(((DisconnectMessage) message).reason));
+                return;
+            }
             if(message instanceof GamePausedState){
                 GamePausedState gamePausedStateMessage = (GamePausedState) message;
                 isPaused = gamePausedStateMessage.paused;
@@ -482,6 +487,35 @@ public class InGameScene implements IScene {
                 };
                 escapeMenu.setMovable(false);
                 Table table = escapeMenu.getContentTable();
+                if(server != null) {
+                    TextButton setPasswordButton = new TextButton("Set Server Password", ScrapBox.getInstance().getSkin());
+                    setPasswordButton.addListener(new ClickListener() {
+                        @Override
+                        public void clicked(InputEvent event, float x, float y) {
+                            TextField input = new TextField("", ScrapBox.getInstance().getSkin());
+                            Dialog passwordSet = new Dialog("Set Password", ScrapBox.getInstance().getSkin(), "dialog") {
+                                @Override
+                                protected void result(Object object) {
+                                    if (object instanceof String) {
+                                        String password = input.getText().trim();
+                                        if (password.isEmpty()) {
+                                            server.password = null;
+                                        } else {
+                                            server.password = password;
+                                        }
+                                    }
+                                }
+                            };
+                            passwordSet.setMovable(false);
+                            passwordSet.button("Cancel");
+                            passwordSet.button("Ok", "");
+                            passwordSet.getContentTable().add(input);
+                            passwordSet.show(stage);
+                        }
+                    });
+                    table.add(setPasswordButton);
+                    table.row();
+                }
                 TextButton mainMenu = new TextButton("Main Menu", ScrapBox.getInstance().getSkin());
                 mainMenu.addListener(new ClickListener(){
                     @Override

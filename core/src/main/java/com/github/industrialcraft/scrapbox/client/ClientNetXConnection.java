@@ -37,17 +37,4 @@ public class ClientNetXConnection implements IConnection {
         }));
         return messages;
     }
-    public void waitForConnect(){
-        this.client.visitMessage(new ClientMessage.Visitor() {
-            @Override
-            public void connect(NetXClient user) {
-                ConnectingScene scene = (ConnectingScene) ScrapBox.getInstance().getScene();
-                ScrapBox.getInstance().setScene(new InGameScene(scene.connection, null, scene.netXClient));
-            }
-            @Override
-            public void exception(NetXClient user, Throwable exception) {
-                ScrapBox.getInstance().setScene(new DisconnectedScene("connecting failed: " + exception.getLocalizedMessage()));
-            }
-        });
-    }
 }

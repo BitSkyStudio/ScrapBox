@@ -13,12 +13,15 @@ public class Lwjgl3Launcher {
     public static void main(String[] args) throws IOException {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
 
-        if((args.length == 2 || args.length == 3) && args[0].equals("host")){
+        if((args.length >= 2 && args.length <= 4) && args[0].equals("host")){
             File saveFile = null;
-            if(args.length == 3){
+            if(args.length > 2){
                 saveFile = new File(args[2]);
             }
             Server server = new Server(Integer.parseInt(args[1]), saveFile);
+            if(args.length > 3){
+                server.password = args[3];
+            }
             if(saveFile != null) {
                 try {
                     server.loadSaveFile(new SaveFile(new DataInputStream(new BufferedInputStream(new FileInputStream(saveFile)))));

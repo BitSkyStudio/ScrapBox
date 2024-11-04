@@ -14,6 +14,9 @@ import com.github.industrialcraft.netx.NetXServer;
 import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
+import com.github.industrialcraft.scrapbox.common.net.msg.DisconnectMessage;
+import com.github.industrialcraft.scrapbox.common.net.msg.SetGameState;
+import com.github.industrialcraft.scrapbox.common.net.msg.SubmitPassword;
 import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 
@@ -43,7 +46,9 @@ public class Server {
     private final UUID uuid;
     public final File saveFile;
     public final ArrayList<Vector3> scheduledExplosions;
+    public String password;
     public Server(int port, File saveFile) {
+        this.password = null;
         this.saveFile = saveFile;
         this.uuid = UUID.randomUUID();
         this.players = new ArrayList<>();
@@ -260,17 +265,41 @@ public class Server {
         while(this.networkServer.visitMessage(new ServerMessage.Visitor() {
             @Override
             public void connect(SocketUser user) {
-                Player player = new Player(Server.this, new ServerNetXConnection(user));
-                addPlayer(player);
-                user.setUserData(player);
+                if(password == null) {
+                    user.send(new SetGameState(SetGameState.GameState.PLAY));
+                    Player player = new Player(Server.this, new ServerNetXConnection(user));
+                    addPlayer(player);
+                    user.setUserData(player);
+                } else {
+                    user.send(new SetGameState(SetGameState.GameState.REQUEST_PASSWORD));
+                }
             }
             @Override
             public void disconnect(SocketUser user) {
-                ((Player)user.getUserData()).disconnect();
+                if(user.getUserData() != null)
+                    ((Player)user.getUserData()).disconnect();
             }
             @Override
             public void message(SocketUser user, Object msg) {
-                ((ServerNetXConnection)((Player)user.getUserData()).connection).queue.add(msg);
+                if(user.getUserData() == null){
+                    if(msg instanceof SubmitPassword){
+                        SubmitPassword submitPasswordMessage = (SubmitPassword) msg;
+                        if(password == null || submitPasswordMessage.password.equals(password)){
+                            user.send(new SetGameState(SetGameState.GameState.PLAY));
+                            Player player = new Player(Server.this, new ServerNetXConnection(user));
+                            addPlayer(player);
+                            user.setUserData(player);
+                        } else {
+                            user.send(new DisconnectMessage("wrong password"));
+                            user.disconnect();
+                        }
+                    } else {
+                        System.out.println("invalid handshake");
+                        user.disconnect();
+                    }
+                } else {
+                    ((ServerNetXConnection) ((Player) user.getUserData()).connection).queue.add(msg);
+                }
             }
         }));
         if(tickCount%20==1){

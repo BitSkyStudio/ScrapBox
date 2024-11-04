@@ -37,6 +37,9 @@ public class MessageRegistryCreator {
         messageRegistry.register(29, GamePausedState.createDescriptor());
         messageRegistry.register(30, ChangeObjectHealth.createDescriptor());
         messageRegistry.register(31, UpdateBuildableAreas.createDescriptor());
+        messageRegistry.register(32, SetGameState.createDescriptor());
+        messageRegistry.register(33, SubmitPassword.createDescriptor());
+        messageRegistry.register(34, DisconnectMessage.createDescriptor());
         return messageRegistry;
     }
 }
