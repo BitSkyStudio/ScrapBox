@@ -30,6 +30,7 @@ import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
+import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
@@ -630,17 +631,18 @@ public class InGameScene implements IScene {
         if(toolBox.tool == ToolBox.Tool.Wrench) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             MouseSelector.Selection selected = mouseSelector.getSelected();
-            if(selected != null){
-                ClientGameObject gameObject = gameObjects.get(selected.id);
-                Vector2 position = mouseSelector.getWorldMousePosition();
+            for(ClientGameObject gameObject : gameObjects.values()){
                 float healthPercent = gameObject.health/gameObject.maxHealth;
-                final float HEALTH_OFFSET = 100;
-                final float BAR_WIDTH = 200;
+                float size = (selected != null && gameObject.id == selected.id) ? 1 : 0.5f;
+                final float BAR_WIDTH = 200 * size;
+                final float BAR_HEIGHT = 50 * size;
                 shapeRenderer.setColor(89f/255f, 9f/255f, 0, 1);
-                shapeRenderer.rect((position.x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2), position.y*InGameScene.BOX_TO_PIXELS_RATIO + HEALTH_OFFSET, BAR_WIDTH, 50);
+                shapeRenderer.rect((gameObject.getRealPosition().x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2), gameObject.getRealPosition().y*InGameScene.BOX_TO_PIXELS_RATIO-BAR_HEIGHT/2, BAR_WIDTH, BAR_HEIGHT);
                 shapeRenderer.setColor(1, 0, 0, 1);
-                shapeRenderer.rect(position.x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2+5, position.y*InGameScene.BOX_TO_PIXELS_RATIO + HEALTH_OFFSET + 5, (BAR_WIDTH-10)*healthPercent, 50 - 10);
+                shapeRenderer.rect(gameObject.getRealPosition().x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2+BAR_HEIGHT/10, gameObject.getRealPosition().y*InGameScene.BOX_TO_PIXELS_RATIO + BAR_HEIGHT/10 - BAR_HEIGHT/2, (BAR_WIDTH-BAR_HEIGHT/5)*healthPercent, BAR_HEIGHT * 4/5);
 
+            }
+            if(selected != null){
                 float healthChange = 50*Gdx.graphics.getDeltaTime();
                 if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
                     connection.send(new ChangeObjectHealth(selected.id, -healthChange));
