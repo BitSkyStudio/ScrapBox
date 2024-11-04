@@ -33,7 +33,6 @@ public class ToolBox {
         this.tools = new ArrayList<>();
         this.tools.add(new ToolType(Tool.Hand, new Texture("mode_hand.png"), null));
         this.tools.add(new ToolType(Tool.TerrainModify, new Texture("mode_terrain_modify_circle.png"), new Texture("mode_terrain_modify_rect.png")));
-        this.tools.add(new ToolType(Tool.Wrench, new Texture("mode_wrench.png"), null));
         this.selectedTerrain = 0;
         this.terrainTypes = new ArrayList<>();
         this.brushSize = 1;
@@ -162,7 +161,6 @@ public class ToolBox {
     }
     public enum Tool{
         Hand,
-        TerrainModify,
-        Wrench
+        TerrainModify
     }
 }

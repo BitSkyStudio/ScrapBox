@@ -628,7 +628,7 @@ public class InGameScene implements IScene {
             }
         }
         shapeRenderer.end();
-        if(toolBox.tool == ToolBox.Tool.Wrench) {
+        if(Gdx.input.isKeyPressed(Input.Keys.N)) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             MouseSelector.Selection selected = mouseSelector.getSelected();
             for(ClientGameObject gameObject : gameObjects.values()){
