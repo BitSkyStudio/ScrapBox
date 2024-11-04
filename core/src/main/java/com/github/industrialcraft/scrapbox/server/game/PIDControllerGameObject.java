@@ -89,6 +89,8 @@ public class PIDControllerGameObject extends GameObject {
     @Override
     public void handleEditorUIInput(String elementId, String value) {
         super.handleEditorUIInput(elementId, value);
+        if(value.isEmpty())
+            value = "0";
         if(elementId.equals("p")){
             float parsed = Float.parseFloat(value);
             pid.setkP(parsed);

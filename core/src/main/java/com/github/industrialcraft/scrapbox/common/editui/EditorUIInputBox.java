@@ -30,10 +30,8 @@ public class EditorUIInputBox extends EditorUIElement{
     @Override
     public Actor createActor(Skin skin, ClientGameObjectEditor editor) {
         TextField inputBox = new TextField(content, skin);
-        inputBox.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                //todo: only on enter
+        inputBox.setTextFieldListener((textField, c) -> {
+            if(c == '\n'){
                 editor.scene.connection.send(new EditorUIInput(editor.gameObjectID, id, inputBox.getText()));
             }
         });

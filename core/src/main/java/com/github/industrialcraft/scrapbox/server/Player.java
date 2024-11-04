@@ -205,7 +205,9 @@ public class Player extends GameObject{
                 EditorUIInput editorUIInput = (EditorUIInput) message;
                 GameObject gameObject = server.gameObjects.get(editorUIInput.gameObjectId);
                 if(gameObject != null){
-                    gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
+                    try {
+                        gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
+                    } catch (Exception e){}
                     gameObject.updateUI();
                 }
             }
