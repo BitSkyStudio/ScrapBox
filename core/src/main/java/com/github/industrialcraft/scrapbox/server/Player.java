@@ -13,10 +13,7 @@ import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
 import com.github.industrialcraft.scrapbox.server.game.RopeGameObject;
 import com.github.industrialcraft.scrapbox.server.game.StickGameObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class Player extends GameObject{
     public final Server server;
@@ -24,6 +21,7 @@ public class Player extends GameObject{
     private PinchingData pinching;
     private boolean isDisconnected;
     public final UUID uuid;
+    public ArrayList<Rectangle> buildableAreas;
     public Player(Server server, IConnection connection) {
         super(Vector2.Zero.cpy(), 0, server);
         this.server = server;
@@ -31,17 +29,30 @@ public class Player extends GameObject{
         this.pinching = null;
         this.isDisconnected = false;
         this.uuid = UUID.randomUUID();
+        this.buildableAreas = new ArrayList<>();
 
         connection.send(new GamePausedState(server.paused));
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
         setBody("base", "player", server.physics.createBody(bodyDef));
+
+        //setBuildableAreas(new ArrayList<>(Collections.singleton(new Rectangle(0, 0, 5, 5))));
     }
     public void setBuildableAreas(ArrayList<Rectangle> buildableAreas){
+        this.buildableAreas = buildableAreas;
         connection.send(new UpdateBuildableAreas(buildableAreas));
     }
-
+    public boolean isInBuildableArea(float x, float y){
+        for(Rectangle area : buildableAreas){
+            if(area.contains(x, y))
+                return true;
+        }
+        return false;
+    }
+    public boolean isInBuildableArea(){
+        return isInBuildableArea(getBaseBody().getPosition().x, getBaseBody().getPosition().y);
+    }
     @Override
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {
         animationData.addString("color", Integer.toHexString(((int) this.uuid.getLeastSignificantBits()) >>> 8));
@@ -79,6 +90,8 @@ public class Player extends GameObject{
                 if(gameObject == null){
                     continue;
                 }
+                if(!isInBuildableArea() && gameObject.getLocalMode() != EObjectInteractionMode.Ghost)
+                    continue;
                 if(gameObject.vehicle.getMode() == EObjectInteractionMode.Static){
                     gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
                 }
@@ -92,23 +105,30 @@ public class Player extends GameObject{
                 pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), offset);
             }
             if(message instanceof GameObjectRelease){
+                if(!isInBuildableArea() && pinching != null && getPinching().getLocalMode() == EObjectInteractionMode.Ghost){
+                    for(GameObject go : getPinching().vehicle.gameObjects.toArray(GameObject[]::new)){
+                        go.remove();
+                    }
+                }
                 clearPinched();
             }
             if(message instanceof MouseMoved){
                 MouseMoved mouseMoved = (MouseMoved) message;
                 getBaseBody().setTransform(mouseMoved.position.cpy(), 0);
                 if(pinching != null) {
-                    pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
-                    GameObject gameObject = getPinching();
-                    if (gameObject != null) {
-                        if(gameObject.isSideUsed("center") && gameObject.getConnectionEdges().size() == 1){
-                            gameObject = gameObject.connections.get("center").other;
+                    if(isInBuildableArea()) {
+                        pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
+                        GameObject gameObject = getPinching();
+                        if (gameObject != null) {
+                            if (gameObject.isSideUsed("center") && gameObject.getConnectionEdges().size() == 1) {
+                                gameObject = gameObject.connections.get("center").other;
+                            }
+                            ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
+                            for (GameObject.WeldCandidate weld : gameObject.getPossibleWelds()) {
+                                welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition().cpy(), weld.second.getPosition().cpy()));
+                            }
+                            this.send(new ShowActivePossibleWelds(welds));
                         }
-                        ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
-                        for (GameObject.WeldCandidate weld : gameObject.getPossibleWelds()) {
-                            welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition().cpy(), weld.second.getPosition().cpy()));
-                        }
-                        this.send(new ShowActivePossibleWelds(welds));
                     }
                 }
             }
@@ -129,6 +149,8 @@ public class Player extends GameObject{
                 server.terrain.placeFromMessage(placeTerrain);
             }
             if(message instanceof PinchingGhostToggle){
+                if(!isInBuildableArea())
+                    continue;
                 GameObject pinching = getPinching();
                 if(pinching != null){
                     if(pinching.vehicle.getMode() == EObjectInteractionMode.Normal){
@@ -152,6 +174,8 @@ public class Player extends GameObject{
                 }
             }
             if(message instanceof LockGameObject){
+                if(!isInBuildableArea())
+                    continue;
                 GameObject pinching = getPinching();
                 if(pinching != null){
                     pinching.vehicle.setMode(EObjectInteractionMode.Static);

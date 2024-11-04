@@ -640,7 +640,6 @@ public class InGameScene implements IScene {
                 shapeRenderer.rect((gameObject.getRealPosition().x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2), gameObject.getRealPosition().y*InGameScene.BOX_TO_PIXELS_RATIO-BAR_HEIGHT/2, BAR_WIDTH, BAR_HEIGHT);
                 shapeRenderer.setColor(1, 0, 0, 1);
                 shapeRenderer.rect(gameObject.getRealPosition().x*InGameScene.BOX_TO_PIXELS_RATIO-BAR_WIDTH/2+BAR_HEIGHT/10, gameObject.getRealPosition().y*InGameScene.BOX_TO_PIXELS_RATIO + BAR_HEIGHT/10 - BAR_HEIGHT/2, (BAR_WIDTH-BAR_HEIGHT/5)*healthPercent, BAR_HEIGHT * 4/5);
-
             }
             if(selected != null){
                 float healthChange = 50*Gdx.graphics.getDeltaTime();
