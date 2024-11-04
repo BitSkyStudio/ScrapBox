@@ -44,6 +44,8 @@ public class Player extends GameObject{
         connection.send(new UpdateBuildableAreas(buildableAreas));
     }
     public boolean isInBuildableArea(float x, float y){
+        if(buildableAreas.isEmpty())
+            return true;
         for(Rectangle area : buildableAreas){
             if(area.contains(x, y))
                 return true;

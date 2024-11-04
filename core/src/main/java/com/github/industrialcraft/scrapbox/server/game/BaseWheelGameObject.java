@@ -68,7 +68,7 @@ public abstract class BaseWheelGameObject extends GameObject {
     }
 
     public float getWheelFriction(){
-        return 500;
+        return 2;
     }
 
     @Override
