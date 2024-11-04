@@ -20,10 +20,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.github.industrialcraft.netx.NetXClient;
@@ -72,6 +69,7 @@ public class InGameScene implements IScene {
     private TextureRegion pausedTexture;
     private TextureRegion grabberStickyTexture;
     private BuildAreaRenderer buildAreaRenderer;
+    private int gearJointSelection;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -79,6 +77,7 @@ public class InGameScene implements IScene {
     }
     @Override
     public void create() {
+        this.gearJointSelection = -1;
         this.dragAndDrop = new DragAndDrop();
         font = new BitmapFont();
         stage = new Stage();
@@ -320,7 +319,7 @@ public class InGameScene implements IScene {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if(!toolBox.isMouseInside()) {
-                    if(toolBox.tool == ToolBox.Tool.Hand && !Gdx.input.isKeyPressed(Input.Keys.B)) {
+                    if(toolBox.tool == ToolBox.Tool.Hand && !(Gdx.input.isKeyPressed(Input.Keys.B) || Gdx.input.isKeyPressed(Input.Keys.G))) {
                         selected = mouseSelector.getSelected();
                         if (selected != null) {
                             connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
@@ -333,6 +332,12 @@ public class InGameScene implements IScene {
                             if(mouse2.dst(connection1.position.cpy().scl(BOX_TO_PIXELS_RATIO)) < JOINT_BREAK_ICON_SIZE/2){
                                 connection.send(new DestroyJoint(connection1.gameObjectId, connection1.name));
                             }
+                        }
+                    }
+                    if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.G)){
+                        MouseSelector.Selection selection = mouseSelector.getSelected();
+                        if(selection != null){
+                            gearJointSelection = selection.id;
                         }
                     }
                     if (toolBox.tool == ToolBox.Tool.TerrainModify) {
@@ -350,6 +355,40 @@ public class InGameScene implements IScene {
                     if(toolBox.isMouseInside()){
                         connection.send(new TrashObject(selected.id));
                     }
+                }
+                if(Gdx.input.isKeyPressed(Input.Keys.G) && gearJointSelection != -1){
+                    MouseSelector.Selection sel = mouseSelector.getSelected();
+                    if(sel != null){
+                        TextField ratioA = new TextField("1", ScrapBox.getInstance().getSkin());
+                        ratioA.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+                        TextField ratioB = new TextField("1", ScrapBox.getInstance().getSkin());
+                        ratioB.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+                        Dialog gearRatio = new Dialog("Enter gear ratio", ScrapBox.getInstance().getSkin(), "dialog"){
+                            @Override
+                            protected void result(Object object) {
+                                if(object instanceof String) {
+                                    try {
+                                        int rA = ratioA.getText().isEmpty() ? 1 : Integer.parseInt(ratioA.getText());
+                                        int rB = ratioB.getText().isEmpty() ? 1 : Integer.parseInt(ratioB.getText());
+                                        connection.send(new CreateGearConnection(gearJointSelection, rA, sel.id, rB));
+                                    } catch (Exception e) {
+                                    }
+                                }
+                                gearJointSelection = -1;
+                            }
+                        };
+                        gearRatio.setMovable(false);
+                        Table table = gearRatio.getContentTable();
+                        table.add(new Label("Ratio A: ", ScrapBox.getInstance().getSkin()), ratioA).row();
+                        table.add(new Label("Ratio B: ", ScrapBox.getInstance().getSkin()), ratioB).row();
+                        gearRatio.button("Ok", "");
+                        gearRatio.button("Back");
+                        gearRatio.show(stage);
+                    } else {
+                        gearJointSelection = -1;
+                    }
+                } else {
+                    gearJointSelection = -1;
                 }
                 selected = null;
                 return false;
@@ -614,6 +653,14 @@ public class InGameScene implements IScene {
             shapeRenderer.setColor(Color.BLACK);
             Vector2 start = ((EditorUILink.ConnectionData)dragAndDrop.getDragPayload().getObject()).position;
             shapeRenderer.rectLine(dragging.getX() + dragging.getWidth(), dragging.getY() + dragging.getHeight()/2, start.x, start.y, 3);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.G) && gearJointSelection != -1){
+            shapeRenderer.setColor(Color.BLACK);
+            shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
+            Vector2 firstPos = gameObjects.get(gearJointSelection).getRealPosition();
+            MouseSelector.Selection selection = mouseSelector.getSelected();
+            Vector2 secondPos = selection!=null?gameObjects.get(selection.id).getRealPosition():mouseSelector.getWorldMousePosition();
+            shapeRenderer.rectLine(firstPos.x * BOX_TO_PIXELS_RATIO, firstPos.y * BOX_TO_PIXELS_RATIO, secondPos.x * BOX_TO_PIXELS_RATIO, secondPos.y * BOX_TO_PIXELS_RATIO, 3);
         }
         shapeRenderer.end();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);

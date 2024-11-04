@@ -40,6 +40,8 @@ public class MessageRegistryCreator {
         messageRegistry.register(32, SetGameState.createDescriptor());
         messageRegistry.register(33, SubmitPassword.createDescriptor());
         messageRegistry.register(34, DisconnectMessage.createDescriptor());
+        messageRegistry.register(35, CreateGearConnection.createDescriptor());
+        messageRegistry.register(36, DestroyGearConnection.createDescriptor());
         return messageRegistry;
     }
 }

@@ -72,6 +72,16 @@ public abstract class BaseWheelGameObject extends GameObject {
     }
 
     @Override
+    public Joint getGearJoint() {
+        return motor;
+    }
+
+    @Override
+    public String getGearJointBody() {
+        return "wheel";
+    }
+
+    @Override
     public void internalTick() {
         super.internalTick();
         float value = Math.max(Math.min(getValueOnInput(0),1),-1);

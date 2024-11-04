@@ -5,6 +5,8 @@ import clipper2.core.PathD;
 import clipper2.core.PointD;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.joints.GearJoint;
+import com.badlogic.gdx.physics.box2d.joints.GearJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
@@ -25,6 +27,7 @@ public abstract class GameObject {
     private boolean isRemoved;
     public HashMap<String,ConnectionData> connections;
     protected HashMap<Integer,ValueConnection> valueConnections;
+    public HashMap<UUID, GearConnectionData> gearConnections;
     protected HashMap<Integer,Float> defaultValues;
     public Vehicle vehicle;
     private int baseId;
@@ -44,6 +47,38 @@ public abstract class GameObject {
         this.uiViewers = new HashSet<>();
         this.health = getMaxHealth();
         this.damageModifiers = new EnumMap<>(EDamageType.class);
+        this.gearConnections = new HashMap<>();
+    }
+    public Joint getGearJoint(){
+        return null;
+    }
+    public String getGearJointBody(){
+        return "base";
+    }
+    public void connectGearJoint(GameObject other, int thisRatio, int otherRatio){
+        Joint thisJoint = getGearJoint();
+        Joint otherJoint = other.getGearJoint();
+        if(thisJoint == null || otherJoint == null)
+            return;
+        if(gearConnections.containsKey(other.uuid))
+            disconnectGearJoint(other);
+        GearJointDef gearJointDef = new GearJointDef();
+        gearJointDef.bodyA = getBody(getGearJointBody());
+        gearJointDef.bodyB = other.getBody(other.getGearJointBody());
+        gearJointDef.joint1 = thisJoint;
+        gearJointDef.joint2 = otherJoint;
+        gearJointDef.ratio = ((float)thisRatio)/((float)otherRatio);
+        GearJoint gearJoint = (GearJoint) server.physics.createJoint(gearJointDef);
+        this.gearConnections.put(other.uuid, new GearConnectionData(other, thisRatio, otherRatio, gearJoint));
+        other.gearConnections.put(this.uuid, new GearConnectionData(this, otherRatio, thisRatio, gearJoint));
+    }
+    public void disconnectGearJoint(GameObject other){
+        GearConnectionData gearConnectionData = gearConnections.get(other.uuid);
+        if(gearConnectionData != null){
+            this.gearConnections.remove(other.uuid);
+            other.gearConnections.remove(this.uuid);
+            server.physics.destroyJoint(gearConnectionData.joint);
+        }
     }
     public float getMaxHealth(){
         return 100;
@@ -389,6 +424,18 @@ public abstract class GameObject {
         public ConnectionData(GameObject other, String otherName, Joint joint) {
             this.other = other;
             this.otherName = otherName;
+            this.joint = joint;
+        }
+    }
+    public static class GearConnectionData{
+        public final GameObject other;
+        public final int thisRatio;
+        public final int otherRatio;
+        public final Joint joint;
+        public GearConnectionData(GameObject other, int thisRatio, int otherRatio, Joint joint) {
+            this.other = other;
+            this.thisRatio = thisRatio;
+            this.otherRatio = otherRatio;
             this.joint = joint;
         }
     }

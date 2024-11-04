@@ -258,6 +258,22 @@ public class Player extends GameObject{
                     gameObject.damage(changeObjectHealthMessage.health, EDamageType.Wrench);
                 }
             }
+            if(message instanceof CreateGearConnection){
+                CreateGearConnection createGearConnectionMessage = (CreateGearConnection) message;
+                GameObject goA = server.gameObjects.get(createGearConnectionMessage.objectA);
+                GameObject goB = server.gameObjects.get(createGearConnectionMessage.objectB);
+                if(goA != null && goB != null){
+                    goA.connectGearJoint(goB, createGearConnectionMessage.gearRatioA, createGearConnectionMessage.gearRatioB);
+                }
+            }
+            if(message instanceof DestroyGearConnection){
+                DestroyGearConnection destroyGearConnectionMessage = (DestroyGearConnection) message;
+                GameObject goA = server.gameObjects.get(destroyGearConnectionMessage.objectA);
+                GameObject goB = server.gameObjects.get(destroyGearConnectionMessage.objectB);
+                if(goA != null && goB != null){
+                    goA.disconnectGearJoint(goB);
+                }
+            }
         }
     }
     @Override
