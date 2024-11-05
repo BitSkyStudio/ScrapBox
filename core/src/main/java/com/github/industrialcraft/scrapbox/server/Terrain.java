@@ -85,7 +85,7 @@ public class Terrain {
                     points[i * 2] = (float) path.get(i).x;
                     points[(i * 2) + 1] = (float) path.get(i).y;
                 }
-                if(points.length <= 2){
+                if(points.length <= 2*2){
                     shape.createChain(points);
                 } else {
                     shape.createLoop(points);
