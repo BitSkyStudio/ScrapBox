@@ -377,9 +377,10 @@ public class InGameScene implements IScene {
                     MouseSelector.Selection sel = mouseSelector.getSelected();
                     if(sel != null){
                         TextField ratioA = new TextField("1", ScrapBox.getInstance().getSkin());
-                        ratioA.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+                        TextField.TextFieldFilter fieldFilter = (textField, c) -> Character.isDigit(c) || c == '-';
+                        ratioA.setTextFieldFilter(fieldFilter);
                         TextField ratioB = new TextField("1", ScrapBox.getInstance().getSkin());
-                        ratioB.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+                        ratioB.setTextFieldFilter(fieldFilter);
                         Dialog gearRatio = new Dialog("Enter gear ratio", ScrapBox.getInstance().getSkin(), "dialog"){
                             @Override
                             protected void result(Object object) {
@@ -683,6 +684,7 @@ public class InGameScene implements IScene {
         if(Gdx.input.isKeyPressed(Input.Keys.G)){
             shapeRenderer.setColor(Color.BLACK);
             shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
+            batch.setProjectionMatrix(cameraController.camera.combined);
             for(SendConnectionListData.GearConnection gearConnection : gearConnectionsShowcase){
                 ClientGameObject objectA = gameObjects.get(gearConnection.goA);
                 ClientGameObject objectB = gameObjects.get(gearConnection.goB);
@@ -690,12 +692,23 @@ public class InGameScene implements IScene {
                     shapeRenderer.rectLine(objectA.getRealPosition().scl(BOX_TO_PIXELS_RATIO), objectB.getRealPosition().scl(BOX_TO_PIXELS_RATIO), 3);
                     shapeRenderer.end();
                     Vector2 textPosition = objectA.getRealPosition().lerp(objectB.getRealPosition(), 0.5f).scl(BOX_TO_PIXELS_RATIO);
-                    batch.setProjectionMatrix(cameraController.camera.combined);
-                    batch.begin();
+                    int ratioA = gearConnection.ratioA;
+                    int ratioB = gearConnection.ratioB;
+                    float angle = objectB.getRealPosition().sub(objectA.getRealPosition()).angleDeg();
+                    if(angle > 90 && angle < 270){
+                        int tmp = ratioA;
+                        ratioA = ratioB;
+                        ratioB = tmp;
+                        angle += 180;
+                    }
                     BitmapFont font = ScrapBox.getInstance().getSkin().getFont("default-font");
                     font.setColor(Color.WHITE);
-                    font.draw(batch, gearConnection.ratioA + ":" + gearConnection.ratioB, textPosition.x, textPosition.y);
+                    GlyphLayout layout = font.getCache().addText(ratioA + ":" + ratioB, 0, 0);
+                    batch.setTransformMatrix(new Matrix4().rotate(Vector3.Z, angle).trn(textPosition.x, textPosition.y, 0));
+                    batch.begin();
+                    font.draw(batch, ratioA + ":" + ratioB, -layout.width/2, layout.height);
                     batch.end();
+                    batch.setTransformMatrix(new Matrix4());
                     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 }
             }
