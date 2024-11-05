@@ -546,6 +546,20 @@ public class InGameScene implements IScene {
                 };
                 escapeMenu.setMovable(false);
                 Table table = escapeMenu.getContentTable();
+                TextButton controlsHelp = new TextButton("Controls Help", ScrapBox.getInstance().getSkin());
+                controlsHelp.addListener(new ClickListener(){
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        escapeMenu.remove();
+                        escapeMenu = null;
+                        Dialog helpWindow = new Dialog("Controls Help", ScrapBox.getInstance().getSkin());
+                        String help = "[WASD]move\n[Q]toggle ghost mode\n[F]weld\n[X]freeze\n[C]open controller\n[V]edit object\n[B]break connection\n[G]create gear connection\n[N]repair/damage\n[1-10]controller buttons\n[F1]debug physics rendering\n[F2]pause game\n[F3]single game step";
+                        helpWindow.getContentTable().add(new Label(help, ScrapBox.getInstance().getSkin()));
+                        helpWindow.button("close");
+                        helpWindow.show(stage);
+                    }
+                });
+                table.add(controlsHelp).row();
                 if(server != null) {
                     TextButton setPasswordButton = new TextButton("Set Server Password", ScrapBox.getInstance().getSkin());
                     setPasswordButton.addListener(new ClickListener() {
@@ -586,7 +600,7 @@ public class InGameScene implements IScene {
                 escapeMenu.button("Back");
                 escapeMenu.show(stage);
             } else {
-                escapeMenu.hide();
+                escapeMenu.remove();
                 escapeMenu = null;
             }
         }
