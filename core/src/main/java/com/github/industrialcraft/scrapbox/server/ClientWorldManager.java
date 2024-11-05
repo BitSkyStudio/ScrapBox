@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class ClientWorldManager {
     public final Server server;
@@ -57,7 +58,15 @@ public class ClientWorldManager {
                 }
             }
         }
-        SendConnectionListData connectionListData = new SendConnectionListData(connections);
+        ArrayList<SendConnectionListData.GearConnection> gearConnections = new ArrayList<>();
+        for(GameObject gameObject : server.gameObjects.values()){
+            for(Map.Entry<UUID, GameObject.GearConnectionData> connection : gameObject.gearConnections.entrySet()){
+                if(gameObject.getId() < connection.getValue().other.getId()) {
+                    gearConnections.add(new SendConnectionListData.GearConnection(gameObject.getId(), connection.getValue().thisRatio, connection.getValue().other.getId(), connection.getValue().otherRatio));
+                }
+            }
+        }
+        SendConnectionListData connectionListData = new SendConnectionListData(connections, gearConnections);
         server.players.forEach(player -> player.send(connectionListData));
     }
 

@@ -27,7 +27,6 @@ import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
-import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
@@ -57,6 +56,7 @@ public class InGameScene implements IScene {
     public DragAndDrop dragAndDrop;
     private ControllingData controllingData;
     private ArrayList<SendConnectionListData.Connection> connectionsShowcase;
+    private ArrayList<SendConnectionListData.GearConnection> gearConnectionsShowcase;
     private Texture jointBreakIcon;
     private boolean[] controllerState;
     private Texture controllerButton;
@@ -96,8 +96,9 @@ public class InGameScene implements IScene {
             int otherId = Integer.parseInt(gameObject.getAnimationString("other", "0"));
             renderData.draw(batch1, gameObject);
             if(otherId > gameObject.id){
-                if(!gameObjects.containsKey(otherId))
+                if(!gameObjects.containsKey(otherId)) {
                     return;
+                }
                 batch1.end();
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 shapeRenderer.setColor(217f/255f, 160f/255f, 100f/255f, 1f);
@@ -124,8 +125,9 @@ public class InGameScene implements IScene {
             int otherId = Integer.parseInt(gameObject.getAnimationString("other", "0"));
             renderData.draw(batch1, gameObject);
             if(otherId > gameObject.id){
-                if(!gameObjects.containsKey(otherId))
+                if(!gameObjects.containsKey(otherId)) {
                     return;
+                }
                 batch1.end();
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 shapeRenderer.setColor(100f/255f, 100f/255f, 100f/255f, 1f);
@@ -163,8 +165,9 @@ public class InGameScene implements IScene {
             renderData.draw(batch1, gameObject);
         }));
         renderDataRegistry.put("puncher", new RenderData(new Texture("puncher.png"), 1, 1, (renderData, gameObject, batch1) -> {
-            if(gameObject.getAnimationNumber("animation", 0) > 0.1)
+            if(gameObject.getAnimationNumber("animation", 0) > 0.1) {
                 renderData.draw(batch, gameObject);
+            }
         }));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("timer", new RenderData(new Texture("timer.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
@@ -186,8 +189,9 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("propeller", new RenderData(new Texture("propeller.png"), 1, 0.25f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
             float time = gameObject.internalRendererData!=null? (float) gameObject.internalRendererData :0f;
-            if(Float.isNaN(time))
+            if(Float.isNaN(time)) {
                 time = 0;
+            }
             float speed = gameObject.getAnimationNumber("speed", 0);
             time += Gdx.graphics.getDeltaTime() * Math.max(speed * 30, time != 0?5:0);
             if(speed == 0 && Math.cos(time) > 0.9 && Math.cos(time) < 1.){
@@ -281,6 +285,7 @@ public class InGameScene implements IScene {
         addTerrainType("stone", "stone.png");
         addTerrainType("ice", "ice.png");
         this.connectionsShowcase = new ArrayList<>();
+        this.gearConnectionsShowcase = new ArrayList<>();
         this.jointBreakIcon = new Texture("joint_break_icon.png");
         this.controllerState = new boolean[10];
         this.controllerButton = new Texture("controller_button.png");
@@ -326,15 +331,27 @@ public class InGameScene implements IScene {
                         }
                     }
                     if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.B)){
-                        Vector3 mouse = cameraController.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-                        Vector2 mouse2 = new Vector2(mouse.x, mouse.y);
-                        for(SendConnectionListData.Connection connection1 : connectionsShowcase){
-                            if(mouse2.dst(connection1.position.cpy().scl(BOX_TO_PIXELS_RATIO)) < JOINT_BREAK_ICON_SIZE/2){
-                                connection.send(new DestroyJoint(connection1.gameObjectId, connection1.name));
+                        Vector2 mouse2 = mouseSelector.getWorldMousePosition().scl(BOX_TO_PIXELS_RATIO);
+                        if(Gdx.input.isKeyPressed(Input.Keys.G)){
+                            for (SendConnectionListData.GearConnection connection1 : gearConnectionsShowcase) {
+                                ClientGameObject objectA = gameObjects.get(connection1.goA);
+                                ClientGameObject objectB = gameObjects.get(connection1.goB);
+                                if (objectA != null && objectB != null) {
+                                    Vector2 position = objectA.getRealPosition().lerp(objectB.getRealPosition(), 0.5f).scl(BOX_TO_PIXELS_RATIO);
+                                    if(mouse2.dst(position) < JOINT_BREAK_ICON_SIZE / 2) {
+                                        connection.send(new DestroyGearConnection(objectA.id, objectB.id));
+                                    }
+                                }
+                            }
+                        } else {
+                            for (SendConnectionListData.Connection connection1 : connectionsShowcase) {
+                                if (mouse2.dst(connection1.position.cpy().scl(BOX_TO_PIXELS_RATIO)) < JOINT_BREAK_ICON_SIZE / 2) {
+                                    connection.send(new DestroyJoint(connection1.gameObjectId, connection1.name));
+                                }
                             }
                         }
                     }
-                    if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.G)){
+                    if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.G) && !Gdx.input.isKeyPressed(Input.Keys.B)){
                         MouseSelector.Selection selection = mouseSelector.getSelected();
                         if(selection != null){
                             gearJointSelection = selection.id;
@@ -489,6 +506,7 @@ public class InGameScene implements IScene {
             if(message instanceof SendConnectionListData){
                 SendConnectionListData sendConnectionListData = (SendConnectionListData) message;
                 this.connectionsShowcase = sendConnectionListData.connections;
+                this.gearConnectionsShowcase = sendConnectionListData.gearConnections;
             }
             if(message instanceof ResponseControllerState){
                 ResponseControllerState responseControllerState = (ResponseControllerState) message;
@@ -662,6 +680,26 @@ public class InGameScene implements IScene {
             Vector2 secondPos = selection!=null?gameObjects.get(selection.id).getRealPosition():mouseSelector.getWorldMousePosition();
             shapeRenderer.rectLine(firstPos.x * BOX_TO_PIXELS_RATIO, firstPos.y * BOX_TO_PIXELS_RATIO, secondPos.x * BOX_TO_PIXELS_RATIO, secondPos.y * BOX_TO_PIXELS_RATIO, 3);
         }
+        if(Gdx.input.isKeyPressed(Input.Keys.G)){
+            shapeRenderer.setColor(Color.BLACK);
+            shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
+            for(SendConnectionListData.GearConnection gearConnection : gearConnectionsShowcase){
+                ClientGameObject objectA = gameObjects.get(gearConnection.goA);
+                ClientGameObject objectB = gameObjects.get(gearConnection.goB);
+                if(objectA != null & objectB != null){
+                    shapeRenderer.rectLine(objectA.getRealPosition().scl(BOX_TO_PIXELS_RATIO), objectB.getRealPosition().scl(BOX_TO_PIXELS_RATIO), 3);
+                    shapeRenderer.end();
+                    Vector2 textPosition = objectA.getRealPosition().lerp(objectB.getRealPosition(), 0.5f).scl(BOX_TO_PIXELS_RATIO);
+                    batch.setProjectionMatrix(cameraController.camera.combined);
+                    batch.begin();
+                    BitmapFont font = ScrapBox.getInstance().getSkin().getFont("default-font");
+                    font.setColor(Color.WHITE);
+                    font.draw(batch, gearConnection.ratioA + ":" + gearConnection.ratioB, textPosition.x, textPosition.y);
+                    batch.end();
+                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                }
+            }
+        }
         shapeRenderer.end();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         if(toolBox.isTerrainSelectionOpen()){
@@ -702,8 +740,19 @@ public class InGameScene implements IScene {
         batch.setColor(0.5f, 0.5f, 0.5f, 1);
         if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.B)){
             batch.begin();
-            for(SendConnectionListData.Connection connection1 : connectionsShowcase){
-                batch.draw(jointBreakIcon, connection1.position.x * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, connection1.position.y * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE/2, JOINT_BREAK_ICON_SIZE, JOINT_BREAK_ICON_SIZE);
+            if(Gdx.input.isKeyPressed(Input.Keys.G)){
+                for (SendConnectionListData.GearConnection connection1 : gearConnectionsShowcase) {
+                    ClientGameObject objectA = gameObjects.get(connection1.goA);
+                    ClientGameObject objectB = gameObjects.get(connection1.goB);
+                    if (objectA != null && objectB != null) {
+                        Vector2 position = objectA.getRealPosition().lerp(objectB.getRealPosition(), 0.5f).scl(BOX_TO_PIXELS_RATIO);
+                        batch.draw(jointBreakIcon, position.x - JOINT_BREAK_ICON_SIZE / 2, position.y - JOINT_BREAK_ICON_SIZE / 2, JOINT_BREAK_ICON_SIZE, JOINT_BREAK_ICON_SIZE);
+                    }
+                }
+            } else {
+                for (SendConnectionListData.Connection connection1 : connectionsShowcase) {
+                    batch.draw(jointBreakIcon, connection1.position.x * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE / 2, connection1.position.y * BOX_TO_PIXELS_RATIO - JOINT_BREAK_ICON_SIZE / 2, JOINT_BREAK_ICON_SIZE, JOINT_BREAK_ICON_SIZE);
+                }
             }
             batch.end();
         }

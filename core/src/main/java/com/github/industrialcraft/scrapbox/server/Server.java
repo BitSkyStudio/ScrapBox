@@ -390,13 +390,6 @@ public class Server {
             }
             this.terrain.terrain.put(entry.getKey(), paths);
         }
-        data.forEach((uuid1, bytes) -> {
-            try {
-                getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
         for(SaveFile.SavedJoint joint : saveFile.savedJoints){
             GameObject first = getGameObjectByUUID(joint.first);
             GameObject second = getGameObjectByUUID(joint.second);
@@ -409,6 +402,13 @@ public class Server {
         saveFile.savedVehicles.forEach(vehicle -> {
             GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);
             gameObject.vehicle.load(vehicle);
+        });
+        data.forEach((uuid1, bytes) -> {
+            try {
+                getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
     }
     public void joinGameObject(GameObject first, String firstName, GameObject second, String secondName){

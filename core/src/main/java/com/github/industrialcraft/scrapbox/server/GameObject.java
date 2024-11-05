@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.common.net.msg.OpenGameObjectEditUI;
+import com.github.industrialcraft.scrapbox.common.net.msg.SendConnectionListData;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 
@@ -56,6 +57,8 @@ public abstract class GameObject {
         return "base";
     }
     public void connectGearJoint(GameObject other, int thisRatio, int otherRatio){
+        if(this == other || this.vehicle != other.vehicle)
+            return;
         Joint thisJoint = getGearJoint();
         Joint otherJoint = other.getGearJoint();
         if(thisJoint == null || otherJoint == null)
@@ -110,6 +113,12 @@ public abstract class GameObject {
         for(int i = 0;i < defaultValuesSize;i++) {
             defaultValues.put(stream.readInt(), stream.readFloat());
         }
+        int gearConnectionSize = stream.readInt();
+        for(int i = 0;i < gearConnectionSize;i++){
+            UUID otherId = new UUID(stream.readLong(), stream.readLong());
+            GameObject other = server.getGameObjectByUUID(otherId);
+            connectGearJoint(other, stream.readInt(), stream.readInt());
+        }
     }
     public void save(DataOutputStream stream) throws IOException {
         stream.writeFloat(health);
@@ -126,10 +135,20 @@ public abstract class GameObject {
             stream.writeInt(entry.getKey());
             stream.writeFloat(entry.getValue());
         }
+        stream.writeInt(gearConnections.size());
+        for(GearConnectionData gearConnection : gearConnections.values()){
+            stream.writeLong(gearConnection.other.uuid.getMostSignificantBits());
+            stream.writeLong(gearConnection.other.uuid.getLeastSignificantBits());
+            stream.writeInt(gearConnection.thisRatio);
+            stream.writeInt(gearConnection.otherRatio);
+        }
     }
     public void remove(){
         this.isRemoved = true;
         this.vehicle.gameObjects.remove(this);
+        for(UUID id : this.gearConnections.keySet().toArray(UUID[]::new)){
+            disconnectGearJoint(server.getGameObjectByUUID(id));
+        }
     }
     public void destroy(){
         this.bodies.forEach((s, body) -> server.physics.destroyBody(body));
@@ -179,6 +198,7 @@ public abstract class GameObject {
         server.physics.destroyJoint(connectionData.joint);
 
         HashSet<GameObject> originalObjects = new HashSet<>(this.vehicle.gameObjects);
+        HashSet<GameObject> originalObjects2 = new HashSet<>(this.vehicle.gameObjects);
         while(!originalObjects.isEmpty()) {
             HashSet<GameObject> closed = new HashSet<>();
             HashSet<GameObject> open = new HashSet<>();
@@ -199,6 +219,13 @@ public abstract class GameObject {
                         open.add(entry.other);
                     }
                 }
+            }
+        }
+        for(GameObject gameObject : originalObjects2){
+            for(UUID id : gameObject.gearConnections.keySet().toArray(UUID[]::new)){
+                GameObject other = server.getGameObjectByUUID(id);
+                if(gameObject.vehicle != other.vehicle)
+                    gameObject.disconnectGearJoint(other);
             }
         }
     }
