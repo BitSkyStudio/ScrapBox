@@ -4,10 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -23,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.utils.Align;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
@@ -537,7 +535,27 @@ public class InGameScene implements IScene {
                     public void clicked(InputEvent event, float x, float y) {
                         escapeMenu.remove();
                         escapeMenu = null;
-                        Dialog helpWindow = new Dialog("Controls Help", ScrapBox.getInstance().getSkin());
+                        Dialog helpWindow = new Dialog("Controls Help", ScrapBox.getInstance().getSkin()){
+                            @Override
+                            public void keepWithinStage () {
+                                Stage stage = getStage();
+                                if (stage == null) return;
+                                Camera camera = stage.getCamera();
+                                if (camera instanceof OrthographicCamera) {
+                                    OrthographicCamera orthographicCamera = (OrthographicCamera)camera;
+                                    float parentWidth = stage.getWidth();
+                                    float parentHeight = stage.getHeight();
+                                    if (getX(Align.right) - camera.position.x + toolBox.getWidth() > parentWidth / 2 / orthographicCamera.zoom)
+                                        setPosition(camera.position.x - toolBox.getWidth() + parentWidth / 2 / orthographicCamera.zoom, getY(Align.right), Align.right);
+                                    if (getX(Align.left) - camera.position.x < -parentWidth / 2 / orthographicCamera.zoom)
+                                        setPosition(camera.position.x - parentWidth / 2 / orthographicCamera.zoom, getY(Align.left), Align.left);
+                                    if (getY(Align.top) - camera.position.y > parentHeight / 2 / orthographicCamera.zoom)
+                                        setPosition(getX(Align.top), camera.position.y + parentHeight / 2 / orthographicCamera.zoom, Align.top);
+                                    if (getY(Align.bottom) - camera.position.y < -parentHeight / 2 / orthographicCamera.zoom)
+                                        setPosition(getX(Align.bottom), camera.position.y - parentHeight / 2 / orthographicCamera.zoom, Align.bottom);
+                                }
+                            }
+                        };
                         String help = "[WASD]move\n[Q]toggle ghost mode\n[F]weld\n[X]freeze\n[C]open controller\n[V]edit object\n[B]break connection\n[G]create gear connection\n[N]repair/damage\n[1-10]controller buttons\n[F1]debug physics rendering\n[F2]pause game\n[F3]single game step";
                         helpWindow.getContentTable().add(new Label(help, ScrapBox.getInstance().getSkin()));
                         helpWindow.button("close");
