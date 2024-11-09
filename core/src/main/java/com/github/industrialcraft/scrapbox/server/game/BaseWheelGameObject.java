@@ -33,7 +33,7 @@ public abstract class BaseWheelGameObject extends GameObject {
         PolygonShape baseShape = new PolygonShape();
         baseShape.set(new Vector2[]{new Vector2(0, 0), new Vector2(1, 1 * config.size), new Vector2(-1, 1 * config.size)});
         baseFixtureDef.shape = baseShape;
-        baseFixtureDef.density = 1F;
+        baseFixtureDef.density = config.material.density;
         base.createFixture(baseFixtureDef);
         this.setBody("base", joinType, base);
 
@@ -44,7 +44,7 @@ public abstract class BaseWheelGameObject extends GameObject {
         CircleShape wheelShape = new CircleShape();
         wheelShape.setRadius(0.95f * config.size);
         wheelFixtureDef.shape = wheelShape;
-        wheelFixtureDef.density = 1F;
+        wheelFixtureDef.density = config.material.density;
         wheelFixtureDef.friction = getWheelFriction();
         wheelFixtureDef.restitution = 0;
         Fixture wheelFixture = wheelBody.createFixture(wheelFixtureDef);
@@ -57,6 +57,11 @@ public abstract class BaseWheelGameObject extends GameObject {
         revoluteJoint.maxMotorTorque = 1000;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
         this.setBody("wheel", wheelType, wheelBody);
+    }
+
+    @Override
+    public float getMaxHealth() {
+        return 100 * config.material.baseHealthMultiplier;
     }
 
     public float getWheelFriction(){

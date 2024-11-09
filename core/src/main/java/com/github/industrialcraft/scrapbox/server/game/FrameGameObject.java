@@ -25,10 +25,16 @@ public class FrameGameObject extends GameObject {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(1, 1);
         fixtureDef.shape = shape;
-        fixtureDef.density = 1F;
+        fixtureDef.density = config.material.density;
         base.createFixture(fixtureDef);
         this.setBody("base", "frame", base);
     }
+
+    @Override
+    public float getMaxHealth() {
+        return 100*config.material.baseHealthMultiplier;
+    }
+
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
