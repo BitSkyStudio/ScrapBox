@@ -239,28 +239,28 @@ public class InGameScene implements IScene {
         debugRendering = false;
         mouseSelector = new MouseSelector(this);
         this.toolBox = new ToolBox(this);
-        this.toolBox.addPart("frame", renderDataRegistry.get("frame"));
-        this.toolBox.addPart("wheel", renderDataRegistry.get("wheel"));
-        this.toolBox.addPart("sticky_wheel", renderDataRegistry.get("sticky_wheel"));
-        this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"));
-        this.toolBox.addPart("balloon", renderDataRegistry.get("balloon"));
-        this.toolBox.addPart("controller", renderDataRegistry.get("controller"));
-        this.toolBox.addPart("puncher", renderDataRegistry.get("puncher_box"));
-        this.toolBox.addPart("propeller", renderDataRegistry.get("propeller"));
-        this.toolBox.addPart("tnt", renderDataRegistry.get("tnt"));
-        this.toolBox.addPart("rotator", renderDataRegistry.get("rotator_join"));
-        this.toolBox.addPart("cannon", renderDataRegistry.get("cannon"));
-        this.toolBox.addPart("position_sensor", renderDataRegistry.get("position_sensor"));
-        this.toolBox.addPart("display", renderDataRegistry.get("display"));
-        this.toolBox.addPart("math_unit", renderDataRegistry.get("math_unit"));
-        this.toolBox.addPart("distance_sensor", renderDataRegistry.get("distance_sensor"));
-        this.toolBox.addPart("pid_controller", renderDataRegistry.get("pid_controller"));
-        this.toolBox.addPart("weight", renderDataRegistry.get("weight"));
-        this.toolBox.addPart("rope", renderDataRegistry.get("rope"));
-        this.toolBox.addPart("stick", renderDataRegistry.get("stick"));
-        this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"));
-        this.toolBox.addPart("timer", renderDataRegistry.get("timer"));
-        this.toolBox.addPart("piston", renderDataRegistry.get("piston_box"));
+        this.toolBox.addPart("frame", renderDataRegistry.get("frame"), true, false);
+        this.toolBox.addPart("wheel", renderDataRegistry.get("wheel"), true, true);
+        this.toolBox.addPart("sticky_wheel", renderDataRegistry.get("sticky_wheel"), true, true);
+        this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"), true, true);
+        this.toolBox.addPart("balloon", renderDataRegistry.get("balloon"), false, false);
+        this.toolBox.addPart("controller", renderDataRegistry.get("controller"), false, false);
+        this.toolBox.addPart("puncher", renderDataRegistry.get("puncher_box"), false, false);
+        this.toolBox.addPart("propeller", renderDataRegistry.get("propeller"), false, false);
+        this.toolBox.addPart("tnt", renderDataRegistry.get("tnt"), false, false);
+        this.toolBox.addPart("rotator", renderDataRegistry.get("rotator_join"), false, false);
+        this.toolBox.addPart("cannon", renderDataRegistry.get("cannon"), false, false);
+        this.toolBox.addPart("position_sensor", renderDataRegistry.get("position_sensor"), false, false);
+        this.toolBox.addPart("display", renderDataRegistry.get("display"), false, false);
+        this.toolBox.addPart("math_unit", renderDataRegistry.get("math_unit"), false, false);
+        this.toolBox.addPart("distance_sensor", renderDataRegistry.get("distance_sensor"), false, false);
+        this.toolBox.addPart("pid_controller", renderDataRegistry.get("pid_controller"), false, false);
+        this.toolBox.addPart("weight", renderDataRegistry.get("weight"), false, false);
+        this.toolBox.addPart("rope", renderDataRegistry.get("rope"), false, false);
+        this.toolBox.addPart("stick", renderDataRegistry.get("stick"), false, false);
+        this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"), false, false);
+        this.toolBox.addPart("timer", renderDataRegistry.get("timer"), false, false);
+        this.toolBox.addPart("piston", renderDataRegistry.get("piston_box"), false, false);
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
@@ -345,7 +345,8 @@ public class InGameScene implements IScene {
                         connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2*toolBox.brushSize, toolBox.brushRectangle));
                     }
                 } else {
-                    toolBox.click(new Vector2(screenX, Gdx.graphics.getHeight()-screenY));
+                    if(button == Input.Buttons.LEFT || button == Input.Buttons.RIGHT)
+                        toolBox.click(new Vector2(screenX, Gdx.graphics.getHeight()-screenY), button == Input.Buttons.RIGHT);
                 }
                 return false;
             }

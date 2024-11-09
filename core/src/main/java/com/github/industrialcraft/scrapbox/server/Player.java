@@ -142,8 +142,7 @@ public class Player extends GameObject{
             }
             if(message instanceof TakeObject){
                 TakeObject takeObject = (TakeObject) message;
-                //todo: use message config
-                GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null, GameObjectConfig.DEFAULT);
+                GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null, takeObject.config);
                 gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
                 connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
             }

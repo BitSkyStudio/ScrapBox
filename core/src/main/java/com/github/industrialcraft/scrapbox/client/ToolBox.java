@@ -1,20 +1,32 @@
 package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.net.msg.TakeObject;
+import com.github.industrialcraft.scrapbox.server.GameObject;
+import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class ToolBox {
     public final InGameScene game;
     private int width;
     private final Texture background;
     private final ArrayList<Part> parts;
+    private ArrayList<GameObject.GameObjectConfig> partsConfig;
     private float partScroll;
     private float terrainScroll;
     private float scrollVelocity;
@@ -29,6 +41,7 @@ public class ToolBox {
         this.background = new Texture("toolbox.png");
         this.width = 100;
         this.parts = new ArrayList<>();
+        this.partsConfig = new ArrayList<>();
         this.tool = Tool.Hand;
         this.tools = new ArrayList<>();
         this.tools.add(new ToolType(Tool.Hand, new Texture("mode_hand.png"), null));
@@ -82,8 +95,12 @@ public class ToolBox {
             for (int i = 0; i < this.parts.size(); i++) {
                 Part part = this.parts.get(i);
                 float maxLength = Math.max(part.renderData.width, part.renderData.height);
-                if(part.renderData.materialTexture != null)
-                    batch.draw(part.renderData.materialTexture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width * (part.renderData.width/maxLength), width * (part.renderData.height/maxLength));
+                if(part.renderData.materialTexture != null) {
+                    Color color = this.partsConfig.get(i).material.color;
+                    ((ColorfulBatch)batch).setTweak(color.r, color.g, color.b, 0.5f);
+                    batch.draw(part.renderData.materialTexture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width * (part.renderData.width / maxLength), width * (part.renderData.height / maxLength));
+                    ((ColorfulBatch)batch).setTweak(ColorfulBatch.TWEAK_RESET);
+                }
                 if(part.renderData.texture != null)
                     batch.draw(part.renderData.texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width * (part.renderData.width/maxLength), width * (part.renderData.height/maxLength));
             }
@@ -101,9 +118,11 @@ public class ToolBox {
     public boolean isTerrainSelectionOpen(){
         return tool == Tool.TerrainModify;
     }
-    public void click(Vector2 position){
+    public void click(Vector2 position, boolean rightButton){
         int toolHeight = width/tools.size();
         if(position.y > Gdx.graphics.getHeight() - toolHeight){
+            if(rightButton)
+                return;
             Tool newTool = tools.get((int) ((position.x-(Gdx.graphics.getWidth()-width)-1)/toolHeight)).tool;
             if(newTool == tool && tool == Tool.TerrainModify){
                 brushRectangle = !brushRectangle;
@@ -114,13 +133,46 @@ public class ToolBox {
         float x = ((position.x + width - Gdx.graphics.getWidth()) / width * 2) - 1;
         float y = (Gdx.graphics.getHeight() - (position.y + (isTerrainSelectionOpen()?terrainScroll:partScroll) + toolHeight)) / width;
         if(isTerrainSelectionOpen()){
+            if(rightButton)
+                return;
             if (this.terrainTypes.size() > (int) y) {
                 this.selectedTerrain = (int) y;
             }
         } else {
             if (this.parts.size() > (int) y) {
                 Part part = this.parts.get((int) y);
-                game.connection.send(new TakeObject(part.type, game.mouseSelector.getWorldMousePosition(), new Vector2(x * part.renderData.width, (((y % 1) * 2) - 1) * part.renderData.height)));
+                GameObject.GameObjectConfig config = partsConfig.get((int)y);
+                if (rightButton) {
+                    SelectBox<String> materials = new SelectBox<>(ScrapBox.getInstance().getSkin());
+                    materials.setItems(Arrays.stream(Material.values()).map((mat) -> mat.name).toArray(String[]::new));
+                    materials.setSelected(config.material.name);
+                    materials.setDisabled(!part.materialModification);
+                    TextField sizeField = new TextField(""+config.size, ScrapBox.getInstance().getSkin());
+                    sizeField.setTextFieldFilter((textField, c) -> Character.isDigit(c) || c == '.');
+                    sizeField.setDisabled(!part.sizeModification);
+                    Dialog dialog = new Dialog("Object Config", ScrapBox.getInstance().getSkin(), "dialog") {
+                        @Override
+                        protected void result(Object object) {
+                            if(object instanceof String){
+                                float newSize = config.size;
+                                try{
+                                    newSize = Float.parseFloat(sizeField.getText());
+                                } catch (Exception e){}
+                                GameObject.GameObjectConfig newConfig = new GameObject.GameObjectConfig(Material.byId((byte) materials.getSelectedIndex()), newSize);
+                                partsConfig.set((int)y, newConfig);
+                            }
+                        }
+                    };
+                    dialog.getContentTable().add(new Label("material: ", ScrapBox.getInstance().getSkin()));
+                    dialog.getContentTable().add(materials).row();
+                    dialog.getContentTable().add(new Label("size: ", ScrapBox.getInstance().getSkin()));
+                    dialog.getContentTable().add(sizeField).row();
+                    dialog.button("Ok", "");
+                    dialog.button("Cancel");
+                    dialog.show(game.stage);
+                } else {
+                    game.connection.send(new TakeObject(part.type, game.mouseSelector.getWorldMousePosition(), new Vector2(x * part.renderData.width, (((y % 1) * 2) - 1) * part.renderData.height), config));
+                }
             }
         }
     }
@@ -137,8 +189,9 @@ public class ToolBox {
         this.background.dispose();
         this.tools.forEach(toolType -> toolType.texture.dispose());
     }
-    public void addPart(String type, RenderData renderData){
-        this.parts.add(new Part(type, renderData));
+    public void addPart(String type, RenderData renderData, boolean materialModification, boolean sizeModification){
+        this.parts.add(new Part(type, renderData, materialModification, sizeModification));
+        this.partsConfig.add(GameObject.GameObjectConfig.DEFAULT);
     }
     public void scroll(int value){
         this.scrollVelocity += value;
@@ -147,9 +200,13 @@ public class ToolBox {
     public static class Part{
         public final String type;
         public final RenderData renderData;
-        public Part(String type, RenderData renderData) {
+        public final boolean materialModification;
+        public final boolean sizeModification;
+        public Part(String type, RenderData renderData, boolean materialModification, boolean sizeModification) {
             this.type = type;
             this.renderData = renderData;
+            this.materialModification = materialModification;
+            this.sizeModification = sizeModification;
         }
     }
     public static class ToolType{
