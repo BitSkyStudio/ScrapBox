@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
+import com.github.industrialcraft.scrapbox.common.net.msg.PlaceTerrain;
 
 public class CameraController {
     public final InGameScene scene;
@@ -25,6 +26,11 @@ public class CameraController {
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
             move.x += 1;
+        }
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && !move.isZero()){
+            if (scene.toolBox.tool == ToolBox.Tool.TerrainModify) {
+                scene.connection.send(new PlaceTerrain(scene.toolBox.getSelectedTerrainType(), scene.mouseSelector.getWorldMousePosition(), 2*scene.toolBox.brushSize, scene.toolBox.brushRectangle));
+            }
         }
         move.scl(Gdx.graphics.getDeltaTime()*camera.zoom*500);
         scene.editors.forEach((integer, editor) -> {

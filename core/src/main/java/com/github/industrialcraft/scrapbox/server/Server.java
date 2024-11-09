@@ -390,6 +390,18 @@ public class Server {
             }
             this.terrain.terrain.put(entry.getKey(), paths);
         }
+        for(SaveFile.SavedJoint joint : saveFile.savedJoints) {
+            GameObject first = getGameObjectByUUID(joint.first);
+            GameObject second = getGameObjectByUUID(joint.second);
+            first.vehicle.add(second);
+        }
+        data.forEach((uuid1, bytes) -> {
+            try {
+                getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         for(SaveFile.SavedJoint joint : saveFile.savedJoints){
             GameObject first = getGameObjectByUUID(joint.first);
             GameObject second = getGameObjectByUUID(joint.second);
@@ -402,13 +414,6 @@ public class Server {
         saveFile.savedVehicles.forEach(vehicle -> {
             GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);
             gameObject.vehicle.load(vehicle);
-        });
-        data.forEach((uuid1, bytes) -> {
-            try {
-                getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         });
     }
     public void joinGameObject(GameObject first, String firstName, GameObject second, String secondName){
@@ -423,8 +428,9 @@ public class Server {
         if(!(first instanceof FrameGameObject)){
             throw new RuntimeException("one of joined must be frame");
         }*/
-        Body firstBase = first.getBaseBody();
-        Body secondBase = second.getBaseBody();
+
+        Body firstBase = first.getBody(first.getOpenConnections().get(firstName).connectionEdge.bodyName);
+        Body secondBase = second.getBody(second.getOpenConnections().get(secondName).connectionEdge.bodyName);
         float rotationOffset = firstBase.getAngle()+((float) (Math.round((secondBase.getAngle()-firstBase.getAngle())/HALF_PI)*HALF_PI));
         secondBase.setTransform(secondBase.getPosition(), rotationOffset);
         secondBase.setTransform(secondBase.getPosition().add(first.getOpenConnections().get(firstName).getPosition().sub(second.getOpenConnections().get(secondName).getPosition())), secondBase.getAngle());
