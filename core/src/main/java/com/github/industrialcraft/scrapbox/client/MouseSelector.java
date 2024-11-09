@@ -22,7 +22,9 @@ public class MouseSelector {
             float yDiff = mouse.y - gameObject.position.y;
             float angle = (float) Math.atan2(xDiff, yDiff) + gameObject.rotation;
             float distance = (float) Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
-            if((Math.abs(Math.sin(angle)) * distance < renderData.width) && (Math.abs(Math.cos(angle)) * distance < renderData.height)){
+            float widthScale = renderData.configScalingW?gameObject.config.size:1;
+            float heightScale = renderData.configScalingH?gameObject.config.size:1;
+            if((Math.abs(Math.sin(angle)) * distance < renderData.width * widthScale) && (Math.abs(Math.cos(angle)) * distance < renderData.height * heightScale)){
                 Selection newSelection = new Selection(i, xDiff, yDiff, renderData.width * renderData.height);
                 if(selection == null || (newSelection.size < selection.size)){
                     selection = newSelection;

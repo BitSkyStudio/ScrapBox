@@ -84,11 +84,12 @@ public abstract class BaseWheelGameObject extends GameObject {
                         Body otherBody = contact.getFixtureA().getBody().getUserData()==this?contact.getFixtureB().getBody():contact.getFixtureA().getBody();
                         if(otherBody.getUserData() instanceof GameObject)
                             handleContact((GameObject) otherBody.getUserData());
-                    }
-                    for(Vector2 point : contact.getWorldManifold().getPoints()){
-                        if(point.isZero())
-                            continue;
-                        wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion * 300 * vehicle.getMass()), wheelBody.getWorldCenter(), true);
+                    } else {
+                        for (Vector2 point : contact.getWorldManifold().getPoints()) {
+                            if (point.isZero())
+                                continue;
+                            wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion * 300 * vehicle.getMass()), wheelBody.getWorldCenter(), true);
+                        }
                     }
                 }
             }
