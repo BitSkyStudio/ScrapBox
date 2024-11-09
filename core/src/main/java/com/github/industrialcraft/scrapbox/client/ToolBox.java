@@ -82,7 +82,10 @@ public class ToolBox {
             for (int i = 0; i < this.parts.size(); i++) {
                 Part part = this.parts.get(i);
                 float maxLength = Math.max(part.renderData.width, part.renderData.height);
-                batch.draw(part.renderData.texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width * (part.renderData.width/maxLength), width * (part.renderData.height/maxLength));
+                if(part.renderData.materialTexture != null)
+                    batch.draw(part.renderData.materialTexture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width * (part.renderData.width/maxLength), width * (part.renderData.height/maxLength));
+                if(part.renderData.texture != null)
+                    batch.draw(part.renderData.texture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width * (part.renderData.width/maxLength), width * (part.renderData.height/maxLength));
             }
         }
         for(int i = 0;i < tools.size();i++){

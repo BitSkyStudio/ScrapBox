@@ -17,8 +17,8 @@ import java.util.HashMap;
 
 public class CannonGameObject extends GameObject {
     private boolean lastInput;
-    public CannonGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public CannonGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
@@ -46,7 +46,7 @@ public class CannonGameObject extends GameObject {
         super.tick();
         boolean newInput = getValueOnInput(0) != 0;
         if(newInput && !lastInput){
-            BulletGameObject bullet = server.spawnGameObject(getBaseBody().getPosition(), 0, BulletGameObject::new, null);
+            BulletGameObject bullet = server.spawnGameObject(getBaseBody().getPosition(), 0, BulletGameObject::new, null, GameObjectConfig.DEFAULT);
             bullet.parent = this;
             float speed = 100f;
             float angle = -getBaseBody().getAngle();

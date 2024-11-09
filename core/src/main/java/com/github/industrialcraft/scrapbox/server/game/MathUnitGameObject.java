@@ -39,8 +39,8 @@ public class MathUnitGameObject extends GameObject {
     }
     private ArrayList<Integer> operations;
     private ArrayList<Float> outputs;
-    public MathUnitGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public MathUnitGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
         this.operations = new ArrayList<>();
         this.outputs = new ArrayList<>();
         this.operations.add(0);

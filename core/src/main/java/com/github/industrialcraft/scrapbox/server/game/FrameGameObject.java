@@ -13,8 +13,8 @@ import java.util.HashMap;
 public class FrameGameObject extends GameObject {
     public static final float INSIDE_SIZE = 1-0.09375f*2;
 
-    public FrameGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public FrameGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

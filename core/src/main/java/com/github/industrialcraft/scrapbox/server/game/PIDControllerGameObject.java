@@ -18,8 +18,8 @@ import java.util.HashMap;
 public class PIDControllerGameObject extends GameObject {
     private SimplyPID pid;
     private float lastOutput;
-    public PIDControllerGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public PIDControllerGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DisplayGameObject extends GameObject {
-    public DisplayGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public DisplayGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

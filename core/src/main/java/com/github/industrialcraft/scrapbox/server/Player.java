@@ -22,8 +22,8 @@ public class Player extends GameObject{
     private boolean isDisconnected;
     public final UUID uuid;
     public ArrayList<Rectangle> buildableAreas;
-    public Player(Server server, IConnection connection) {
-        super(Vector2.Zero.cpy(), 0, server);
+    public Player(Server server, IConnection connection, GameObjectConfig config) {
+        super(Vector2.Zero.cpy(), 0, server, config);
         this.server = server;
         this.connection = connection;
         this.pinching = null;
@@ -142,7 +142,8 @@ public class Player extends GameObject{
             }
             if(message instanceof TakeObject){
                 TakeObject takeObject = (TakeObject) message;
-                GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null);
+                //todo: use message config
+                GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null, GameObjectConfig.DEFAULT);
                 gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
                 connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
             }

@@ -17,8 +17,8 @@ public class ExplosionParticleGameObject extends GameObject {
     private int ttl;
     private boolean cancelled;
     public float power;
-    public ExplosionParticleGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public ExplosionParticleGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.gravityScale = 0;

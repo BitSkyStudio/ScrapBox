@@ -89,7 +89,7 @@ public class InGameScene implements IScene {
         grabberStickyTexture = new TextureRegion(new Texture("grabber_sticky.png"));
         buildAreaRenderer = new BuildAreaRenderer();
         renderDataRegistry = new HashMap<>();
-        renderDataRegistry.put("frame", new RenderData(new Texture("wooden_frame.png"), 1, 1));
+        renderDataRegistry.put("frame", new RenderData(null, 1, 1).addMaterialTexture(new Texture("frame.png")));
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
         RenderData.CustomRenderFunction ropeRenderer = (renderData, gameObject, batch1) -> {
             float length = gameObject.getAnimationNumber("length", 3);
@@ -136,26 +136,10 @@ public class InGameScene implements IScene {
                 batch1.begin();
             }
         }));
-        renderDataRegistry.put("wheel", new RenderData(new Texture("wooden_wheel.png"), 1, 1, (renderData, gameObject, batch1) -> {
-            float size = gameObject.getAnimationNumber("wheelSize", 1);
-            Vector2 lerpedPosition = gameObject.getRealPosition();
-            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width * size) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height * size) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
-        }));
-        renderDataRegistry.put("cutting_wheel", new RenderData(new Texture("cutting_wheel.png"), 1, 1, (renderData, gameObject, batch1) -> {
-            float size = gameObject.getAnimationNumber("wheelSize", 1);
-            Vector2 lerpedPosition = gameObject.getRealPosition();
-            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width * size) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height * size) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
-        }));
-        renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1, (renderData, gameObject, batch1) -> {
-            float size = gameObject.getAnimationNumber("wheelSize", 1);
-            Vector2 lerpedPosition = gameObject.getRealPosition();
-            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width * size) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height * size) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
-        }));
-        renderDataRegistry.put("wheel_join", new RenderData(new Texture("wheel_join.png"), 1, 1, (renderData, gameObject, batch1) -> {
-            float size = gameObject.getAnimationNumber("wheelSize", 1);
-            Vector2 lerpedPosition = gameObject.getRealPosition();
-            batch.draw(renderData.texture, (lerpedPosition.x - renderData.width) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - renderData.height * size) * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO, renderData.width * InGameScene.BOX_TO_PIXELS_RATIO * 2, renderData.height * size * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle()));
-        }));
+        renderDataRegistry.put("wheel", new RenderData(null, 1, 1).setConfigScalingEnabled(true, true).addMaterialTexture(new Texture("wheel.png")));
+        renderDataRegistry.put("cutting_wheel", new RenderData(new Texture("cutting_wheel.png"), 1, 1).setConfigScalingEnabled(true, true).addMaterialTexture(new Texture("wheel.png")));
+        renderDataRegistry.put("sticky_wheel", new RenderData(new Texture("sticky_wheel.png"), 1, 1).setConfigScalingEnabled(true, true).addMaterialTexture(new Texture("wheel.png")));
+        renderDataRegistry.put("wheel_join", new RenderData(null, 1, 1).setConfigScalingEnabled(false, true).addMaterialTexture(new Texture("wheel_join.png")));
         renderDataRegistry.put("balloon", new RenderData(new Texture("balloon.png"), 1, 1, ropeRenderer));
         renderDataRegistry.put("puncher_box", new RenderData(new Texture("puncher_box.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE, (renderData, gameObject, batch1) -> {
             float animation = gameObject.getAnimationNumber("animation", 0);

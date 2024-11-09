@@ -6,8 +6,8 @@ import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 public class CuttingWheelGameObject extends BaseWheelGameObject{
-    public CuttingWheelGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server, 0.01f, "wheel_join", "cutting_wheel", 1);
+    public CuttingWheelGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, 0.01f, "wheel_join", "cutting_wheel", config);
     }
     @Override
     public void tick() {

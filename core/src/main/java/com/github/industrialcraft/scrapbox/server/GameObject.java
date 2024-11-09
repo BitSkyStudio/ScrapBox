@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.joints.GearJoint;
 import com.badlogic.gdx.physics.box2d.joints.GearJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.common.net.msg.OpenGameObjectEditUI;
 import com.github.industrialcraft.scrapbox.common.net.msg.SendConnectionListData;
@@ -36,8 +37,10 @@ public abstract class GameObject {
     public HashSet<Player> uiViewers;
     public float health;
     public EnumMap<EDamageType, Float> damageModifiers;
-    protected GameObject(Vector2 position, float rotation, Server server){
+    public final GameObjectConfig config;
+    protected GameObject(Vector2 position, float rotation, Server server, GameObjectConfig config){
         this.server = server;
+        this.config = config;
         this.bodies = new HashMap<>();
         this.isRemoved = false;
         this.connections = new HashMap<>();
@@ -399,7 +402,7 @@ public abstract class GameObject {
 
     @FunctionalInterface
     public interface GameObjectSpawner<T extends GameObject>{
-        T spawn(Vector2 position, float rotation, Server server);
+        T spawn(Vector2 position, float rotation, Server server, GameObjectConfig config);
     }
     public static class ConnectionEdge{
         public final Vector2 offset;
@@ -487,6 +490,23 @@ public abstract class GameObject {
         }
         public float get(){
             return gameObject.getValueOnOutput(id);
+        }
+    }
+    public static class GameObjectConfig{
+        public static GameObjectConfig DEFAULT = new GameObjectConfig(Material.Wood, 1);
+        public final Material material;
+        public final float size;
+        public GameObjectConfig(Material material, float size) {
+            this.material = material;
+            this.size = size;
+        }
+        public GameObjectConfig(DataInputStream stream) throws IOException {
+            this.material = Material.byId(stream.readByte());
+            this.size = stream.readFloat();
+        }
+        public void toStream(DataOutputStream stream) throws IOException {
+            stream.writeByte(material.id);
+            stream.writeFloat(size);
         }
     }
 }

@@ -20,8 +20,8 @@ import java.util.UUID;
 public class GrabberGameObject extends GameObject {
     private ArrayList<Body> toConnect;
     private ArrayList<WeldJoint> connections;
-    public GrabberGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public GrabberGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

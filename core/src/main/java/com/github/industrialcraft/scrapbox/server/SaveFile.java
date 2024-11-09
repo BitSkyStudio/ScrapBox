@@ -86,12 +86,14 @@ public class SaveFile {
         public final Vector2 position;
         public final float rotation;
         public final byte[] data;
-        public SavedGameObject(String type, UUID id, Vector2 position, float rotation, byte[] data) {
+        public final GameObject.GameObjectConfig config;
+        public SavedGameObject(String type, UUID id, Vector2 position, float rotation, byte[] data, GameObject.GameObjectConfig config) {
             this.type = type;
             this.id = id;
             this.position = position;
             this.rotation = rotation;
             this.data = data;
+            this.config = config;
         }
         public SavedGameObject(DataInputStream stream) throws IOException{
             this.type = stream.readUTF();
@@ -100,6 +102,7 @@ public class SaveFile {
             this.rotation = stream.readFloat();
             int dataLength = stream.readInt();
             this.data = stream.readNBytes(dataLength);
+            this.config = new GameObject.GameObjectConfig(stream);
         }
         public void toStream(DataOutputStream stream) throws IOException{
             stream.writeUTF(type);
@@ -110,6 +113,7 @@ public class SaveFile {
             stream.writeFloat(rotation);
             stream.writeInt(data.length);
             stream.write(data);
+            config.toStream(stream);
         }
     }
     public static class SavedJoint{

@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TntGameObject extends GameObject {
-    public TntGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public TntGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

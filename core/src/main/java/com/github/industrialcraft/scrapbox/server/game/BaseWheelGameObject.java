@@ -20,11 +20,11 @@ public abstract class BaseWheelGameObject extends GameObject {
     private final Body wheelBody;
     private final float adhesion;
     private final float wheelSize;
-    public BaseWheelGameObject(Vector2 position, float rotation, Server server, float adhesion, String joinType, String wheelType, float wheelSize) {
-        super(position, rotation, server);
+    public BaseWheelGameObject(Vector2 position, float rotation, Server server, float adhesion, String joinType, String wheelType, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         this.adhesion = adhesion;
-        this.wheelSize = wheelSize;
+        this.wheelSize = config.size;
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

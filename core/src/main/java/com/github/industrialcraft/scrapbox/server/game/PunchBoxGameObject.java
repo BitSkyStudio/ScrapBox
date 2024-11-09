@@ -17,8 +17,8 @@ import java.util.HashMap;
 
 public class PunchBoxGameObject extends GameObject {
     private final PrismaticJoint motor;
-    public PunchBoxGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public PunchBoxGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

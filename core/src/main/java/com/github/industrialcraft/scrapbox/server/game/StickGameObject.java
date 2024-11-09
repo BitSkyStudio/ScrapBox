@@ -18,8 +18,8 @@ import java.util.UUID;
 public class StickGameObject extends GameObject implements IPairObject {
     public GameObject other;
     public DistanceJoint joint;
-    public StickGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public StickGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
@@ -48,7 +48,7 @@ public class StickGameObject extends GameObject implements IPairObject {
     public void tick() {
         super.tick();
         if(other == null){
-            StickGameObject other = server.spawnGameObject(getBaseBody().getPosition(), getBaseBody().getAngle(), StickGameObject::new, UUID.randomUUID());
+            StickGameObject other = server.spawnGameObject(getBaseBody().getPosition(), getBaseBody().getAngle(), StickGameObject::new, UUID.randomUUID(), this.config);
             other.setMode(EObjectInteractionMode.Ghost);
             other.other = this;
             this.other = other;

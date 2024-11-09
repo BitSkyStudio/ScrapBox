@@ -17,8 +17,8 @@ import java.util.HashMap;
 public class PositionSensorGameObject extends GameObject {
     private PositionSensorCalibration calibration;
 
-    public PositionSensorGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public PositionSensorGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

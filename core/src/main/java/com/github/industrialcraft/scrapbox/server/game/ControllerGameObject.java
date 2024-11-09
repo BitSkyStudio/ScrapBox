@@ -16,8 +16,8 @@ import java.util.HashMap;
 public class ControllerGameObject extends GameObject {
     public final boolean[] inputs;
     private final ControllerButtonData[] buttonData;
-    public ControllerGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public ControllerGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

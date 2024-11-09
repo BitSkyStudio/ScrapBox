@@ -18,8 +18,8 @@ import java.util.HashMap;
 
 public class PropellerGameObject extends GameObject {
     public float speed;
-    public PropellerGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public PropellerGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

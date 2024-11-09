@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WeightGameObject extends GameObject {
-    public WeightGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public WeightGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

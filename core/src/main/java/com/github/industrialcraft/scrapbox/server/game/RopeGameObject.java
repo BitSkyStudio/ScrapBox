@@ -18,8 +18,8 @@ import java.util.UUID;
 public class RopeGameObject extends GameObject implements IPairObject {
     public GameObject other;
     public RopeJoint joint;
-    public RopeGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public RopeGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
@@ -52,7 +52,7 @@ public class RopeGameObject extends GameObject implements IPairObject {
     public void tick() {
         super.tick();
         if(other == null){
-            RopeGameObject other = server.spawnGameObject(getBaseBody().getPosition(), getBaseBody().getAngle(), RopeGameObject::new, UUID.randomUUID());
+            RopeGameObject other = server.spawnGameObject(getBaseBody().getPosition(), getBaseBody().getAngle(), RopeGameObject::new, UUID.randomUUID(), this.config);
             other.setMode(EObjectInteractionMode.Ghost);
             other.other = this;
             this.other = other;

@@ -14,8 +14,8 @@ import java.util.UUID;
 public class BulletGameObject extends GameObject {
     public GameObject parent;
     private int ttl;
-    public BulletGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public BulletGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.gravityScale = 0;

@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class DistanceSensorGameObject extends GameObject {
     private float max;
-    public DistanceSensorGameObject(Vector2 position, float rotation, Server server) {
-        super(position, rotation, server);
+    public DistanceSensorGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+        super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);

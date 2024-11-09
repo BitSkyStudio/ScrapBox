@@ -125,89 +125,89 @@ public class Server {
     public LocalConnection joinLocalPlayer(){
         ConcurrentLinkedQueue<Object> write = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Object> read = new ConcurrentLinkedQueue<>();
-        this.addPlayer(new Player(this, new LocalConnection(write, read)));
+        this.addPlayer(new Player(this, new LocalConnection(write, read), GameObject.GameObjectConfig.DEFAULT));
         return new LocalConnection(read, write);
     }
-    public  <T extends GameObject> T spawnGameObject(Vector2 position, float rotation, GameObject.GameObjectSpawner<T> spawner, UUID uuid){
-        T gameObject = spawner.spawn(position, rotation, this);
+    public  <T extends GameObject> T spawnGameObject(Vector2 position, float rotation, GameObject.GameObjectSpawner<T> spawner, UUID uuid, GameObject.GameObjectConfig config){
+        T gameObject = spawner.spawn(position, rotation, this, config);
         if(uuid != null){
             gameObject.uuid = uuid;
         }
         this.newGameObjects.add(gameObject);
         return gameObject;
     }
-    public GameObject spawnGameObject(Vector2 position, float rotation, String type, UUID uuid){
+    public GameObject spawnGameObject(Vector2 position, float rotation, String type, UUID uuid, GameObject.GameObjectConfig config){
         if(type.equals("frame")){
-            return spawnGameObject(position, rotation, FrameGameObject::new, uuid);
+            return spawnGameObject(position, rotation, FrameGameObject::new, uuid, config);
         }
         if(type.equals("wheel")){
-            return spawnGameObject(position, rotation, SimpleWheelGameObject::new, uuid);
+            return spawnGameObject(position, rotation, SimpleWheelGameObject::new, uuid, config);
         }
         if(type.equals("sticky_wheel")){
-            return spawnGameObject(position, rotation, StickyWheelGameObject::new, uuid);
+            return spawnGameObject(position, rotation, StickyWheelGameObject::new, uuid, config);
         }
         if(type.equals("cutting_wheel")){
-            return spawnGameObject(position, rotation, CuttingWheelGameObject::new, uuid);
+            return spawnGameObject(position, rotation, CuttingWheelGameObject::new, uuid, config);
         }
         if(type.equals("balloon")){
-            return spawnGameObject(position, rotation, BalloonGameObject::new, uuid);
+            return spawnGameObject(position, rotation, BalloonGameObject::new, uuid, config);
         }
         if(type.equals("controller")){
-            return spawnGameObject(position, rotation, ControllerGameObject::new, uuid);
+            return spawnGameObject(position, rotation, ControllerGameObject::new, uuid, config);
         }
         if(type.equals("puncher")){
-            return spawnGameObject(position, rotation, PunchBoxGameObject::new, uuid);
+            return spawnGameObject(position, rotation, PunchBoxGameObject::new, uuid, config);
         }
         if(type.equals("propeller")){
-            return spawnGameObject(position, rotation, PropellerGameObject::new, uuid);
+            return spawnGameObject(position, rotation, PropellerGameObject::new, uuid, config);
         }
         if(type.equals("tnt")){
-            return spawnGameObject(position, rotation, TntGameObject::new, uuid);
+            return spawnGameObject(position, rotation, TntGameObject::new, uuid, config);
         }
         if(type.equals("rotator")){
-            return spawnGameObject(position, rotation, RotatorGameObject::new, uuid);
+            return spawnGameObject(position, rotation, RotatorGameObject::new, uuid, config);
         }
         if(type.equals("cannon")){
-            return spawnGameObject(position, rotation, CannonGameObject::new, uuid);
+            return spawnGameObject(position, rotation, CannonGameObject::new, uuid, config);
         }
         if(type.equals("bullet")){
-            return spawnGameObject(position, rotation, BulletGameObject::new, uuid);
+            return spawnGameObject(position, rotation, BulletGameObject::new, uuid, config);
         }
         if(type.equals("position_sensor")){
-            return spawnGameObject(position, rotation, PositionSensorGameObject::new, uuid);
+            return spawnGameObject(position, rotation, PositionSensorGameObject::new, uuid, config);
         }
         if(type.equals("distance_sensor")){
-            return spawnGameObject(position, rotation, DistanceSensorGameObject::new, uuid);
+            return spawnGameObject(position, rotation, DistanceSensorGameObject::new, uuid, config);
         }
         if(type.equals("display")){
-            return spawnGameObject(position, rotation, DisplayGameObject::new, uuid);
+            return spawnGameObject(position, rotation, DisplayGameObject::new, uuid, config);
         }
         if(type.equals("math_unit")){
-            return spawnGameObject(position, rotation, MathUnitGameObject::new, uuid);
+            return spawnGameObject(position, rotation, MathUnitGameObject::new, uuid, config);
         }
         if(type.equals("explosion_particle")){
-            return spawnGameObject(position, rotation, ExplosionParticleGameObject::new, uuid);
+            return spawnGameObject(position, rotation, ExplosionParticleGameObject::new, uuid, config);
         }
         if(type.equals("pid_controller")){
-            return spawnGameObject(position, rotation, PIDControllerGameObject::new, uuid);
+            return spawnGameObject(position, rotation, PIDControllerGameObject::new, uuid, config);
         }
         if(type.equals("weight")){
-            return spawnGameObject(position, rotation, WeightGameObject::new, uuid);
+            return spawnGameObject(position, rotation, WeightGameObject::new, uuid, config);
         }
         if(type.equals("rope")){
-            return spawnGameObject(position, rotation, RopeGameObject::new, uuid);
+            return spawnGameObject(position, rotation, RopeGameObject::new, uuid, config);
         }
         if(type.equals("grabber")){
-            return spawnGameObject(position, rotation, GrabberGameObject::new, uuid);
+            return spawnGameObject(position, rotation, GrabberGameObject::new, uuid, config);
         }
         if(type.equals("timer")){
-            return spawnGameObject(position, rotation, TimerGameObject::new, uuid);
+            return spawnGameObject(position, rotation, TimerGameObject::new, uuid, config);
         }
         if(type.equals("stick")){
-            return spawnGameObject(position, rotation, StickGameObject::new, uuid);
+            return spawnGameObject(position, rotation, StickGameObject::new, uuid, config);
         }
         if(type.equals("piston")){
-            return spawnGameObject(position, rotation, PistonGameObject::new, uuid);
+            return spawnGameObject(position, rotation, PistonGameObject::new, uuid, config);
         }
         throw new IllegalArgumentException("unknown type " + type);
     }
@@ -254,7 +254,7 @@ public class Server {
             this.terrain.place("", position, explosion.z*2, false);
             Random random = new Random();
             for(int i = 0;i < 100;i++){
-                ExplosionParticleGameObject go = spawnGameObject(position, 0f, ExplosionParticleGameObject::new, null);
+                ExplosionParticleGameObject go = spawnGameObject(position, 0f, ExplosionParticleGameObject::new, null, GameObject.GameObjectConfig.DEFAULT);
                 go.power = explosion.z;
                 go.getBaseBody().applyLinearImpulse(Vector2.Y.cpy().setAngleRad((float) (random.nextFloat()*Math.PI*2f)).scl(explosion.z*10*random.nextFloat()), go.getBaseBody().getWorldCenter(), true);
             }
@@ -267,7 +267,7 @@ public class Server {
             public void connect(SocketUser user) {
                 if(password == null) {
                     user.send(new SetGameState(SetGameState.GameState.PLAY));
-                    Player player = new Player(Server.this, new ServerNetXConnection(user));
+                    Player player = new Player(Server.this, new ServerNetXConnection(user), GameObject.GameObjectConfig.DEFAULT);
                     addPlayer(player);
                     user.setUserData(player);
                 } else {
@@ -286,7 +286,7 @@ public class Server {
                         SubmitPassword submitPasswordMessage = (SubmitPassword) msg;
                         if(password == null || submitPasswordMessage.password.equals(password)){
                             user.send(new SetGameState(SetGameState.GameState.PLAY));
-                            Player player = new Player(Server.this, new ServerNetXConnection(user));
+                            Player player = new Player(Server.this, new ServerNetXConnection(user), GameObject.GameObjectConfig.DEFAULT);
                             addPlayer(player);
                             user.setUserData(player);
                         } else {
@@ -349,7 +349,7 @@ public class Server {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle(), outputStream.toByteArray()));
+                saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle(), outputStream.toByteArray(), gameObject.config));
                 for (Map.Entry<String, GameObject.ConnectionData> entry : gameObject.connections.entrySet()) {
                     if (gameObject.getId() < entry.getValue().other.getId()) {
                         saveFile.savedJoints.add(new SaveFile.SavedJoint(gameObject.uuid, entry.getKey(), entry.getValue().other.uuid, entry.getValue().otherName));
@@ -372,7 +372,7 @@ public class Server {
         HashMap<UUID,byte[]> data = new HashMap<>();
         for(SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects){
             try {
-                spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id);
+                spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id, gameObject.config);
                 data.put(gameObject.id, gameObject.data);
             } catch (Exception e) {
                 e.printStackTrace();

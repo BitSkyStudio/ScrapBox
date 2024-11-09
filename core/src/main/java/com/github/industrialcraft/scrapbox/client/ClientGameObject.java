@@ -6,6 +6,7 @@ import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.MoveGameObjectMessage;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
+import com.github.industrialcraft.scrapbox.server.GameObject;
 
 public class ClientGameObject {
     public final String type;
@@ -24,6 +25,7 @@ public class ClientGameObject {
     public Object internalRendererData;
     public float maxHealth;
     public float health;
+    public final GameObject.GameObjectConfig config;
     public ClientGameObject(AddGameObjectMessage message) {
         this.type = message.type;
         this.id = message.id;
@@ -41,6 +43,7 @@ public class ClientGameObject {
         this.internalRendererData = null;
         this.maxHealth = message.maxHealth;
         this.health = message.health;
+        this.config = message.config;
     }
     public void move(MoveGameObjectMessage message){
         this.lastPosition = this.position;
