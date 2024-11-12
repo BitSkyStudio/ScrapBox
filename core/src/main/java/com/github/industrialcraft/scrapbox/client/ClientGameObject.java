@@ -26,6 +26,7 @@ public class ClientGameObject {
     public float maxHealth;
     public float health;
     public final GameObject.GameObjectConfig config;
+    public final boolean gearJoinable;
     public ClientGameObject(AddGameObjectMessage message) {
         this.type = message.type;
         this.id = message.id;
@@ -44,6 +45,7 @@ public class ClientGameObject {
         this.maxHealth = message.maxHealth;
         this.health = message.health;
         this.config = message.config;
+        this.gearJoinable = message.gearJoinable;
     }
     public void move(MoveGameObjectMessage message){
         this.lastPosition = this.position;

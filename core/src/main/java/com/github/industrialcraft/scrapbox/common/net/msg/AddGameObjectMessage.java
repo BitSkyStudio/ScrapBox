@@ -19,7 +19,8 @@ public class AddGameObjectMessage {
     public final float maxHealth;
     public final float health;
     public final GameObject.GameObjectConfig config;
-    public AddGameObjectMessage(int id, String type, Vector2 position, float rotation, ClientWorldManager.AnimationData animation, boolean selectable, float maxHealth, float health, GameObject.GameObjectConfig config) {
+    public final boolean gearJoinable;
+    public AddGameObjectMessage(int id, String type, Vector2 position, float rotation, ClientWorldManager.AnimationData animation, boolean selectable, float maxHealth, float health, GameObject.GameObjectConfig config, boolean gearJoinable) {
         this.id = id;
         this.type = type;
         this.position = position;
@@ -29,6 +30,7 @@ public class AddGameObjectMessage {
         this.maxHealth = maxHealth;
         this.health = health;
         this.config = config;
+        this.gearJoinable = gearJoinable;
     }
     public AddGameObjectMessage(DataInputStream stream) throws IOException {
         this.id = stream.readInt();
@@ -40,6 +42,7 @@ public class AddGameObjectMessage {
         this.maxHealth = stream.readFloat();
         this.health = stream.readFloat();
         this.config = new GameObject.GameObjectConfig(stream);
+        this.gearJoinable = stream.readBoolean();
     }
     public void toStream(DataOutputStream stream) throws IOException {
         stream.writeInt(id);
@@ -52,6 +55,7 @@ public class AddGameObjectMessage {
         stream.writeFloat(maxHealth);
         stream.writeFloat(health);
         config.toStream(stream);
+        stream.writeBoolean(gearJoinable);
     }
     public static MessageRegistry.MessageDescriptor<AddGameObjectMessage> createDescriptor(){
         return new MessageRegistry.MessageDescriptor<>(AddGameObjectMessage.class, AddGameObjectMessage::new, AddGameObjectMessage::toStream);

@@ -339,7 +339,7 @@ public class InGameScene implements IScene {
                         }
                     }
                     if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.G) && !Gdx.input.isKeyPressed(Input.Keys.B)){
-                        MouseSelector.Selection selection = mouseSelector.getSelected();
+                        MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
                         if(selection != null){
                             gearJointSelection = selection.id;
                         }
@@ -709,7 +709,7 @@ public class InGameScene implements IScene {
             shapeRenderer.setColor(Color.BLACK);
             shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
             Vector2 firstPos = gameObjects.get(gearJointSelection).getRealPosition();
-            MouseSelector.Selection selection = mouseSelector.getSelected();
+            MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
             Vector2 secondPos = selection!=null?gameObjects.get(selection.id).getRealPosition():mouseSelector.getWorldMousePosition();
             shapeRenderer.rectLine(firstPos.x * BOX_TO_PIXELS_RATIO, firstPos.y * BOX_TO_PIXELS_RATIO, secondPos.x * BOX_TO_PIXELS_RATIO, secondPos.y * BOX_TO_PIXELS_RATIO, 3);
         }

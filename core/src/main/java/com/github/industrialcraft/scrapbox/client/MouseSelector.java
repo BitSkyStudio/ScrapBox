@@ -4,17 +4,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import java.util.function.Predicate;
+
 public class MouseSelector {
     public final InGameScene game;
     public MouseSelector(InGameScene game) {
         this.game = game;
     }
-    public Selection getSelected(){
+    public Selection getSelected(Predicate<ClientGameObject> predicate){
         Vector2 mouse = getWorldMousePosition();
         Selection selection = null;
         for(int i : game.gameObjects.keySet()){
             ClientGameObject gameObject = game.gameObjects.get(i);
-            if(!gameObject.selectable){
+            if(!gameObject.selectable || !predicate.test(gameObject)){
                 continue;
             }
             RenderData renderData = game.renderDataRegistry.get(gameObject.type);
@@ -32,6 +34,9 @@ public class MouseSelector {
             }
         }
         return selection;
+    }
+    public Selection getSelected(){
+        return getSelected(clientGameObject -> true);
     }
     public Vector2 getWorldMousePosition(){
         Vector3 screen = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);

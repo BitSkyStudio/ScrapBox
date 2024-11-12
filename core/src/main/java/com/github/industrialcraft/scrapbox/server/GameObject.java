@@ -63,7 +63,7 @@ public abstract class GameObject {
         return null;
     }
     public String getGearJointBody(){
-        return "base";
+        return null;
     }
     public void connectGearJoint(GameObject other, int thisRatio, int otherRatio){
         if(this == other || this.vehicle != other.vehicle)
@@ -273,7 +273,7 @@ public abstract class GameObject {
         this.bodies.put(name, body);
         body.setUserData(this);
         boolean base = name.equals("base");
-        int id = server.clientWorldManager.addBody(this, body, type, base && getType() != null);
+        int id = server.clientWorldManager.addBody(this, body, type, base && getType() != null, base && getGearJointBody() != null);
         if(base){
             this.baseId = id;
         }

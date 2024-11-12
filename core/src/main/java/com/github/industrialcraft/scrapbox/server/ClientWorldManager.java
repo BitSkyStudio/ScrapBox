@@ -1,6 +1,5 @@
 package com.github.industrialcraft.scrapbox.server;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.github.industrialcraft.scrapbox.common.net.msg.AddGameObjectMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.DeleteGameObject;
@@ -24,8 +23,8 @@ public class ClientWorldManager {
         this.bodyIdGenerator = 0;
         this.bodies = new ArrayList<>();
     }
-    public int addBody(GameObject gameObject, Body body, String type, boolean selectable){
-        BodyInfo bodyInfo = new BodyInfo(body, type, gameObject, ++this.bodyIdGenerator, selectable);
+    public int addBody(GameObject gameObject, Body body, String type, boolean selectable, boolean gearJoinable){
+        BodyInfo bodyInfo = new BodyInfo(body, type, gameObject, ++this.bodyIdGenerator, selectable, gearJoinable);
         this.bodies.add(bodyInfo);
         server.players.forEach(player -> {
             if(player != gameObject) player.send(bodyInfo.createAddMessage());
@@ -76,17 +75,19 @@ public class ClientWorldManager {
         public final GameObject gameObject;
         public final int id;
         public final boolean selectable;
-        private BodyInfo(Body body, String type, GameObject gameObject, int id, boolean selectable) {
+        public final boolean gearJoinable;
+        private BodyInfo(Body body, String type, GameObject gameObject, int id, boolean selectable, boolean gearJoinable) {
             this.body = body;
             this.type = type;
             this.gameObject = gameObject;
             this.id = id;
             this.selectable = selectable;
+            this.gearJoinable = gearJoinable;
         }
         public AddGameObjectMessage createAddMessage(){
             AnimationData animationData = new AnimationData();
             gameObject.getAnimationData(animationData);
-            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), animationData, selectable, gameObject.getMaxHealth(), gameObject.health, gameObject.config);
+            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), animationData, selectable, gameObject.getMaxHealth(), gameObject.health, gameObject.config, gearJoinable);
         }
         public MoveGameObjectMessage createMoveMessage(Player player){
             GameObject pinching = player.getPinching();
