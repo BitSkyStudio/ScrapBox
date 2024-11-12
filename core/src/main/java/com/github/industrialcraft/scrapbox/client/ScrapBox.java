@@ -13,6 +13,10 @@ import java.io.File;
 public class ScrapBox extends ApplicationAdapter {
     private IScene scene;
     private Skin skin;
+    public SoundStateChecker soundStateChecker;
+    public ScrapBox(SoundStateChecker soundStateChecker) {
+        this.soundStateChecker = soundStateChecker;
+    }
     @Override
     public void create() {
         skin = new Skin(Gdx.files.internal("skin/uiskin.json"));

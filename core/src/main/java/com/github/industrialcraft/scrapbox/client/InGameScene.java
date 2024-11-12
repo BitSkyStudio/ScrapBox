@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -68,6 +69,8 @@ public class InGameScene implements IScene {
     private TextureRegion grabberStickyTexture;
     private BuildAreaRenderer buildAreaRenderer;
     private int gearJointSelection;
+    public HashMap<String, Sound> sounds;
+    public HashMap<Integer, ClientSoundInstance> soundInstances;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -77,9 +80,11 @@ public class InGameScene implements IScene {
     public void create() {
         this.gearJointSelection = -1;
         this.dragAndDrop = new DragAndDrop();
+        sounds = new HashMap<>();
         font = new BitmapFont();
         stage = new Stage();
         editors = new HashMap<>();
+        soundInstances = new HashMap<>();
         cameraController = new CameraController(this, new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         debugRenderer = new Box2DDebugRenderer();
         puncherSpringTexture = new TextureRegion(new Texture("puncher_spring.png"));
@@ -458,10 +463,14 @@ public class InGameScene implements IScene {
             }
             if(message instanceof DeleteGameObject){
                 DeleteGameObject deleteGameObject = (DeleteGameObject) message;
-                gameObjects.remove(deleteGameObject.id);
+                ClientGameObject gameObject = gameObjects.remove(deleteGameObject.id);
                 ClientGameObjectEditor editor = editors.get(deleteGameObject.id);
                 if(editor != null)
                     closeEditor(editor);
+                soundInstances.values().forEach(clientSoundInstance -> {
+                    if(clientSoundInstance.gameObject == gameObject)
+                        clientSoundInstance.stop();
+                });
             }
             if(message instanceof TakeObjectResponse){
                 TakeObjectResponse takeObjectResponse = (TakeObjectResponse) message;
@@ -500,6 +509,11 @@ public class InGameScene implements IScene {
                 UpdateBuildableAreas updateBuildableAreas = (UpdateBuildableAreas) message;
                 buildAreaRenderer.buildableAreas = updateBuildableAreas.areas;
             }
+            if(message instanceof PlaySoundMessage){
+                PlaySoundMessage playSoundMessage = (PlaySoundMessage) message;
+                ClientSoundInstance soundInstance = new ClientSoundInstance(this, playSoundMessage);
+                soundInstances.put(soundInstance.serverId, soundInstance);
+            }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             connection.send(new ToggleGamePaused(false));
@@ -519,6 +533,7 @@ public class InGameScene implements IScene {
         } else {
             cameraController.tick();
         }
+        soundInstances.values().removeIf(ClientSoundInstance::isStopped);
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
             if(escapeMenu == null) {
                 escapeMenu = new Dialog("Escape Menu", ScrapBox.getInstance().getSkin(), "dialog"){

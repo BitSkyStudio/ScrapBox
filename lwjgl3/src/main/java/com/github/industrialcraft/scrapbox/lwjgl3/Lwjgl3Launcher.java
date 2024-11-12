@@ -3,8 +3,10 @@ package com.github.industrialcraft.scrapbox.lwjgl3;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.github.industrialcraft.scrapbox.client.ScrapBox;
+import com.github.industrialcraft.scrapbox.client.SoundStateChecker;
 import com.github.industrialcraft.scrapbox.server.SaveFile;
 import com.github.industrialcraft.scrapbox.server.Server;
+import org.lwjgl.openal.AL10;
 
 import java.io.*;
 
@@ -37,7 +39,12 @@ public class Lwjgl3Launcher {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new ScrapBox(), getDefaultConfiguration());
+        return new Lwjgl3Application(new ScrapBox(new SoundStateChecker() {
+            @Override
+            public boolean isPlaying(int id) {
+                return AL10.alGetSourcei(id, AL10.AL_SOURCE_STATE) == AL10.AL_PLAYING;
+            }
+        }), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {

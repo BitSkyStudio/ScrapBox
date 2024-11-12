@@ -12,6 +12,7 @@ import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.common.net.msg.OpenGameObjectEditUI;
+import com.github.industrialcraft.scrapbox.common.net.msg.PlaySoundMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.SendConnectionListData;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
 import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
@@ -52,6 +53,11 @@ public abstract class GameObject {
         this.health = getMaxHealth();
         this.damageModifiers = new EnumMap<>(EDamageType.class);
         this.gearConnections = new HashMap<>();
+    }
+    public void playSound(String sound){
+        int id = server.soundIdGenerator++;
+        PlaySoundMessage message = new PlaySoundMessage(id, sound, getId(), new Vector2(), false);
+        server.players.forEach(player -> player.send(message));
     }
     public Joint getGearJoint(){
         return null;

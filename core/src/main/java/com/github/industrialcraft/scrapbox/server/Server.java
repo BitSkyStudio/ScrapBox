@@ -47,7 +47,9 @@ public class Server {
     public final File saveFile;
     public final ArrayList<Vector3> scheduledExplosions;
     public String password;
+    public int soundIdGenerator;
     public Server(int port, File saveFile) {
+        this.soundIdGenerator = 0;
         this.password = null;
         this.saveFile = saveFile;
         this.uuid = UUID.randomUUID();
