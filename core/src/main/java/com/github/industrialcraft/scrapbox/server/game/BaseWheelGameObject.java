@@ -90,7 +90,9 @@ public abstract class BaseWheelGameObject extends GameObject {
                         if(otherBody.getUserData() instanceof GameObject)
                             handleContact((GameObject) otherBody.getUserData());
                     } else {
-                        for (Vector2 point : contact.getWorldManifold().getPoints()) {
+                        WorldManifold worldManifold = contact.getWorldManifold();
+                        for(int i = 0;i < worldManifold.getNumberOfContactPoints();i++){
+                            Vector2 point = worldManifold.getPoints()[i];
                             if (point.isZero())
                                 continue;
                             wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion * 300 * vehicle.getMass()), wheelBody.getWorldCenter(), true);
