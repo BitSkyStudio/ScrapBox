@@ -39,6 +39,6 @@ public class CameraController {
         camera.position.add(move.x, move.y, 0);
     }
     public void zoom(float value){
-        camera.zoom = Math.min(Math.max(camera.zoom + value, 1), 10);
+        camera.zoom = (float) Math.min(Math.max(camera.zoom + value*Math.log(camera.zoom+1), 1), 100);
     }
 }
