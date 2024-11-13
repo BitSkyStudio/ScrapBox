@@ -58,8 +58,8 @@ public class SpringGameObject extends GameObject {
         distanceJointDef.localAnchorA.setZero();
         distanceJointDef.localAnchorB.setZero();
         distanceJointDef.length = 2-0.125f*4f;
-        distanceJointDef.dampingRatio = 5f;
-        distanceJointDef.frequencyHz = 40f;
+        distanceJointDef.dampingRatio = 2f;
+        distanceJointDef.frequencyHz = 10f;
         this.distanceJoint = (DistanceJoint) this.server.physics.createJoint(distanceJointDef);
 
         this.setBody("second", "spring_end", endBody, true);
