@@ -15,18 +15,18 @@ public class AddGameObjectMessage {
     public final Vector2 position;
     public final float rotation;
     public final ClientWorldManager.AnimationData animation;
-    public final boolean selectable;
+    public final int selectionId;
     public final float maxHealth;
     public final float health;
     public final GameObject.GameObjectConfig config;
     public final boolean gearJoinable;
-    public AddGameObjectMessage(int id, String type, Vector2 position, float rotation, ClientWorldManager.AnimationData animation, boolean selectable, float maxHealth, float health, GameObject.GameObjectConfig config, boolean gearJoinable) {
+    public AddGameObjectMessage(int id, String type, Vector2 position, float rotation, ClientWorldManager.AnimationData animation, int selectionId, float maxHealth, float health, GameObject.GameObjectConfig config, boolean gearJoinable) {
         this.id = id;
         this.type = type;
         this.position = position;
         this.rotation = rotation;
         this.animation = animation;
-        this.selectable = selectable;
+        this.selectionId = selectionId;
         this.maxHealth = maxHealth;
         this.health = health;
         this.config = config;
@@ -38,7 +38,7 @@ public class AddGameObjectMessage {
         this.position = new Vector2(stream.readFloat(), stream.readFloat());
         this.rotation = stream.readFloat();
         this.animation = new ClientWorldManager.AnimationData(stream);
-        this.selectable = stream.readBoolean();
+        this.selectionId = stream.readInt();
         this.maxHealth = stream.readFloat();
         this.health = stream.readFloat();
         this.config = new GameObject.GameObjectConfig(stream);
@@ -51,7 +51,7 @@ public class AddGameObjectMessage {
         stream.writeFloat(position.y);
         stream.writeFloat(rotation);
         animation.toStream(stream);
-        stream.writeBoolean(selectable);
+        stream.writeInt(selectionId);
         stream.writeFloat(maxHealth);
         stream.writeFloat(health);
         config.toStream(stream);

@@ -94,6 +94,14 @@ public class InGameScene implements IScene {
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(null, 1, 1).addMaterialTexture(new Texture("frame.png")));
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
+        renderDataRegistry.put("spring_start", new RenderData(new Texture("spring_end.png"), 0.125f, 0.5f, (renderData, gameObject, batch1) -> {
+            float animation = -gameObject.getAnimationNumber("length", 0);
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            lerpedPosition.add(new Vector2(1, -0.5f).rotateRad(gameObject.getRealAngle()));
+            batch.draw(puncherSpringTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, animation * InGameScene.BOX_TO_PIXELS_RATIO, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle() - Math.PI/2));
+            renderData.draw(batch1, gameObject);
+        }));
+        renderDataRegistry.put("spring_end", new RenderData(new Texture("spring_end.png"), 0.125f, 0.5f));
         RenderData.CustomRenderFunction ropeRenderer = (renderData, gameObject, batch1) -> {
             float length = gameObject.getAnimationNumber("length", 3);
             int otherId = Integer.parseInt(gameObject.getAnimationString("other", "0"));
@@ -264,6 +272,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"), false, false);
         this.toolBox.addPart("timer", renderDataRegistry.get("timer"), false, false);
         this.toolBox.addPart("piston", renderDataRegistry.get("piston_box"), false, false);
+        this.toolBox.addPart("spring", renderDataRegistry.get("spring_end"), false, false);
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
@@ -314,7 +323,7 @@ public class InGameScene implements IScene {
                     if(toolBox.tool == ToolBox.Tool.Hand && !(Gdx.input.isKeyPressed(Input.Keys.B) || Gdx.input.isKeyPressed(Input.Keys.G))) {
                         selected = mouseSelector.getSelected();
                         if (selected != null) {
-                            connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
+                            connection.send(new GameObjectPinch(selected.selectionId, new Vector2(selected.offsetX, selected.offsetY)));
                         }
                     }
                     if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.B)){
@@ -341,7 +350,7 @@ public class InGameScene implements IScene {
                     if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.G) && !Gdx.input.isKeyPressed(Input.Keys.B)){
                         MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
                         if(selection != null){
-                            gearJointSelection = selection.id;
+                            gearJointSelection = selection.selectionId;
                         }
                     }
                     if (toolBox.tool == ToolBox.Tool.TerrainModify) {
@@ -358,7 +367,7 @@ public class InGameScene implements IScene {
                 if(selected != null){
                     connection.send(new GameObjectRelease());
                     if(toolBox.isMouseInside()){
-                        connection.send(new TrashObject(selected.id));
+                        connection.send(new TrashObject(selected.selectionId));
                     }
                 }
                 if(Gdx.input.isKeyPressed(Input.Keys.G) && gearJointSelection != -1){
@@ -474,7 +483,7 @@ public class InGameScene implements IScene {
             }
             if(message instanceof TakeObjectResponse){
                 TakeObjectResponse takeObjectResponse = (TakeObjectResponse) message;
-                selected = new MouseSelector.Selection(takeObjectResponse.id, takeObjectResponse.offset.x, takeObjectResponse.offset.y, 0);
+                selected = new MouseSelector.Selection(takeObjectResponse.id, takeObjectResponse.id, takeObjectResponse.offset.x, takeObjectResponse.offset.y, 0);
                 connection.send(new GameObjectPinch(selected.id, new Vector2(selected.offsetX, selected.offsetY)));
             }
             if(message instanceof ShowActivePossibleWelds){
@@ -710,7 +719,7 @@ public class InGameScene implements IScene {
             shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
             Vector2 firstPos = gameObjects.get(gearJointSelection).getRealPosition();
             MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
-            Vector2 secondPos = selection!=null?gameObjects.get(selection.id).getRealPosition():mouseSelector.getWorldMousePosition();
+            Vector2 secondPos = selection!=null?gameObjects.get(selection.selectionId).getRealPosition():mouseSelector.getWorldMousePosition();
             shapeRenderer.rectLine(firstPos.x * BOX_TO_PIXELS_RATIO, firstPos.y * BOX_TO_PIXELS_RATIO, secondPos.x * BOX_TO_PIXELS_RATIO, secondPos.y * BOX_TO_PIXELS_RATIO, 3);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.G)){
@@ -838,7 +847,7 @@ public class InGameScene implements IScene {
         if(Gdx.input.isKeyJustPressed(Input.Keys.V)){
             MouseSelector.Selection selection = mouseSelector.getSelected();
             if(selection != null) {
-                connection.send(new OpenGameObjectEditUI(selection.id));
+                connection.send(new OpenGameObjectEditUI(selection.selectionId));
             }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
@@ -846,8 +855,8 @@ public class InGameScene implements IScene {
                 controllingData = null;
             } else {
                 MouseSelector.Selection selection = mouseSelector.getSelected();
-                if (selection != null && gameObjects.get(selection.id).type.equals("controller")) {
-                    controllingData = new ControllingData(selection.id);
+                if (selection != null && gameObjects.get(selection.selectionId).type.equals("controller")) {
+                    controllingData = new ControllingData(selection.selectionId);
                 }
             }
         }

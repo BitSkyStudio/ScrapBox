@@ -53,6 +53,7 @@ public abstract class GameObject {
         this.health = getMaxHealth();
         this.damageModifiers = new EnumMap<>(EDamageType.class);
         this.gearConnections = new HashMap<>();
+        this.baseId = -1;
     }
     public void playSound(String sound){
         int id = server.soundIdGenerator++;
@@ -264,6 +265,10 @@ public abstract class GameObject {
         return this.bodies.get("base");
     }
     public void setBody(String name, String type, Body body){
+        boolean base = name.equals("base");
+        setBody(name, type, body, base && getType() != null);
+    }
+    public void setBody(String name, String type, Body body, boolean selectable){
         //todo: overwrites
         MassData massData = body.getMassData();
         //massData.I *= 0.9f;
@@ -273,7 +278,7 @@ public abstract class GameObject {
         this.bodies.put(name, body);
         body.setUserData(this);
         boolean base = name.equals("base");
-        int id = server.clientWorldManager.addBody(this, body, type, base && getType() != null, base && getGearJointBody() != null);
+        int id = server.clientWorldManager.addBody(this, body, type, selectable, base && getGearJointBody() != null);
         if(base){
             this.baseId = id;
         }

@@ -56,7 +56,7 @@ public abstract class BaseWheelGameObject extends GameObject {
         revoluteJoint.localAnchorB.set(new Vector2(0, 0));
         revoluteJoint.maxMotorTorque = 1000;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
-        this.setBody("wheel", wheelType, wheelBody);
+        this.setBody("wheel", wheelType, wheelBody, true);
     }
 
     @Override

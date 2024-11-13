@@ -16,7 +16,7 @@ public class MouseSelector {
         Selection selection = null;
         for(int i : game.gameObjects.keySet()){
             ClientGameObject gameObject = game.gameObjects.get(i);
-            if(!gameObject.selectable || !predicate.test(gameObject)){
+            if(gameObject.selectionId==-1 || !predicate.test(gameObject)){
                 continue;
             }
             RenderData renderData = game.renderDataRegistry.get(gameObject.type);
@@ -27,7 +27,7 @@ public class MouseSelector {
             float widthScale = renderData.configScalingW?gameObject.config.size:1;
             float heightScale = renderData.configScalingH?gameObject.config.size:1;
             if((Math.abs(Math.sin(angle)) * distance < renderData.width * widthScale) && (Math.abs(Math.cos(angle)) * distance < renderData.height * heightScale)){
-                Selection newSelection = new Selection(i, xDiff, yDiff, renderData.width * renderData.height);
+                Selection newSelection = new Selection(i, gameObject.selectionId, xDiff, yDiff, renderData.width * renderData.height);
                 if(selection == null || (newSelection.size < selection.size)){
                     selection = newSelection;
                 }
@@ -45,11 +45,13 @@ public class MouseSelector {
     }
     public static class Selection{
         public final int id;
+        public final int selectionId;
         public final float offsetX;
         public final float offsetY;
         private final float size;
-        public Selection(int id, float offsetX, float offsetY, float size) {
+        public Selection(int id, int selectionId, float offsetX, float offsetY, float size) {
             this.id = id;
+            this.selectionId = selectionId;
             this.offsetX = offsetX;
             this.offsetY = offsetY;
             this.size = size;

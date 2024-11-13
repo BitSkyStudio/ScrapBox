@@ -87,7 +87,7 @@ public class ClientWorldManager {
         public AddGameObjectMessage createAddMessage(){
             AnimationData animationData = new AnimationData();
             gameObject.getAnimationData(animationData);
-            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), animationData, selectable, gameObject.getMaxHealth(), gameObject.health, gameObject.config, gearJoinable);
+            return new AddGameObjectMessage(this.id, this.type, this.body.getPosition().cpy(), this.body.getAngle(), animationData, selectable?(gameObject.getId()!=-1?gameObject.getId():id):-1, gameObject.getMaxHealth(), gameObject.health, gameObject.config, gearJoinable);
         }
         public MoveGameObjectMessage createMoveMessage(Player player){
             GameObject pinching = player.getPinching();

@@ -16,7 +16,7 @@ public class ClientGameObject {
     public float rotation;
     public float lastRotation;
     public EObjectInteractionMode mode;
-    public boolean selectable;
+    public int selectionId;
     public boolean selected;
     public int lastUpdateLength;
     public long lastUpdate;
@@ -34,7 +34,7 @@ public class ClientGameObject {
         this.position = message.position;
         this.lastRotation = message.rotation;
         this.rotation = message.rotation;
-        this.selectable = message.selectable;
+        this.selectionId = message.selectionId;
         this.mode = EObjectInteractionMode.Normal;
         this.selected = false;
         this.lastUpdate = System.currentTimeMillis();
