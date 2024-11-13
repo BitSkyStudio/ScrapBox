@@ -52,13 +52,23 @@ public class PistonGameObject extends GameObject {
         prismaticJoint.localAnchorA.set(new Vector2(0, -1));
         prismaticJoint.localAnchorB.set(new Vector2(0, 0));
         prismaticJoint.localAxisA.set(0, -1);
-        prismaticJoint.maxMotorForce = 10000;
+        prismaticJoint.maxMotorForce = 1000;
         prismaticJoint.lowerTranslation = 0;
         prismaticJoint.upperTranslation = 5f;
         prismaticJoint.enableLimit = true;
         prismaticJoint.enableMotor = true;
         this.motor = (PrismaticJoint) this.server.physics.createJoint(prismaticJoint);
         this.setBody("end", "piston_end", endBody);
+    }
+
+    @Override
+    public String getGearJointBody() {
+        return "end";
+    }
+
+    @Override
+    public Joint getGearJoint() {
+        return motor;
     }
 
     @Override
@@ -87,6 +97,7 @@ public class PistonGameObject extends GameObject {
         super.tick();
         float value = Math.max(Math.min(getValueOnInput(0),2.5f),0)*2;
         motor.setMotorSpeed(-((motor.getJointTranslation())-value)*5);
+        motor.enableMotor(gearConnections.isEmpty());
     }
     @Override
     public ArrayList<EditorUIRow> createEditorUI() {
