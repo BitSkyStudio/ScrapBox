@@ -75,7 +75,7 @@ public class BulletGameObject extends GameObject {
     @Override
     public void onCollision(Fixture thisFixture, Fixture other) {
         this.remove();
-        Object userData = other.getUserData();
+        Object userData = other.getBody().getUserData();
         if(userData instanceof GameObject){
             ((GameObject) userData).damage(50, EDamageType.Bullet);
         }
