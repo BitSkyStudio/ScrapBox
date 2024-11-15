@@ -2,6 +2,7 @@ package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -74,6 +75,10 @@ public class BulletGameObject extends GameObject {
     @Override
     public void onCollision(Fixture thisFixture, Fixture other) {
         this.remove();
+        Object userData = other.getUserData();
+        if(userData instanceof GameObject){
+            ((GameObject) userData).damage(50, EDamageType.Bullet);
+        }
     }
 
     @Override
