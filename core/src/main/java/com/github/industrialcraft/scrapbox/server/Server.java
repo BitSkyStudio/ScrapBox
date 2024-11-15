@@ -262,7 +262,7 @@ public class Server {
             Vector2 position = new Vector2(explosion.x, explosion.y);
             this.terrain.place("", position, explosion.z*2, false);
             Random random = new Random();
-            for(int i = 0;i < 100;i++){
+            for(int i = 0;i < 40;i++){
                 ExplosionParticleGameObject go = spawnGameObject(position, 0f, ExplosionParticleGameObject::new, null, GameObject.GameObjectConfig.DEFAULT);
                 go.power = explosion.z;
                 go.getBaseBody().applyLinearImpulse(Vector2.Y.cpy().setAngleRad((float) (random.nextFloat()*Math.PI*2f)).scl(explosion.z*10*random.nextFloat()), go.getBaseBody().getWorldCenter(), true);
