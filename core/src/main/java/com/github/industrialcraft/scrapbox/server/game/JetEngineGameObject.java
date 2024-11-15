@@ -64,7 +64,7 @@ public class JetEngineGameObject extends GameObject {
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("down", new ConnectionEdge(new Vector2(0, -0.25f), ConnectionEdgeType.Normal));
+        edges.put("down", new ConnectionEdge(new Vector2(0, 1f), ConnectionEdgeType.Normal));
         return edges;
     }
 
