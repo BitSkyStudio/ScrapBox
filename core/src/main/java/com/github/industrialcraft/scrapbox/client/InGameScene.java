@@ -64,6 +64,7 @@ public class InGameScene implements IScene {
     private static final float CONTROLLER_BUTTON_SIZE = 80;
     public Dialog escapeMenu;
     private TextureRegion puncherSpringTexture;
+    private TextureRegion springTexture;
     private boolean isPaused;
     private TextureRegion pausedTexture;
     private TextureRegion grabberStickyTexture;
@@ -88,17 +89,19 @@ public class InGameScene implements IScene {
         cameraController = new CameraController(this, new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         debugRenderer = new Box2DDebugRenderer();
         puncherSpringTexture = new TextureRegion(new Texture("puncher_spring.png"));
+        springTexture = new TextureRegion(new Texture("spring.png"));
         pausedTexture = new TextureRegion(new Texture("paused.png"));
         grabberStickyTexture = new TextureRegion(new Texture("grabber_sticky.png"));
         buildAreaRenderer = new BuildAreaRenderer();
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(null, 1, 1).addMaterialTexture(new Texture("frame.png")));
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
+        renderDataRegistry.put("spring", new RenderData(new Texture("spring.png"), 1, 1));//only icon
         renderDataRegistry.put("spring_start", new RenderData(new Texture("spring_end.png"), 0.125f, 0.5f, (renderData, gameObject, batch1) -> {
             float animation = -gameObject.getAnimationNumber("length", 0);
             Vector2 lerpedPosition = gameObject.getRealPosition();
             lerpedPosition.add(new Vector2(1, -0.5f).rotateRad(gameObject.getRealAngle()));
-            batch.draw(puncherSpringTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, animation * InGameScene.BOX_TO_PIXELS_RATIO, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle() - Math.PI/2));
+            batch.draw(springTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, animation * InGameScene.BOX_TO_PIXELS_RATIO, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle() - Math.PI/2));
             renderData.draw(batch1, gameObject);
         }));
         renderDataRegistry.put("spring_end", new RenderData(new Texture("spring_end.png"), 0.125f, 0.5f));
@@ -273,7 +276,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("grabber", renderDataRegistry.get("grabber"), false, false);
         this.toolBox.addPart("timer", renderDataRegistry.get("timer"), false, false);
         this.toolBox.addPart("piston", renderDataRegistry.get("piston_box"), false, false);
-        this.toolBox.addPart("spring", renderDataRegistry.get("spring_end"), false, false);
+        this.toolBox.addPart("spring", renderDataRegistry.get("spring"), false, false);
         this.toolBox.addPart("jet_engine", renderDataRegistry.get("jet_engine"), false, false);
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
