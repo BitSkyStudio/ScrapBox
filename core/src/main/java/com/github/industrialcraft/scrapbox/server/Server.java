@@ -211,9 +211,13 @@ public class Server {
         if(type.equals("piston")){
             return spawnGameObject(position, rotation, PistonGameObject::new, uuid, config);
         }
-        if(type.equals("spring")){
+        if(type.equals("spring")) {
             return spawnGameObject(position, rotation, SpringGameObject::new, uuid, config);
         }
+        if(type.equals("jet_engine")){
+            return spawnGameObject(position, rotation, JetEngineGameObject::new, uuid, config);
+        }
+
         throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){

@@ -130,6 +130,7 @@ public class InGameScene implements IScene {
                 batch1.begin();
             }
         };
+        renderDataRegistry.put("jet_engine", new RenderData(new Texture("jet_engine.png"), 1f, 1f, ropeRenderer));
         renderDataRegistry.put("rope_connector", new RenderData(new Texture("rope_connector.png"), 0.2f, 0.2f, ropeRenderer));
         renderDataRegistry.put("stick", new RenderData(new Texture("stick.png"), 1, 1));//only icon
         renderDataRegistry.put("stick_connector", new RenderData(new Texture("rope_connector.png"), 0.2f, 0.2f, (renderData, gameObject, batch1) -> {
@@ -273,6 +274,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("timer", renderDataRegistry.get("timer"), false, false);
         this.toolBox.addPart("piston", renderDataRegistry.get("piston_box"), false, false);
         this.toolBox.addPart("spring", renderDataRegistry.get("spring_end"), false, false);
+        this.toolBox.addPart("jet_engine", renderDataRegistry.get("jet_engine"), false, false);
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
