@@ -54,13 +54,13 @@ public class Player extends GameObject{
             return Float.POSITIVE_INFINITY;
         return this.inventory.getOrDefault(itemType, 0f);
     }
-    public void removeItems(EItemType itemType, int count){
+    public void removeItems(EItemType itemType, float count){
         if(infiniteItems)
             return;
         this.inventory.put(itemType, this.inventory.get(itemType)-count);
         syncInventory();
     }
-    public void addItems(EItemType itemType, int count){
+    public void addItems(EItemType itemType, float count){
         if(infiniteItems)
             return;
         this.inventory.put(itemType, this.inventory.get(itemType)+count);
@@ -138,9 +138,7 @@ public class Player extends GameObject{
             }
             if(message instanceof GameObjectRelease){
                 if(!isInBuildableArea() && pinching != null && getPinching().getLocalMode() == EObjectInteractionMode.Ghost){
-                    for(GameObject go : getPinching().vehicle.gameObjects.toArray(GameObject[]::new)){
-                        go.remove();
-                    }
+                    trashVehicle(getPinching());
                 }
                 clearPinched();
             }
@@ -166,15 +164,24 @@ public class Player extends GameObject{
             }
             if(message instanceof TrashObject){
                 TrashObject trashObject = (TrashObject) message;
-                for(GameObject go : server.gameObjects.get(trashObject.id).vehicle.gameObjects.toArray(GameObject[]::new)){
-                    go.remove();
-                }
+                trashVehicle(server.gameObjects.get(trashObject.id));
             }
             if(message instanceof TakeObject){
                 TakeObject takeObject = (TakeObject) message;
-                GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null, takeObject.config);
-                gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
-                connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
+                EnumMap<EItemType, Float> cost = server.getGameObjectCost(takeObject.type, takeObject.config);
+                boolean failed = false;
+                for(Map.Entry<EItemType, Float> entry : cost.entrySet()){
+                    if(getItemCount(entry.getKey()) < entry.getValue())
+                        failed = true;
+                }
+                if(!failed) {
+                    for(Map.Entry<EItemType, Float> entry : cost.entrySet()){
+                        removeItems(entry.getKey(), entry.getValue());
+                    }
+                    GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null, takeObject.config);
+                    gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
+                    connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
+                }
             }
             if(message instanceof PlaceTerrain){
                 PlaceTerrain placeTerrain = (PlaceTerrain) message;
@@ -303,6 +310,14 @@ public class Player extends GameObject{
                 if(goA != null && goB != null){
                     goA.disconnectGearJoint(goB);
                 }
+            }
+        }
+    }
+    public void trashVehicle(GameObject gameObject){
+        for(GameObject go : gameObject.vehicle.gameObjects.toArray(GameObject[]::new)){
+            go.remove();
+            for(Map.Entry<EItemType, Float> entry : server.getGameObjectCost(server.getGameObjectId(go), go.config).entrySet()){
+                addItems(entry.getKey(), entry.getValue());
             }
         }
     }
