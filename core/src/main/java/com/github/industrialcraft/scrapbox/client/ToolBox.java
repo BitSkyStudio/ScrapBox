@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -13,11 +15,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.net.msg.TakeObject;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 
 public class ToolBox {
     public final InGameScene game;
@@ -111,6 +116,24 @@ public class ToolBox {
             }
             ToolType tool = tools.get(i);
             batch.draw(brushRectangle?(tool.alternative!=null?tool.alternative:tool.texture):tool.texture, leftOffset+toolHeight*i, Gdx.graphics.getHeight()-toolHeight, toolHeight, toolHeight);
+        }
+        if(tool == Tool.Hand && isMouseInside()){
+            float y = ((Gdx.input.getY() - partScroll + toolHeight)) / width - 1;
+            if(y >= 0 && y < this.parts.size()){
+                Part part = parts.get((int) y);
+                if(part != null) {
+                    EnumMap<EItemType, Float> cost = part.costCalculator.getItemCost(partsConfig.get((int) y));
+                    BitmapFont font = ScrapBox.getInstance().getSkin().getFont("default-font");
+                    font.setColor(Color.WHITE);
+                    float lineOffset = 0;
+                    for (Map.Entry<EItemType, Float> entry : cost.entrySet()) {
+                        String text = entry.getKey().name + ":" + (game.infiniteItems ? "INF" : game.inventory.getOrDefault(entry.getKey(), 0f)) + "/" + entry.getValue();
+                        GlyphLayout layout = font.getCache().addText(text, 0, 0);
+                        font.draw(batch, text, Gdx.input.getX() - width*2, Gdx.graphics.getHeight() - (Gdx.input.getY() + lineOffset));
+                        lineOffset += layout.height;
+                    }
+                }
+            }
         }
     }
     public boolean isTerrainSelectionOpen(){

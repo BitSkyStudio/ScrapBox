@@ -67,7 +67,7 @@ public class Player extends GameObject{
         syncInventory();
     }
     private void syncInventory(){
-        connection.send(new UpdateInventory(this.inventory.clone()));
+        connection.send(new UpdateInventory(this.inventory.clone(), infiniteItems));
     }
     public void setBuildableAreas(ArrayList<Rectangle> buildableAreas){
         this.buildableAreas = buildableAreas;

@@ -12,9 +12,11 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class UpdateInventory {
-    public EnumMap<EItemType, Float> inventory;
-    public UpdateInventory(EnumMap<EItemType, Float> inventory) {
+    public final EnumMap<EItemType, Float> inventory;
+    public final boolean infinite;
+    public UpdateInventory(EnumMap<EItemType, Float> inventory, boolean infinite) {
         this.inventory = inventory;
+        this.infinite = infinite;
     }
     public UpdateInventory(DataInputStream stream) throws IOException {
         int count = stream.readInt();
@@ -22,6 +24,7 @@ public class UpdateInventory {
         for(int i = 0;i < count;i++){
             this.inventory.put(EItemType.byId(stream.readByte()), stream.readFloat());
         }
+        this.infinite = stream.readBoolean();
     }
     public void toStream(DataOutputStream stream) throws IOException {
         stream.writeInt(inventory.size());
@@ -29,6 +32,7 @@ public class UpdateInventory {
             stream.writeByte(entry.getKey().id);
             stream.writeFloat(entry.getValue());
         }
+        stream.writeBoolean(infinite);
     }
     public static MessageRegistry.MessageDescriptor<UpdateInventory> createDescriptor(){
         return new MessageRegistry.MessageDescriptor<>(UpdateInventory.class, UpdateInventory::new, UpdateInventory::toStream);

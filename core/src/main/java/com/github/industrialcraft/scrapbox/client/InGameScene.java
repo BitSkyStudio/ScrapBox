@@ -26,11 +26,13 @@ import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class InGameScene implements IScene {
@@ -72,6 +74,8 @@ public class InGameScene implements IScene {
     private int gearJointSelection;
     public HashMap<String, Sound> sounds;
     public HashMap<Integer, ClientSoundInstance> soundInstances;
+    public EnumMap<EItemType,Float> inventory;
+    public boolean infiniteItems;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -79,6 +83,8 @@ public class InGameScene implements IScene {
     }
     @Override
     public void create() {
+        this.inventory = new EnumMap<>(EItemType.class);
+        this.infiniteItems = false;
         this.gearJointSelection = -1;
         this.dragAndDrop = new DragAndDrop();
         sounds = new HashMap<>();
@@ -527,6 +533,11 @@ public class InGameScene implements IScene {
                 PlaySoundMessage playSoundMessage = (PlaySoundMessage) message;
                 ClientSoundInstance soundInstance = new ClientSoundInstance(this, playSoundMessage);
                 soundInstances.put(soundInstance.serverId, soundInstance);
+            }
+            if(message instanceof UpdateInventory){
+                UpdateInventory updateInventory = (UpdateInventory) message;
+                this.inventory = updateInventory.inventory;
+                this.infiniteItems = updateInventory.infinite;
             }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
