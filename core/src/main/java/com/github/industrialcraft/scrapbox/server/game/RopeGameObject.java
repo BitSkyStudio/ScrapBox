@@ -126,9 +126,4 @@ public class RopeGameObject extends GameObject implements IPairObject {
     public Vector2 getPairJointOffset() {
         return Vector2.Zero;
     }
-
-    @Override
-    public String getType() {
-        return "rope";
-    }
 }

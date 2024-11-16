@@ -100,9 +100,4 @@ public class RotatorGameObject extends GameObject {
         edges.put("rotator", new ConnectionEdge(new Vector2(0, 0), ConnectionEdgeType.Normal, "end"));
         return edges;
     }
-
-    @Override
-    public String getType() {
-        return "rotator";
-    }
 }

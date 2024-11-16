@@ -80,9 +80,4 @@ public class BulletGameObject extends GameObject {
             ((GameObject) userData).damage(50, EDamageType.Bullet);
         }
     }
-
-    @Override
-    public String getType() {
-        return "bullet";
-    }
 }

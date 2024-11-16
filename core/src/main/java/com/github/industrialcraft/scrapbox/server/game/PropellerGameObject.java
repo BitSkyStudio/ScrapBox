@@ -77,9 +77,4 @@ public class PropellerGameObject extends GameObject {
         edges.put("down", new ConnectionEdge(new Vector2(0, -0.25f), ConnectionEdgeType.Normal));
         return edges;
     }
-
-    @Override
-    public String getType() {
-        return "propeller";
-    }
 }

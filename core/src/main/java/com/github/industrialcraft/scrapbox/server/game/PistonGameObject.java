@@ -132,9 +132,4 @@ public class PistonGameObject extends GameObject {
         edges.put("end", new ConnectionEdge(new Vector2(0, 0), ConnectionEdgeType.Normal, "end", 1));
         return edges;
     }
-
-    @Override
-    public String getType() {
-        return "piston";
-    }
 }

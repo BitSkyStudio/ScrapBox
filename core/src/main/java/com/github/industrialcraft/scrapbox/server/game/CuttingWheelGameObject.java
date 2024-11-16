@@ -34,9 +34,4 @@ public class CuttingWheelGameObject extends BaseWheelGameObject{
         if(motor.isMotorEnabled())
             gameObject.damage(3f/20f, EDamageType.Cutting);
     }
-
-    @Override
-    public String getType() {
-        return "cutting_wheel";
-    }
 }

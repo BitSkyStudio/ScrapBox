@@ -153,11 +153,6 @@ public class MathUnitGameObject extends GameObject {
         return edges;
     }
 
-    @Override
-    public String getType() {
-        return "math_unit";
-    }
-
     public static class MathOperation{
         public final String text;
         public final BiFunction<Float,Float,Float> function;

@@ -16,9 +16,4 @@ public class StickyWheelGameObject extends BaseWheelGameObject{
         items.put(EItemType.StickyResin, 10f);
         return items;
     }
-
-    @Override
-    public String getType() {
-        return "sticky_wheel";
-    }
 }

@@ -126,11 +126,6 @@ public class PositionSensorGameObject extends GameObject {
         return edges;
     }
 
-    @Override
-    public String getType() {
-        return "position_sensor";
-    }
-
     public static class PositionSensorCalibration {
         public final Vector2 position;
         public final float rotation;

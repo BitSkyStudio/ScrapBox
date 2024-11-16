@@ -75,9 +75,4 @@ public class JetEngineGameObject extends GameObject {
         edges.put("down", new ConnectionEdge(new Vector2(0, 1f), ConnectionEdgeType.Normal));
         return edges;
     }
-
-    @Override
-    public String getType() {
-        return "jet_engine";
-    }
 }

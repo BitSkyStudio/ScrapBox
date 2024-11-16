@@ -105,11 +105,6 @@ public class StickGameObject extends GameObject implements IPairObject {
     }
 
     @Override
-    public String getType() {
-        return "stick";
-    }
-
-    @Override
     public void changeDistance(float by) {
         if(this.joint != null)
             joint.setLength(Math.max(Math.min(joint.getLength()-by, 10), 1));

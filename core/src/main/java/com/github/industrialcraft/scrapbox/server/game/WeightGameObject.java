@@ -43,9 +43,4 @@ public class WeightGameObject extends GameObject {
         edges.put("center", new ConnectionEdge(new Vector2(0, 0), ConnectionEdgeType.Internal));
         return edges;
     }
-
-    @Override
-    public String getType() {
-        return "weight";
-    }
 }

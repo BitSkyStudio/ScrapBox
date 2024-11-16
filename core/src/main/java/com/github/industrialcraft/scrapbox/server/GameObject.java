@@ -266,7 +266,7 @@ public abstract class GameObject {
     }
     public void setBody(String name, String type, Body body){
         boolean base = name.equals("base");
-        setBody(name, type, body, base && getType() != null);
+        setBody(name, type, body, base && !(this instanceof Player));
     }
     public void setBody(String name, String type, Body body, boolean selectable){
         //todo: overwrites
@@ -404,8 +404,6 @@ public abstract class GameObject {
     public int hashCode() {
         return Objects.hash(baseId);
     }
-
-    public abstract String getType();
 
     public void getAnimationData(ClientWorldManager.AnimationData animationData){
 

@@ -112,11 +112,6 @@ public class BalloonGameObject extends GameObject implements IPairObject {
     }
 
     @Override
-    public String getType() {
-        return "balloon";
-    }
-
-    @Override
     public void changeDistance(float by) {
         if(this.joint != null)
             joint.setMaxLength(Math.max(Math.min(joint.getMaxLength()-by, 10), 1));

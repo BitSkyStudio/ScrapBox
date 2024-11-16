@@ -15,9 +15,4 @@ public class SimpleWheelGameObject extends BaseWheelGameObject{
         items.put(config.material.materialItem, 50f);
         return items;
     }
-
-    @Override
-    public String getType() {
-        return "wheel";
-    }
 }

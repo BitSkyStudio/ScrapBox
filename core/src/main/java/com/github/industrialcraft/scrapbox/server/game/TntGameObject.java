@@ -72,9 +72,4 @@ public class TntGameObject extends GameObject {
         remove();
         server.createExplosion(getBaseBody().getPosition(), 3);
     }
-
-    @Override
-    public String getType() {
-        return "tnt";
-    }
 }

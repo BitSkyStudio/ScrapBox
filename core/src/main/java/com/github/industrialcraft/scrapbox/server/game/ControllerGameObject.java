@@ -127,11 +127,6 @@ public class ControllerGameObject extends GameObject {
         return edges;
     }
 
-    @Override
-    public String getType() {
-        return "controller";
-    }
-
     public static class ControllerButtonData{
         public boolean keep;
         private float low;

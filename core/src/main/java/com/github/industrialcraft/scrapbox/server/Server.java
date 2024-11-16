@@ -22,7 +22,6 @@ import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -142,6 +141,7 @@ public class Server {
         return gameObject;
     }
     public static HashMap<String,Class> GAME_OBJECT_CLASSES = new HashMap<>();
+    public static HashMap<Class,String> GAME_OBJECT_CLASSES_TYPES = new HashMap<>();
     static{
         GAME_OBJECT_CLASSES.put("frame", FrameGameObject.class);
         GAME_OBJECT_CLASSES.put("wheel", SimpleWheelGameObject.class);
@@ -169,6 +169,10 @@ public class Server {
         GAME_OBJECT_CLASSES.put("piston", PistonGameObject.class);
         GAME_OBJECT_CLASSES.put("spring", SpringGameObject.class);
         GAME_OBJECT_CLASSES.put("jet_engine", JetEngineGameObject.class);
+
+        for(Map.Entry<String, Class> entry : GAME_OBJECT_CLASSES.entrySet()){
+            GAME_OBJECT_CLASSES_TYPES.put(entry.getValue(), entry.getKey());
+        }
     }
     public GameObject spawnGameObject(Vector2 position, float rotation, String type, UUID uuid, GameObject.GameObjectConfig config){
         Class clazz = GAME_OBJECT_CLASSES.get(type);
@@ -195,6 +199,12 @@ public class Server {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    public String getGameObjectId(GameObject gameObject){
+        String id = GAME_OBJECT_CLASSES_TYPES.get(gameObject.getClass());
+        if(id == null)
+            throw new IllegalArgumentException("no id for gameobject " + gameObject.getClass().getSimpleName());
+        return id;
     }
     private void addPlayer(Player player){
         this.players.add(player);
@@ -324,7 +334,7 @@ public class Server {
             saveFile.terrain.put(s, paths);
         });
         this.gameObjects.values().forEach(gameObject -> {
-            if(gameObject.getType() != null && !gameObject.isRemoved()) {
+            if(!(gameObject instanceof Player) && !gameObject.isRemoved()) {
                 if (gameObject == gameObject.vehicle.gameObjects.get(0)) {
                     saveFile.savedVehicles.add(gameObject.vehicle.save());
                 }
@@ -334,7 +344,7 @@ public class Server {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(gameObject.getType(), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle(), outputStream.toByteArray(), gameObject.config));
+                saveFile.savedGameObjects.add(new SaveFile.SavedGameObject(getGameObjectId(gameObject), gameObject.uuid, gameObject.getBaseBody().getPosition().cpy(), gameObject.getBaseBody().getAngle(), outputStream.toByteArray(), gameObject.config));
                 for (Map.Entry<String, GameObject.ConnectionData> entry : gameObject.connections.entrySet()) {
                     if (gameObject.getId() < entry.getValue().other.getId()) {
                         saveFile.savedJoints.add(new SaveFile.SavedJoint(gameObject.uuid, entry.getKey(), entry.getValue().other.uuid, entry.getValue().otherName));

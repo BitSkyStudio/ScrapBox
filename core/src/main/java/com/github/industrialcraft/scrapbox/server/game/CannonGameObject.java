@@ -72,9 +72,4 @@ public class CannonGameObject extends GameObject {
         rows.add(new EditorUIRow(row));
         return rows;
     }
-
-    @Override
-    public String getType() {
-        return "cannon";
-    }
 }

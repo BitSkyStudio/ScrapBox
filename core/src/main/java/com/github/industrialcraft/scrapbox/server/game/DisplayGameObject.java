@@ -58,9 +58,4 @@ public class DisplayGameObject extends GameObject {
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {
         animationData.addString("text", ""+Math.floor(getValueOnInput(0)*1000)/1000);
     }
-
-    @Override
-    public String getType() {
-        return "display";
-    }
 }

@@ -100,9 +100,4 @@ public class SpringGameObject extends GameObject {
         edges.put("end", new ConnectionEdge(new Vector2(-0.125f, 0), ConnectionEdgeType.Normal, "second", 1));
         return edges;
     }
-
-    @Override
-    public String getType() {
-        return "spring";
-    }
 }

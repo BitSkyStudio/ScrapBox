@@ -358,10 +358,6 @@ public class Player extends GameObject{
         return Objects.hash(uuid);
     }
 
-    @Override
-    public String getType() {
-        return null;
-    }
     public static class PinchingData{
         public final MouseJoint mouseJoint;
         public final Vector2 offset;

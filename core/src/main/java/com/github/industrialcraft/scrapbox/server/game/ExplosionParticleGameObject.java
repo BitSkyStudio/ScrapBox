@@ -73,9 +73,4 @@ public class ExplosionParticleGameObject extends GameObject {
         }
         this.cancelled = true;
     }
-
-    @Override
-    public String getType() {
-        return "explosion_particle";
-    }
 }

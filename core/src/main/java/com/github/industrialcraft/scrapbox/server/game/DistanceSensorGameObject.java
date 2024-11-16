@@ -78,9 +78,4 @@ public class DistanceSensorGameObject extends GameObject {
         edges.put("down", new ConnectionEdge(new Vector2(0, -0.15f), ConnectionEdgeType.Normal));
         return edges;
     }
-
-    @Override
-    public String getType() {
-        return "distance_sensor";
-    }
 }

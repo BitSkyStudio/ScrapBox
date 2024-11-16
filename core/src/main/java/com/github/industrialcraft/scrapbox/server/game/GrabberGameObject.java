@@ -95,9 +95,4 @@ public class GrabberGameObject extends GameObject {
         edges.put("down", new ConnectionEdge(new Vector2(0, -0.1875f), ConnectionEdgeType.Normal));
         return edges;
     }
-
-    @Override
-    public String getType() {
-        return "grabber";
-    }
 }
