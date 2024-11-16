@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -11,6 +12,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class ControllerGameObject extends GameObject {
@@ -38,6 +40,12 @@ public class ControllerGameObject extends GameObject {
             inputs[i] = false;
             buttonData[i] = new ControllerButtonData();
         }
+    }
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.Metal, 50f);
+        items.put(EItemType.Circuit, 10f);
+        return items;
     }
     @Override
     public void tick() {

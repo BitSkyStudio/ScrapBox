@@ -7,12 +7,10 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
-import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
-import com.github.industrialcraft.scrapbox.server.EDamageType;
-import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.Server;
+import com.github.industrialcraft.scrapbox.server.*;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class PunchBoxGameObject extends GameObject {
@@ -55,6 +53,13 @@ public class PunchBoxGameObject extends GameObject {
         prismaticJointDef.enableMotor = true;
         this.motor = (PrismaticJoint) this.server.physics.createJoint(prismaticJointDef);
         this.setBody("puncher", "puncher", puncherBody);
+    }
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.Wood, 50f);
+        items.put(EItemType.StickyResin, 20f);
+        items.put(EItemType.Metal, 40f);
+        return items;
     }
 
     @Override

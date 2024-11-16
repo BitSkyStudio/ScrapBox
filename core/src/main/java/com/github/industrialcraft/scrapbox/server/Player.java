@@ -22,6 +22,8 @@ public class Player extends GameObject{
     private boolean isDisconnected;
     public final UUID uuid;
     public ArrayList<Rectangle> buildableAreas;
+    public EnumMap<EItemType, Float> inventory;
+    public boolean infiniteItems;
     public Player(Server server, IConnection connection, GameObjectConfig config) {
         super(Vector2.Zero.cpy(), 0, server, config);
         this.server = server;
@@ -38,6 +40,34 @@ public class Player extends GameObject{
         setBody("base", "player", server.physics.createBody(bodyDef));
 
         //setBuildableAreas(new ArrayList<>(Collections.singleton(new Rectangle(0, 0, 5, 5))));
+
+        this.inventory = new EnumMap<>(EItemType.class);
+        this.infiniteItems = true;
+        syncInventory();
+    }
+    public void setInfiniteItems(boolean infiniteItems){
+        this.infiniteItems = infiniteItems;
+        syncInventory();
+    }
+    public float getItemCount(EItemType itemType){
+        if(infiniteItems)
+            return Float.POSITIVE_INFINITY;
+        return this.inventory.getOrDefault(itemType, 0f);
+    }
+    public void removeItems(EItemType itemType, int count){
+        if(infiniteItems)
+            return;
+        this.inventory.put(itemType, this.inventory.get(itemType)-count);
+        syncInventory();
+    }
+    public void addItems(EItemType itemType, int count){
+        if(infiniteItems)
+            return;
+        this.inventory.put(itemType, this.inventory.get(itemType)+count);
+        syncInventory();
+    }
+    private void syncInventory(){
+        connection.send(new UpdateInventory(this.inventory.clone()));
     }
     public void setBuildableAreas(ArrayList<Rectangle> buildableAreas){
         this.buildableAreas = buildableAreas;

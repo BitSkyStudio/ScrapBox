@@ -5,9 +5,11 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class FrameGameObject extends GameObject {
@@ -29,7 +31,11 @@ public class FrameGameObject extends GameObject {
         base.createFixture(fixtureDef);
         this.setBody("base", "frame", base);
     }
-
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(config.material.materialItem, 50f);
+        return items;
+    }
     @Override
     public float getMaxHealth() {
         return 100*config.material.baseHealthMultiplier;

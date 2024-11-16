@@ -5,10 +5,12 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,6 +33,13 @@ public class DistanceSensorGameObject extends GameObject {
         this.max = 100;
         this.setBody("base", "distance_sensor", base);
     }
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.Metal, 30f);
+        items.put(EItemType.Circuit, 10f);
+        return items;
+    }
+
     @Override
     public void tick() {
         super.tick();

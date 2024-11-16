@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 import fr.charleslabs.simplypid.SimplyPID;
@@ -13,6 +14,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class PIDControllerGameObject extends GameObject {
@@ -36,6 +38,12 @@ public class PIDControllerGameObject extends GameObject {
 
         this.pid = new SimplyPID(0, 0, 0, 0);
         this.lastOutput = 0;
+    }
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.Metal, 30f);
+        items.put(EItemType.Circuit, 50f);
+        return items;
     }
 
     @Override

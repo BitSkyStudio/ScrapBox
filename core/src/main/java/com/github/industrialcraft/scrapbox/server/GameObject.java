@@ -195,10 +195,10 @@ public abstract class GameObject {
                         area += (float) Clipper.Area(path);
                     }
                 }
-                body.applyForceToCenter(new Vector2(0, area*15), true);
+                body.applyForceToCenter(new Vector2(0, area*15), false);
                 float drag = (float) (Math.pow(body.getLinearVelocity().len(), 2) * 0.3);
                 if(drag > 0)
-                    body.applyForceToCenter(body.getLinearVelocity().nor().scl(-drag), true);
+                    body.applyForceToCenter(body.getLinearVelocity().nor().scl(-drag), false);
             }
         }
     }
@@ -414,6 +414,10 @@ public abstract class GameObject {
     @FunctionalInterface
     public interface GameObjectSpawner<T extends GameObject>{
         T spawn(Vector2 position, float rotation, Server server, GameObjectConfig config);
+    }
+    @FunctionalInterface
+    public interface GameObjectCostCalculator{
+        EnumMap<EItemType, Float> getItemCost(GameObjectConfig config);
     }
     public static class ConnectionEdge{
         public final Vector2 offset;

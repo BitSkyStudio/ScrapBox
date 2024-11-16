@@ -7,12 +7,14 @@ import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class SpringGameObject extends GameObject {
@@ -64,7 +66,11 @@ public class SpringGameObject extends GameObject {
 
         this.setBody("second", "spring_end", endBody, true);
     }
-
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.Metal, 30f);
+        return items;
+    }
 
     @Override
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {

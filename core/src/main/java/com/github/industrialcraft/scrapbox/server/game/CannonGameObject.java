@@ -9,10 +9,12 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class CannonGameObject extends GameObject {
@@ -33,6 +35,12 @@ public class CannonGameObject extends GameObject {
         base.createFixture(fixtureDef);
         this.setBody("base", "cannon", base);
         lastInput = false;
+    }
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.Metal, 50f);
+        items.put(EItemType.Explosive, 30f);
+        return items;
     }
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {

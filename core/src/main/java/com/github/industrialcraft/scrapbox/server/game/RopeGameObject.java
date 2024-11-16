@@ -4,14 +4,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.*;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
-import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
-import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.IPairObject;
-import com.github.industrialcraft.scrapbox.server.Server;
+import com.github.industrialcraft.scrapbox.server.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -36,6 +34,12 @@ public class RopeGameObject extends GameObject implements IPairObject {
 
         this.other = null;
         this.joint = null;
+    }
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.StickyResin, 30f);
+        items.put(EItemType.Metal, 5f);
+        return items;
     }
 
     @Override

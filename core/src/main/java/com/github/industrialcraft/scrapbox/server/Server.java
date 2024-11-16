@@ -21,6 +21,9 @@ import com.github.industrialcraft.scrapbox.server.game.*;
 import com.github.industrialcraft.scrapbox.common.net.LocalConnection;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -138,87 +141,60 @@ public class Server {
         this.newGameObjects.add(gameObject);
         return gameObject;
     }
+    public static HashMap<String,Class> GAME_OBJECT_CLASSES = new HashMap<>();
+    static{
+        GAME_OBJECT_CLASSES.put("frame", FrameGameObject.class);
+        GAME_OBJECT_CLASSES.put("wheel", SimpleWheelGameObject.class);
+        GAME_OBJECT_CLASSES.put("sticky_wheel", StickyWheelGameObject.class);
+        GAME_OBJECT_CLASSES.put("cutting_wheel", CuttingWheelGameObject.class);
+        GAME_OBJECT_CLASSES.put("baloon", BalloonGameObject.class);
+        GAME_OBJECT_CLASSES.put("controller", ControllerGameObject.class);
+        GAME_OBJECT_CLASSES.put("puncher", PunchBoxGameObject.class);
+        GAME_OBJECT_CLASSES.put("propeller", PropellerGameObject.class);
+        GAME_OBJECT_CLASSES.put("tnt", TntGameObject.class);
+        GAME_OBJECT_CLASSES.put("rotator", RotatorGameObject.class);
+        GAME_OBJECT_CLASSES.put("cannon", CannonGameObject.class);
+        GAME_OBJECT_CLASSES.put("bullet", BulletGameObject.class);
+        GAME_OBJECT_CLASSES.put("position_sensor", PositionSensorGameObject.class);
+        GAME_OBJECT_CLASSES.put("distance_sensor", DistanceSensorGameObject.class);
+        GAME_OBJECT_CLASSES.put("display", DisplayGameObject.class);
+        GAME_OBJECT_CLASSES.put("math_unit", MathUnitGameObject.class);
+        GAME_OBJECT_CLASSES.put("explosion_particle", ExplosionParticleGameObject.class);
+        GAME_OBJECT_CLASSES.put("pid_controller", PIDControllerGameObject.class);
+        GAME_OBJECT_CLASSES.put("weigth", WeightGameObject.class);
+        GAME_OBJECT_CLASSES.put("rope", RopeGameObject.class);
+        GAME_OBJECT_CLASSES.put("grabber", GrabberGameObject.class);
+        GAME_OBJECT_CLASSES.put("timer", TimerGameObject.class);
+        GAME_OBJECT_CLASSES.put("stick", StickGameObject.class);
+        GAME_OBJECT_CLASSES.put("piston", PistonGameObject.class);
+        GAME_OBJECT_CLASSES.put("spring", SpringGameObject.class);
+        GAME_OBJECT_CLASSES.put("jet_engine", JetEngineGameObject.class);
+    }
     public GameObject spawnGameObject(Vector2 position, float rotation, String type, UUID uuid, GameObject.GameObjectConfig config){
-        if(type.equals("frame")){
-            return spawnGameObject(position, rotation, FrameGameObject::new, uuid, config);
+        Class clazz = GAME_OBJECT_CLASSES.get(type);
+        if(clazz == null)
+            throw new IllegalArgumentException("unknown type " + type);
+        try {
+            Constructor<GameObject> constructor = clazz.getConstructor(Vector2.class, float.class, Server.class, GameObject.GameObjectConfig.class);
+            GameObject gameObject = constructor.newInstance(position, rotation, this, config);
+            if(uuid != null)
+                gameObject.uuid = uuid;
+            this.newGameObjects.add(gameObject);
+            return gameObject;
+        } catch (Exception e) {
+            throw new IllegalStateException("failed to instantiate " + type, e);
         }
-        if(type.equals("wheel")){
-            return spawnGameObject(position, rotation, SimpleWheelGameObject::new, uuid, config);
+    }
+    public EnumMap<EItemType, Float> getGameObjectCost(String type, GameObject.GameObjectConfig config){
+        Class clazz = GAME_OBJECT_CLASSES.get(type);
+        if(clazz == null)
+            throw new IllegalArgumentException("unknown type " + type);
+        try {
+            Method method = clazz.getMethod("getItemCost", GameObject.GameObjectConfig.class);
+            return (EnumMap<EItemType, Float>) method.invoke(null, config);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        if(type.equals("sticky_wheel")){
-            return spawnGameObject(position, rotation, StickyWheelGameObject::new, uuid, config);
-        }
-        if(type.equals("cutting_wheel")){
-            return spawnGameObject(position, rotation, CuttingWheelGameObject::new, uuid, config);
-        }
-        if(type.equals("balloon")){
-            return spawnGameObject(position, rotation, BalloonGameObject::new, uuid, config);
-        }
-        if(type.equals("controller")){
-            return spawnGameObject(position, rotation, ControllerGameObject::new, uuid, config);
-        }
-        if(type.equals("puncher")){
-            return spawnGameObject(position, rotation, PunchBoxGameObject::new, uuid, config);
-        }
-        if(type.equals("propeller")){
-            return spawnGameObject(position, rotation, PropellerGameObject::new, uuid, config);
-        }
-        if(type.equals("tnt")){
-            return spawnGameObject(position, rotation, TntGameObject::new, uuid, config);
-        }
-        if(type.equals("rotator")){
-            return spawnGameObject(position, rotation, RotatorGameObject::new, uuid, config);
-        }
-        if(type.equals("cannon")){
-            return spawnGameObject(position, rotation, CannonGameObject::new, uuid, config);
-        }
-        if(type.equals("bullet")){
-            return spawnGameObject(position, rotation, BulletGameObject::new, uuid, config);
-        }
-        if(type.equals("position_sensor")){
-            return spawnGameObject(position, rotation, PositionSensorGameObject::new, uuid, config);
-        }
-        if(type.equals("distance_sensor")){
-            return spawnGameObject(position, rotation, DistanceSensorGameObject::new, uuid, config);
-        }
-        if(type.equals("display")){
-            return spawnGameObject(position, rotation, DisplayGameObject::new, uuid, config);
-        }
-        if(type.equals("math_unit")){
-            return spawnGameObject(position, rotation, MathUnitGameObject::new, uuid, config);
-        }
-        if(type.equals("explosion_particle")){
-            return spawnGameObject(position, rotation, ExplosionParticleGameObject::new, uuid, config);
-        }
-        if(type.equals("pid_controller")){
-            return spawnGameObject(position, rotation, PIDControllerGameObject::new, uuid, config);
-        }
-        if(type.equals("weight")){
-            return spawnGameObject(position, rotation, WeightGameObject::new, uuid, config);
-        }
-        if(type.equals("rope")){
-            return spawnGameObject(position, rotation, RopeGameObject::new, uuid, config);
-        }
-        if(type.equals("grabber")){
-            return spawnGameObject(position, rotation, GrabberGameObject::new, uuid, config);
-        }
-        if(type.equals("timer")){
-            return spawnGameObject(position, rotation, TimerGameObject::new, uuid, config);
-        }
-        if(type.equals("stick")){
-            return spawnGameObject(position, rotation, StickGameObject::new, uuid, config);
-        }
-        if(type.equals("piston")){
-            return spawnGameObject(position, rotation, PistonGameObject::new, uuid, config);
-        }
-        if(type.equals("spring")) {
-            return spawnGameObject(position, rotation, SpringGameObject::new, uuid, config);
-        }
-        if(type.equals("jet_engine")){
-            return spawnGameObject(position, rotation, JetEngineGameObject::new, uuid, config);
-        }
-
-        throw new IllegalArgumentException("unknown type " + type);
     }
     private void addPlayer(Player player){
         this.players.add(player);

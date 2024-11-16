@@ -1,7 +1,6 @@
 package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -19,7 +18,6 @@ import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class ToolBox {
     public final InGameScene game;
@@ -189,8 +187,8 @@ public class ToolBox {
         this.background.dispose();
         this.tools.forEach(toolType -> toolType.texture.dispose());
     }
-    public void addPart(String type, RenderData renderData, boolean materialModification, boolean sizeModification){
-        this.parts.add(new Part(type, renderData, materialModification, sizeModification));
+    public void addPart(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, boolean materialModification, boolean sizeModification){
+        this.parts.add(new Part(type, renderData, costCalculator, materialModification, sizeModification));
         this.partsConfig.add(GameObject.GameObjectConfig.DEFAULT);
     }
     public void scroll(int value){
@@ -200,11 +198,13 @@ public class ToolBox {
     public static class Part{
         public final String type;
         public final RenderData renderData;
+        public final GameObject.GameObjectCostCalculator costCalculator;
         public final boolean materialModification;
         public final boolean sizeModification;
-        public Part(String type, RenderData renderData, boolean materialModification, boolean sizeModification) {
+        public Part(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, boolean materialModification, boolean sizeModification) {
             this.type = type;
             this.renderData = renderData;
+            this.costCalculator = costCalculator;
             this.materialModification = materialModification;
             this.sizeModification = sizeModification;
         }

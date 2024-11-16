@@ -10,10 +10,12 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class PropellerGameObject extends GameObject {
@@ -35,6 +37,13 @@ public class PropellerGameObject extends GameObject {
         this.setBody("base", "propeller", base);
 
         this.speed = 0;
+    }
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.Metal, 30f);
+        items.put(EItemType.Transmission, 20f);
+        items.put(EItemType.Circuit, 10f);
+        return items;
     }
 
     @Override

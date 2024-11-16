@@ -11,6 +11,7 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
+import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
@@ -18,6 +19,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 public class PistonGameObject extends GameObject {
@@ -59,6 +61,13 @@ public class PistonGameObject extends GameObject {
         prismaticJoint.enableMotor = true;
         this.motor = (PrismaticJoint) this.server.physics.createJoint(prismaticJoint);
         this.setBody("end", "piston_end", endBody);
+    }
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.Metal, 50f);
+        items.put(EItemType.Transmission, 10f);
+        items.put(EItemType.Circuit, 10f);
+        return items;
     }
 
     @Override

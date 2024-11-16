@@ -6,14 +6,12 @@ import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RopeJoint;
 import com.badlogic.gdx.physics.box2d.joints.RopeJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
-import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
-import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.IPairObject;
-import com.github.industrialcraft.scrapbox.server.Server;
+import com.github.industrialcraft.scrapbox.server.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -37,7 +35,11 @@ public class BalloonGameObject extends GameObject implements IPairObject {
         base.createFixture(baseFixtureDef);
         this.setBody("base", "balloon", base);
     }
-
+    public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
+        EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
+        items.put(EItemType.StickyResin, 20f);
+        return items;
+    }
     @Override
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {
         super.getAnimationData(animationData);
