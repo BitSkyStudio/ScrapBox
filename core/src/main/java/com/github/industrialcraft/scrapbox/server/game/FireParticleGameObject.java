@@ -2,22 +2,17 @@ package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.UUID;
 
-public class ExplosionParticleGameObject extends GameObject {
-    private int ttl;
+public class FireParticleGameObject extends GameObject {
+    public int ttl;
     private boolean cancelled;
-    public float power;
-    public ExplosionParticleGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
+    public GameObject parent;
+    public FireParticleGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
         super(position, rotation, server, config);
 
         BodyDef bodyDef = new BodyDef();
@@ -31,18 +26,17 @@ public class ExplosionParticleGameObject extends GameObject {
         CircleShape shape = new CircleShape();
         shape.setRadius(0.5f);
         fixtureDef.shape = shape;
-        fixtureDef.density = 1F;
+        fixtureDef.density = 0.1F;
         base.createFixture(fixtureDef);
-        this.setBody("base", "explosion_particle", base, false);
+        this.setBody("base", "fire_particle", base, false);
         this.cancelled = false;
-        this.ttl = 4;
-        this.power = 1;
+        this.ttl = 20;
     }
 
     @Override
     public void tick() {
         super.tick();
-        if(ttl <= 0){
+        if(ttl <= 0 || cancelled){
             remove();
         }
         ttl--;
@@ -55,21 +49,17 @@ public class ExplosionParticleGameObject extends GameObject {
 
     @Override
     public boolean collidesWith(Fixture thisFixture, Fixture other) {
-        return !cancelled;
+        return !cancelled && other.getBody().getUserData() != parent && !(other.getBody().getUserData() instanceof FireParticleGameObject);
     }
     @Override
     public void onCollision(Fixture thisFixture, Fixture other) {
         if(cancelled)
             return;
         GameObject go = (GameObject) other.getBody().getUserData();
-        if(go != null && (go.isRemoved() || go instanceof ExplosionParticleGameObject))
+        if(go != null && (go.isRemoved() || go instanceof FireParticleGameObject))
             return;
         if(go != null) {
-            go.getBaseBody().applyLinearImpulse(this.getBaseBody().getLinearVelocity().cpy().scl(1.2f), this.getBaseBody().getWorldCenter(), true);
-            go.damage(30, EDamageType.Explosion);
-        }
-        if(other.getBody().getType() == BodyDef.BodyType.StaticBody){
-            server.terrain.place("", thisFixture.getBody().getWorldCenter(), power/Math.max(3-ttl, 1), false);
+            go.damage(5, EDamageType.Fire);
         }
         this.cancelled = true;
     }

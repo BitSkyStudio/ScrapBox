@@ -231,6 +231,8 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("position_sensor", new RenderData(new Texture("position_sensor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("math_unit", new RenderData(new Texture("math_unit.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("explosion_particle", new RenderData(new Texture("explosion_particle.png"), 0.5f, 0.5f));
+        renderDataRegistry.put("fire_particle", new RenderData(new Texture("fire_particle.png"), 0.5f, 0.5f));
+        renderDataRegistry.put("flamethrower", new RenderData(new Texture("flamethrower.png"), 1f, 1f));
         renderDataRegistry.put("pid_controller", new RenderData(new Texture("pid_controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("player", new RenderData(new Texture("player.png"), 0.5f, 0.5f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
@@ -284,6 +286,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("piston", renderDataRegistry.get("piston_box"), PistonGameObject::getItemCost, false, false);
         this.toolBox.addPart("spring", renderDataRegistry.get("spring"), SpringGameObject::getItemCost, false, false);
         this.toolBox.addPart("jet_engine", renderDataRegistry.get("jet_engine"), JetEngineGameObject::getItemCost, false, false);
+        this.toolBox.addPart("flamethrower", renderDataRegistry.get("flamethrower"), FlamethrowerGameObject::getItemCost, false, false);
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

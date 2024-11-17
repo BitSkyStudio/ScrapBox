@@ -169,6 +169,8 @@ public class Server {
         GAME_OBJECT_CLASSES.put("piston", PistonGameObject.class);
         GAME_OBJECT_CLASSES.put("spring", SpringGameObject.class);
         GAME_OBJECT_CLASSES.put("jet_engine", JetEngineGameObject.class);
+        GAME_OBJECT_CLASSES.put("fire_particle", FireParticleGameObject.class);
+        GAME_OBJECT_CLASSES.put("flamethrower", FlamethrowerGameObject.class);
 
         for(Map.Entry<String, Class> entry : GAME_OBJECT_CLASSES.entrySet()){
             GAME_OBJECT_CLASSES_TYPES.put(entry.getValue(), entry.getKey());

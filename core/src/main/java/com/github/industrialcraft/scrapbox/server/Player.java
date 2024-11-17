@@ -338,7 +338,8 @@ public class Player extends GameObject{
             if(gameObject.vehicle.getMode() == EObjectInteractionMode.Ghost){
                 gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
             }
-            server.physics.destroyJoint(pinching.mouseJoint);
+            if(!gameObject.isRemoved())
+                server.physics.destroyJoint(pinching.mouseJoint);
             pinching = null;
             this.send(new ShowActivePossibleWelds(new ArrayList<>()));
         }
