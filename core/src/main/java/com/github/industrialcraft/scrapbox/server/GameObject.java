@@ -60,30 +60,24 @@ public abstract class GameObject {
         PlaySoundMessage message = new PlaySoundMessage(id, sound, getId(), new Vector2(), false);
         server.players.forEach(player -> player.send(message));
     }
-    public Joint getGearJoint(){
-        return null;
-    }
-    public String getGearJointBody(){
-        return null;
-    }
     public void connectGearJoint(GameObject other, int thisRatio, int otherRatio){
         if(this == other || this.vehicle != other.vehicle)
             return;
-        Joint thisJoint = getGearJoint();
-        Joint otherJoint = other.getGearJoint();
-        if(thisJoint == null || otherJoint == null)
-            return;
-        if(gearConnections.containsKey(other.uuid))
-            disconnectGearJoint(other);
-        GearJointDef gearJointDef = new GearJointDef();
-        gearJointDef.bodyA = getBody(getGearJointBody());
-        gearJointDef.bodyB = other.getBody(other.getGearJointBody());
-        gearJointDef.joint1 = thisJoint;
-        gearJointDef.joint2 = otherJoint;
-        gearJointDef.ratio = ((float)thisRatio)/((float)otherRatio);
-        GearJoint gearJoint = (GearJoint) server.physics.createJoint(gearJointDef);
-        this.gearConnections.put(other.uuid, new GearConnectionData(other, thisRatio, otherRatio, gearJoint));
-        other.gearConnections.put(this.uuid, new GearConnectionData(this, otherRatio, thisRatio, gearJoint));
+        if(this instanceof IGearJoinable && other instanceof IGearJoinable) {
+            Joint thisJoint = ((IGearJoinable) this).getGearJoint();
+            Joint otherJoint = ((IGearJoinable) other).getGearJoint();
+            if (gearConnections.containsKey(other.uuid))
+                disconnectGearJoint(other);
+            GearJointDef gearJointDef = new GearJointDef();
+            gearJointDef.bodyA = ((IGearJoinable) this).getGearJointBody();
+            gearJointDef.bodyB = ((IGearJoinable) other).getGearJointBody();
+            gearJointDef.joint1 = thisJoint;
+            gearJointDef.joint2 = otherJoint;
+            gearJointDef.ratio = ((float) thisRatio) / ((float) otherRatio);
+            GearJoint gearJoint = (GearJoint) server.physics.createJoint(gearJointDef);
+            this.gearConnections.put(other.uuid, new GearConnectionData(other, thisRatio, otherRatio, gearJoint));
+            other.gearConnections.put(this.uuid, new GearConnectionData(this, otherRatio, thisRatio, gearJoint));
+        }
     }
     public void disconnectGearJoint(GameObject other){
         GearConnectionData gearConnectionData = gearConnections.get(other.uuid);
@@ -278,7 +272,7 @@ public abstract class GameObject {
         this.bodies.put(name, body);
         body.setUserData(this);
         boolean base = name.equals("base");
-        int id = server.clientWorldManager.addBody(this, body, type, selectable, base && getGearJointBody() != null);
+        int id = server.clientWorldManager.addBody(this, body, type, selectable, base && this instanceof IGearJoinable);
         if(base){
             this.baseId = id;
         }

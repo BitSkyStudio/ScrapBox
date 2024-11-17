@@ -233,6 +233,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("explosion_particle", new RenderData(new Texture("explosion_particle.png"), 0.5f, 0.5f));
         renderDataRegistry.put("fire_particle", new RenderData(new Texture("fire_particle.png"), 0.5f, 0.5f));
         renderDataRegistry.put("flamethrower", new RenderData(new Texture("flamethrower.png"), 1f, 1f));
+        renderDataRegistry.put("motor", new RenderData(new Texture("motor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("pid_controller", new RenderData(new Texture("pid_controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("player", new RenderData(new Texture("player.png"), 0.5f, 0.5f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
@@ -266,6 +267,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("wheel", renderDataRegistry.get("wheel"), SimpleWheelGameObject::getItemCost, true, true);
         this.toolBox.addPart("sticky_wheel", renderDataRegistry.get("sticky_wheel"), StickyWheelGameObject::getItemCost, true, true);
         this.toolBox.addPart("cutting_wheel", renderDataRegistry.get("cutting_wheel"), CuttingWheelGameObject::getItemCost, true, true);
+        this.toolBox.addPart("motor", renderDataRegistry.get("motor"), MotorGameObject::getItemCost, false, false);
         this.toolBox.addPart("balloon", renderDataRegistry.get("balloon"), BalloonGameObject::getItemCost, false, false);
         this.toolBox.addPart("controller", renderDataRegistry.get("controller"), ControllerGameObject::getItemCost, false, false);
         this.toolBox.addPart("puncher", renderDataRegistry.get("puncher_box"), PunchBoxGameObject::getItemCost, false, false);
@@ -362,8 +364,10 @@ public class InGameScene implements IScene {
                         }
                     }
                     if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.G) && !Gdx.input.isKeyPressed(Input.Keys.B)){
+                        System.out.println("here");
                         MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
                         if(selection != null){
+                            System.out.println("here2");
                             gearJointSelection = selection.selectionId;
                         }
                     }

@@ -10,10 +10,7 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
-import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
-import com.github.industrialcraft.scrapbox.server.EItemType;
-import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.Server;
+import com.github.industrialcraft.scrapbox.server.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -22,7 +19,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 
-public class PistonGameObject extends GameObject {
+public class PistonGameObject extends GameObject implements IGearJoinable {
     private final PrismaticJoint motor;
     public PistonGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
         super(position, rotation, server, config);
@@ -71,8 +68,8 @@ public class PistonGameObject extends GameObject {
     }
 
     @Override
-    public String getGearJointBody() {
-        return "end";
+    public Body getGearJointBody() {
+        return getBody("end");
     }
 
     @Override

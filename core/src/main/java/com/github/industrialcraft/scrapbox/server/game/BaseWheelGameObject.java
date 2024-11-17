@@ -10,12 +10,13 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
+import com.github.industrialcraft.scrapbox.server.IGearJoinable;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class BaseWheelGameObject extends GameObject {
+public abstract class BaseWheelGameObject extends GameObject implements IGearJoinable {
     protected final RevoluteJoint motor;
     private final Body wheelBody;
     private final float adhesion;
@@ -74,8 +75,8 @@ public abstract class BaseWheelGameObject extends GameObject {
     }
 
     @Override
-    public String getGearJointBody() {
-        return "wheel";
+    public Body getGearJointBody() {
+        return getBody("wheel");
     }
 
     @Override
