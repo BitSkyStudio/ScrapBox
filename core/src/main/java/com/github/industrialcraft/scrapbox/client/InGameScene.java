@@ -364,10 +364,8 @@ public class InGameScene implements IScene {
                         }
                     }
                     if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.G) && !Gdx.input.isKeyPressed(Input.Keys.B)){
-                        System.out.println("here");
                         MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
                         if(selection != null){
-                            System.out.println("here2");
                             gearJointSelection = selection.selectionId;
                         }
                     }

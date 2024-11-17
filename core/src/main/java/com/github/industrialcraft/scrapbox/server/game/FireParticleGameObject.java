@@ -12,6 +12,7 @@ public class FireParticleGameObject extends GameObject {
     public int ttl;
     private boolean cancelled;
     public GameObject parent;
+    public float damage;
     public FireParticleGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
         super(position, rotation, server, config);
 
@@ -31,6 +32,7 @@ public class FireParticleGameObject extends GameObject {
         this.setBody("base", "fire_particle", base, false);
         this.cancelled = false;
         this.ttl = 20;
+        this.damage = 0;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class FireParticleGameObject extends GameObject {
         if(go != null && (go.isRemoved() || go instanceof FireParticleGameObject))
             return;
         if(go != null) {
-            go.damage(5, EDamageType.Fire);
+            go.damage(damage, EDamageType.Fire);
         }
         this.cancelled = true;
     }

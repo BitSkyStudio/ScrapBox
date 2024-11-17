@@ -52,11 +52,12 @@ public class FlamethrowerGameObject extends GameObject {
         super.tick();
         boolean newInput = getValueOnInput(0) != 0;
         if(newInput) {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 3; i++) {
                 FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getPosition(), 0, FireParticleGameObject::new, null, GameObjectConfig.DEFAULT);
                 fireParticle.parent = this;
-                fireParticle.ttl = (int) (10 + Math.random()*5);
-                float speed = 10f/10f;
+                fireParticle.ttl = (int) (8 + Math.random()*3);
+                fireParticle.damage = 1;
+                float speed = 15f/10f;
                 float angle = (float) (-getBaseBody().getAngle() + ((Math.random() * 2 - 1) * Math.PI / 12));
                 fireParticle.getBaseBody().applyLinearImpulse(new Vector2((float) (Math.sin(angle) * speed), (float) (Math.cos(angle) * speed)), getBaseBody().getPosition(), true);
             }
