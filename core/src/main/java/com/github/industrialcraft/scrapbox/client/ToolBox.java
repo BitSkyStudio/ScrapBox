@@ -127,7 +127,7 @@ public class ToolBox {
                     float lineOffset = 0;
                     for (Map.Entry<EItemType, Float> entry : cost.entrySet()) {
                         font.setColor(game.inventory.getOrDefault(entry.getKey(), 0f) < entry.getValue()?Color.RED:Color.GREEN);
-                        String text = entry.getKey().name + ":" + game.inventory.getOrDefault(entry.getKey(), 0f) + "/" + entry.getValue();
+                        String text = entry.getKey().name + " " + formatFloat(game.inventory.getOrDefault(entry.getKey(), 0f)) + "/" + formatFloat(entry.getValue());
                         GlyphLayout layout = font.getCache().addText(text, 0, 0);
                         font.draw(batch, text, Gdx.input.getX() - width*2, Gdx.graphics.getHeight() - (Gdx.input.getY() + lineOffset));
                         lineOffset += layout.height;
@@ -135,6 +135,12 @@ public class ToolBox {
                 }
             }
         }
+    }
+    private static String formatFloat(float number){
+        if(number == (long) number)
+            return String.valueOf((long)number);
+        else
+            return String.valueOf(number);
     }
     public boolean isTerrainSelectionOpen(){
         return tool == Tool.TerrainModify;
