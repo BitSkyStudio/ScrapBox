@@ -121,13 +121,13 @@ public class ToolBox {
             float y = ((Gdx.input.getY() - partScroll + toolHeight)) / width - 1;
             if(y >= 0 && y < this.parts.size()){
                 Part part = parts.get((int) y);
-                if(part != null) {
+                if(part != null && !game.infiniteItems) {
                     EnumMap<EItemType, Float> cost = part.costCalculator.getItemCost(partsConfig.get((int) y));
                     BitmapFont font = ScrapBox.getInstance().getSkin().getFont("default-font");
-                    font.setColor(Color.WHITE);
                     float lineOffset = 0;
                     for (Map.Entry<EItemType, Float> entry : cost.entrySet()) {
-                        String text = entry.getKey().name + ":" + (game.infiniteItems ? "INF" : game.inventory.getOrDefault(entry.getKey(), 0f)) + "/" + entry.getValue();
+                        font.setColor(game.inventory.getOrDefault(entry.getKey(), 0f) < entry.getValue()?Color.RED:Color.GREEN);
+                        String text = entry.getKey().name + ":" + game.inventory.getOrDefault(entry.getKey(), 0f) + "/" + entry.getValue();
                         GlyphLayout layout = font.getCache().addText(text, 0, 0);
                         font.draw(batch, text, Gdx.input.getX() - width*2, Gdx.graphics.getHeight() - (Gdx.input.getY() + lineOffset));
                         lineOffset += layout.height;
