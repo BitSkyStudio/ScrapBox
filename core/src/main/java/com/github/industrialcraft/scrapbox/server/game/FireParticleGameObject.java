@@ -6,6 +6,9 @@ import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class FireParticleGameObject extends GameObject {
@@ -33,6 +36,20 @@ public class FireParticleGameObject extends GameObject {
         this.cancelled = false;
         this.ttl = 20;
         this.damage = 0;
+    }
+
+    @Override
+    public void load(DataInputStream stream) throws IOException {
+        super.load(stream);
+        this.ttl = stream.readInt();
+        this.damage = stream.readFloat();
+    }
+
+    @Override
+    public void save(DataOutputStream stream) throws IOException {
+        super.save(stream);
+        stream.writeInt(ttl);
+        stream.writeFloat(damage);
     }
 
     @Override
