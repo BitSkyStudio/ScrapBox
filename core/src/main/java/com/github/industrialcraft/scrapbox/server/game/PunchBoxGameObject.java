@@ -74,7 +74,8 @@ public class PunchBoxGameObject extends GameObject {
     }
 
     @Override
-    public void onCollision(Fixture thisFixture, Fixture other) {
+    public void onCollision(Fixture thisFixture, Fixture other, WorldManifold worldManifold) {
+        super.onCollision(thisFixture, other, worldManifold);
         if(thisFixture.getUserData() instanceof String){
             if(motor.getJointSpeed() > 1){
                 if(other.getBody().getUserData() instanceof GameObject){

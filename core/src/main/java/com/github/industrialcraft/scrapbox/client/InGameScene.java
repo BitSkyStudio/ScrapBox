@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -88,6 +89,8 @@ public class InGameScene implements IScene {
         this.gearJointSelection = -1;
         this.dragAndDrop = new DragAndDrop();
         sounds = new HashMap<>();
+        sounds.put("wood_impact", Gdx.audio.newSound(Gdx.files.internal("wood_impact.wav")));
+        sounds.put("metal_impact", Gdx.audio.newSound(Gdx.files.internal("metal_impact.wav")));
         font = new BitmapFont();
         stage = new Stage();
         editors = new HashMap<>();
@@ -563,6 +566,7 @@ public class InGameScene implements IScene {
         } else {
             cameraController.tick();
         }
+        soundInstances.values().forEach(clientSoundInstance -> clientSoundInstance.tick(cameraController));
         soundInstances.values().removeIf(ClientSoundInstance::isStopped);
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
             if(escapeMenu == null) {

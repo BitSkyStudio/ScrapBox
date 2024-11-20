@@ -43,6 +43,8 @@ public class MessageRegistryCreator {
         messageRegistry.register(35, CreateGearConnection.createDescriptor());
         messageRegistry.register(36, DestroyGearConnection.createDescriptor());
         messageRegistry.register(37, UpdateInventory.createDescriptor());
+        messageRegistry.register(38, PlaySoundMessage.createDescriptor());
+        messageRegistry.register(39, StopSoundMessage.createDescriptor());
         return messageRegistry;
     }
 }

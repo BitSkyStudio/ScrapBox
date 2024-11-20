@@ -72,7 +72,8 @@ public class GrabberGameObject extends GameObject {
     }
 
     @Override
-    public void onCollision(Fixture thisFixture, Fixture other) {
+    public void onCollision(Fixture thisFixture, Fixture other, WorldManifold worldManifold) {
+        super.onCollision(thisFixture, other, worldManifold);
         if(thisFixture.isSensor()){
             if(other.getBody().getUserData() != null) {
                 toConnect.add(other.getBody());

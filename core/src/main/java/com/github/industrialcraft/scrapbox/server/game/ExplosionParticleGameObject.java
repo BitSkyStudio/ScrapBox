@@ -2,16 +2,11 @@ package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class ExplosionParticleGameObject extends GameObject {
     private int ttl;
@@ -58,7 +53,7 @@ public class ExplosionParticleGameObject extends GameObject {
         return !cancelled;
     }
     @Override
-    public void onCollision(Fixture thisFixture, Fixture other) {
+    public void onCollision(Fixture thisFixture, Fixture other, WorldManifold manifold) {
         if(cancelled)
             return;
         GameObject go = (GameObject) other.getBody().getUserData();

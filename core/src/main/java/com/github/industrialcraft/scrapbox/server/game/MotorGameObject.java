@@ -47,9 +47,9 @@ public class MotorGameObject extends GameObject implements IGearJoinable {
 
     @Override
     public void destroy() {
-        super.destroy();
         server.physics.destroyJoint(motorJoint);
         server.physics.destroyBody(rotatingBody);
+        super.destroy();
     }
 
     @Override

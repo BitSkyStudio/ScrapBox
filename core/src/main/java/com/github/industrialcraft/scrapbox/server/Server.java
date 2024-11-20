@@ -107,10 +107,10 @@ public class Server {
                 Object userDataA = bodyA.getUserData();
                 Object userDataB = bodyB.getUserData();
                 if(userDataA instanceof GameObject){
-                    ((GameObject) userDataA).onCollision(fixtureA, fixtureB);
+                    ((GameObject) userDataA).onCollision(fixtureA, fixtureB, contact.getWorldManifold());
                 }
                 if(userDataB instanceof GameObject){
-                    ((GameObject) userDataB).onCollision(fixtureB, fixtureA);
+                    ((GameObject) userDataB).onCollision(fixtureB, fixtureA, contact.getWorldManifold());
                 }
             }
             @Override

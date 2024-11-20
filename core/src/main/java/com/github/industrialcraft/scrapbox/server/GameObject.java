@@ -7,15 +7,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.GearJoint;
 import com.badlogic.gdx.physics.box2d.joints.GearJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
-import com.github.industrialcraft.scrapbox.common.net.msg.OpenGameObjectEditUI;
 import com.github.industrialcraft.scrapbox.common.net.msg.PlaySoundMessage;
-import com.github.industrialcraft.scrapbox.common.net.msg.SendConnectionListData;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
-import com.github.industrialcraft.scrapbox.server.game.FrameGameObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -55,10 +51,20 @@ public abstract class GameObject {
         this.gearConnections = new HashMap<>();
         this.baseId = -1;
     }
-    public void playSound(String sound){
+    public SoundIdentifier playSound(String sound, boolean loop, float volume){
         int id = server.soundIdGenerator++;
-        PlaySoundMessage message = new PlaySoundMessage(id, sound, getId(), new Vector2(), false);
+        PlaySoundMessage message = new PlaySoundMessage(id, sound, getId(), new Vector2(), loop, volume);
         server.players.forEach(player -> player.send(message));
+        return new SoundIdentifier(id);
+    }
+    public void stopSound(SoundIdentifier sound){
+        server.players.forEach(player -> player.send(sound.id));
+    }
+    public static class SoundIdentifier{
+        public final int id;
+        public SoundIdentifier(int id) {
+            this.id = id;
+        }
     }
     public void connectGearJoint(GameObject other, int thisRatio, int otherRatio){
         if(this == other || this.vehicle != other.vehicle)
@@ -236,8 +242,22 @@ public abstract class GameObject {
     public boolean collidesWith(Fixture thisFixture, Fixture other){
         return true;
     }
-    public void onCollision(Fixture thisFixture, Fixture other){
-
+    public String getImpactSound(){
+        return config.material.collisionSound;
+    }
+    public void onCollision(Fixture thisFixture, Fixture other, WorldManifold worldManifold) {
+        String impactSound = getImpactSound();
+        if(impactSound == null)
+            return;
+        if(other.getBody().getUserData() instanceof GameObject && ((GameObject) other.getBody().getUserData()).vehicle == this.vehicle) {
+            return;
+        }
+        float dot = getBaseBody().getLinearVelocity().nor().dot(thisFixture.getBody().getPosition().cpy().sub(worldManifold.getPoints()[0].cpy()).scl(-1).nor());
+        float speed = getBaseBody().getLinearVelocity().len() * dot;
+        if(speed > 1) {
+            //System.out.println("dot: " + dot);
+            playSound(impactSound, false, Math.min(1, speed / 10) * 0.1f);
+        }
     }
     public boolean isSideUsed(String name){
         return this.connections.containsKey(name);

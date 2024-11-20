@@ -73,7 +73,7 @@ public class BulletGameObject extends GameObject {
     }
 
     @Override
-    public void onCollision(Fixture thisFixture, Fixture other) {
+    public void onCollision(Fixture thisFixture, Fixture other, WorldManifold manifold) {
         this.remove();
         Object userData = other.getBody().getUserData();
         if(userData instanceof GameObject){

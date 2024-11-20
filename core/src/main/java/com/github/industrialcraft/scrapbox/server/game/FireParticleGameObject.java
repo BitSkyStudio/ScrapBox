@@ -54,7 +54,7 @@ public class FireParticleGameObject extends GameObject {
         return !cancelled && other.getBody().getUserData() != parent && !(other.getBody().getUserData() instanceof FireParticleGameObject);
     }
     @Override
-    public void onCollision(Fixture thisFixture, Fixture other) {
+    public void onCollision(Fixture thisFixture, Fixture other, WorldManifold manifold) {
         if(cancelled)
             return;
         GameObject go = (GameObject) other.getBody().getUserData();
