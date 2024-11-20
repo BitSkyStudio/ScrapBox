@@ -121,16 +121,16 @@ public class ToolBox {
             float y = ((Gdx.input.getY() - partScroll + toolHeight)) / width - 1;
             if(y >= 0 && y < this.parts.size()){
                 Part part = parts.get((int) y);
-                if(part != null && !game.infiniteItems) {
+                if(part != null && (!game.infiniteItems || false)) {
                     EnumMap<EItemType, Float> cost = part.costCalculator.getItemCost(partsConfig.get((int) y));
                     BitmapFont font = ScrapBox.getInstance().getSkin().getFont("default-font");
                     float lineOffset = 0;
                     for (Map.Entry<EItemType, Float> entry : cost.entrySet()) {
                         font.setColor(game.inventory.getOrDefault(entry.getKey(), 0f) < entry.getValue()?Color.RED:Color.GREEN);
-                        String text = entry.getKey().name + " " + formatFloat(game.inventory.getOrDefault(entry.getKey(), 0f)) + "/" + formatFloat(entry.getValue());
-                        GlyphLayout layout = font.getCache().addText(text, 0, 0);
-                        font.draw(batch, text, Gdx.input.getX() - width*2, Gdx.graphics.getHeight() - (Gdx.input.getY() + lineOffset));
-                        lineOffset += layout.height;
+                        batch.draw(game.itemTextures.get(entry.getKey()), Gdx.input.getX() - width*2, Gdx.graphics.getHeight() - (Gdx.input.getY() + lineOffset) - 24, 32, 32);
+                        String text = formatFloat(game.inventory.getOrDefault(entry.getKey(), 0f)) + "/" + formatFloat(entry.getValue());
+                        font.draw(batch, text, Gdx.input.getX() - width*2 + 32, Gdx.graphics.getHeight() - (Gdx.input.getY() + lineOffset));
+                        lineOffset += 32;
                     }
                 }
             }

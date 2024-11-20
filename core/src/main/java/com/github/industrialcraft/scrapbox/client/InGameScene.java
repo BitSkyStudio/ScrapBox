@@ -76,6 +76,7 @@ public class InGameScene implements IScene {
     public HashMap<String, Sound> sounds;
     public HashMap<Integer, ClientSoundInstance> soundInstances;
     public EnumMap<EItemType,Float> inventory;
+    public EnumMap<EItemType,Texture> itemTextures;
     public boolean infiniteItems;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
@@ -84,6 +85,13 @@ public class InGameScene implements IScene {
     }
     @Override
     public void create() {
+        this.itemTextures = new EnumMap<>(EItemType.class);
+        this.itemTextures.put(EItemType.Wood, new Texture("item_wood.png"));
+        this.itemTextures.put(EItemType.Metal, new Texture("item_metal.png"));
+        this.itemTextures.put(EItemType.Circuit, new Texture("item_circuit.png"));
+        this.itemTextures.put(EItemType.Transmission, new Texture("item_transmission.png"));
+        this.itemTextures.put(EItemType.StickyResin, new Texture("item_sticky_resin.png"));
+        this.itemTextures.put(EItemType.Explosive, new Texture("item_explosive.png"));
         this.inventory = new EnumMap<>(EItemType.class);
         this.infiniteItems = false;
         this.gearJointSelection = -1;
