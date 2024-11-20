@@ -10,8 +10,6 @@ import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
-import com.github.industrialcraft.scrapbox.server.game.RopeGameObject;
-import com.github.industrialcraft.scrapbox.server.game.StickGameObject;
 
 import java.util.*;
 
@@ -96,7 +94,7 @@ public class Player extends GameObject{
             remove();
         }
         if(this.pinching != null){
-            if(this.pinching.mouseJoint.getBodyB() == null){
+            if(this.pinching.gameObject == null || this.pinching.gameObject.isRemoved()){
                 this.pinching = null;
             }
         }
@@ -114,9 +112,6 @@ public class Player extends GameObject{
                 }
             }
             if(message instanceof GameObjectPinch){
-                if(pinching != null){
-                    server.physics.destroyJoint(pinching.mouseJoint);
-                }
                 GameObjectPinch gameObjectPinch = (GameObjectPinch) message;
                 GameObject gameObject = server.gameObjects.get(gameObjectPinch.id);
                 if(gameObject == null){
@@ -127,14 +122,7 @@ public class Player extends GameObject{
                 if(gameObject.vehicle.getMode() == EObjectInteractionMode.Static){
                     gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
                 }
-                MouseJointDef mouseJointDef = new MouseJointDef();
-                mouseJointDef.bodyA = server.terrain.body;
-                mouseJointDef.bodyB = gameObject.getBaseBody();
-                mouseJointDef.target.set(gameObject.vehicle.getCenterOfMass());
-                mouseJointDef.maxForce = 10000;
-                mouseJointDef.collideConnected = true;
-                Vector2 offset = gameObject.vehicle.getCenterOfMass().sub(gameObject.getBaseBody().getWorldCenter().cpy().add(gameObjectPinch.offset));
-                pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), offset);
+                pinching = new PinchingData(gameObjectPinch.offset, gameObject);
             }
             if(message instanceof GameObjectRelease){
                 if(!isInBuildableArea() && pinching != null && getPinching().getLocalMode() == EObjectInteractionMode.Ghost){
@@ -145,22 +133,6 @@ public class Player extends GameObject{
             if(message instanceof MouseMoved){
                 MouseMoved mouseMoved = (MouseMoved) message;
                 getBaseBody().setTransform(mouseMoved.position.cpy(), 0);
-                if(pinching != null) {
-                    if(isInBuildableArea()) {
-                        pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
-                        GameObject gameObject = getPinching();
-                        if (gameObject != null) {
-                            if (gameObject.isSideUsed("center") && gameObject.getConnectionEdges().size() == 1) {
-                                gameObject = gameObject.connections.get("center").other;
-                            }
-                            ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
-                            for (GameObject.WeldCandidate weld : gameObject.getPossibleWelds()) {
-                                welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition().cpy(), weld.second.getPosition().cpy()));
-                            }
-                            this.send(new ShowActivePossibleWelds(welds));
-                        }
-                    }
-                }
             }
             if(message instanceof TrashObject){
                 TrashObject trashObject = (TrashObject) message;
@@ -312,6 +284,30 @@ public class Player extends GameObject{
                 }
             }
         }
+
+        if(pinching != null) {
+            if(isInBuildableArea()) {
+                GameObject gameObject = getPinching();
+                Vector2 shift = (getBaseBody().getPosition().cpy().sub(pinching.offset)).sub(gameObject.getBaseBody().getPosition());
+                for(GameObject go : gameObject.vehicle.gameObjects){
+                    Body body = go.getBaseBody();
+                    body.setTransform(body.getPosition().add(shift), body.getAngle());
+                    body.setAwake(true);
+                    body.setLinearVelocity(Vector2.Zero);
+                    body.setAngularVelocity(0);
+                }
+
+
+                if (gameObject.isSideUsed("center") && gameObject.getConnectionEdges().size() == 1) {
+                    gameObject = gameObject.connections.get("center").other;
+                }
+                ArrayList<ShowActivePossibleWelds.PossibleWeld> welds = new ArrayList<>();
+                for (GameObject.WeldCandidate weld : gameObject.getPossibleWelds()) {
+                    welds.add(new ShowActivePossibleWelds.PossibleWeld(weld.first.getPosition().cpy(), weld.second.getPosition().cpy()));
+                }
+                this.send(new ShowActivePossibleWelds(welds));
+            }
+        }
     }
     public void trashVehicle(GameObject gameObject){
         for(GameObject go : gameObject.vehicle.gameObjects.toArray(GameObject[]::new)){
@@ -338,8 +334,7 @@ public class Player extends GameObject{
             if(gameObject.vehicle.getMode() == EObjectInteractionMode.Ghost){
                 gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
             }
-            if(!gameObject.isRemoved())
-                server.physics.destroyJoint(pinching.mouseJoint);
+            gameObject.getBaseBody().setAwake(true);
             pinching = null;
             this.send(new ShowActivePossibleWelds(new ArrayList<>()));
         }
@@ -348,11 +343,7 @@ public class Player extends GameObject{
         if(pinching == null){
             return null;
         }
-        Body body = pinching.mouseJoint.getBodyB();
-        if(body == null){
-            return null;
-        }
-        return (GameObject) body.getUserData();
+        return pinching.gameObject;
     }
     public void send(Object message){
         this.connection.send(message);
@@ -375,11 +366,11 @@ public class Player extends GameObject{
     }
 
     public static class PinchingData{
-        public final MouseJoint mouseJoint;
         public final Vector2 offset;
-        public PinchingData(MouseJoint mouseJoint, Vector2 offset) {
-            this.mouseJoint = mouseJoint;
+        public final GameObject gameObject;
+        public PinchingData(Vector2 offset, GameObject gameObject) {
             this.offset = offset;
+            this.gameObject = gameObject;
         }
     }
 }
