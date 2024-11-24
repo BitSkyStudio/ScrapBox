@@ -21,9 +21,7 @@ public class Player extends GameObject{
     private PinchingData pinching;
     private boolean isDisconnected;
     public final UUID uuid;
-    public ArrayList<Rectangle> buildableAreas;
-    public EnumMap<EItemType, Float> inventory;
-    public boolean infiniteItems;
+    public PlayerTeam team;
     public Player(Server server, IConnection connection, GameObjectConfig config) {
         super(Vector2.Zero.cpy(), 0, server, config);
         this.server = server;
@@ -31,7 +29,6 @@ public class Player extends GameObject{
         this.pinching = null;
         this.isDisconnected = false;
         this.uuid = UUID.randomUUID();
-        this.buildableAreas = new ArrayList<>();
 
         connection.send(new GamePausedState(server.paused));
 
@@ -39,51 +36,20 @@ public class Player extends GameObject{
         bodyDef.type = BodyDef.BodyType.KinematicBody;
         setBody("base", "player", server.physics.createBody(bodyDef));
 
-        //setBuildableAreas(new ArrayList<>(Collections.singleton(new Rectangle(0, 0, 5, 5))));
-
-        this.inventory = new EnumMap<>(EItemType.class);
-        this.infiniteItems = true;
-        syncInventory();
+        this.team = null;
     }
-    public void setInfiniteItems(boolean infiniteItems){
-        this.infiniteItems = infiniteItems;
-        syncInventory();
-    }
-    public float getItemCount(EItemType itemType){
-        if(infiniteItems)
-            return Float.POSITIVE_INFINITY;
-        return this.inventory.getOrDefault(itemType, 0f);
-    }
-    public void removeItems(EItemType itemType, float count){
-        if(infiniteItems)
-            return;
-        this.inventory.put(itemType, this.inventory.get(itemType)-count);
-        syncInventory();
-    }
-    public void addItems(EItemType itemType, float count){
-        if(infiniteItems)
-            return;
-        this.inventory.put(itemType, this.inventory.get(itemType)+count);
-        syncInventory();
-    }
-    private void syncInventory(){
-        connection.send(new UpdateInventory(this.inventory.clone(), infiniteItems));
-    }
-    public void setBuildableAreas(ArrayList<Rectangle> buildableAreas){
-        this.buildableAreas = buildableAreas;
-        connection.send(new UpdateBuildableAreas(buildableAreas));
-    }
-    public boolean isInBuildableArea(float x, float y){
-        if(buildableAreas.isEmpty())
-            return true;
-        for(Rectangle area : buildableAreas){
-            if(area.contains(x, y))
-                return true;
+    public void setTeam(PlayerTeam team){
+        if(this.team != null){
+            this.team.players.remove(this);
         }
-        return false;
+        this.team = team;
+        team.players.add(this);
+        team.syncPlayer(this);
     }
     public boolean isInBuildableArea(){
-        return isInBuildableArea(getBaseBody().getPosition().x, getBaseBody().getPosition().y);
+        if(this.team == null)
+            return false;
+        return team.isInBuildableArea(getBaseBody().getPosition().x, getBaseBody().getPosition().y);
     }
     @Override
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {
@@ -114,6 +80,8 @@ public class Player extends GameObject{
                 }
             }
             if(message instanceof GameObjectPinch){
+                if(team == null)
+                    continue;
                 if(pinching != null){
                     server.physics.destroyJoint(pinching.mouseJoint);
                 }
@@ -163,20 +131,24 @@ public class Player extends GameObject{
                 }
             }
             if(message instanceof TrashObject){
+                if(team == null)
+                    continue;
                 TrashObject trashObject = (TrashObject) message;
                 trashVehicle(server.gameObjects.get(trashObject.id));
             }
             if(message instanceof TakeObject){
+                if(team == null)
+                    continue;
                 TakeObject takeObject = (TakeObject) message;
                 EnumMap<EItemType, Float> cost = server.getGameObjectCost(takeObject.type, takeObject.config);
                 boolean failed = false;
                 for(Map.Entry<EItemType, Float> entry : cost.entrySet()){
-                    if(getItemCount(entry.getKey()) < entry.getValue())
+                    if(team.getItemCount(entry.getKey()) < entry.getValue())
                         failed = true;
                 }
                 if(!failed) {
                     for(Map.Entry<EItemType, Float> entry : cost.entrySet()){
-                        removeItems(entry.getKey(), entry.getValue());
+                        team.removeItems(entry.getKey(), entry.getValue());
                     }
                     GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null, takeObject.config);
                     gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
@@ -314,10 +286,12 @@ public class Player extends GameObject{
         }
     }
     public void trashVehicle(GameObject gameObject){
+        if(team == null)
+            return;
         for(GameObject go : gameObject.vehicle.gameObjects.toArray(GameObject[]::new)){
             go.remove();
             for(Map.Entry<EItemType, Float> entry : server.getGameObjectCost(server.getGameObjectId(go), go.config).entrySet()){
-                addItems(entry.getKey(), entry.getValue());
+                team.addItems(entry.getKey(), entry.getValue());
             }
         }
     }

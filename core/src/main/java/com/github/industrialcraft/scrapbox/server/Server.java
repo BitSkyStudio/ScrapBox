@@ -216,6 +216,7 @@ public class Server {
         this.clientWorldManager.addPlayer(player);
         player.send(this.terrain.createMessage());
         player.sendAll(messages);
+        player.setTeam(new PlayerTeam());
     }
     private void tick(float deltaTime) {
         for(GameObject gameObject : this.newGameObjects){
