@@ -147,7 +147,7 @@ public class Server {
         GAME_OBJECT_CLASSES.put("wheel", SimpleWheelGameObject.class);
         GAME_OBJECT_CLASSES.put("sticky_wheel", StickyWheelGameObject.class);
         GAME_OBJECT_CLASSES.put("cutting_wheel", CuttingWheelGameObject.class);
-        GAME_OBJECT_CLASSES.put("baloon", BalloonGameObject.class);
+        GAME_OBJECT_CLASSES.put("balloon", BalloonGameObject.class);
         GAME_OBJECT_CLASSES.put("controller", ControllerGameObject.class);
         GAME_OBJECT_CLASSES.put("puncher", PunchBoxGameObject.class);
         GAME_OBJECT_CLASSES.put("propeller", PropellerGameObject.class);
