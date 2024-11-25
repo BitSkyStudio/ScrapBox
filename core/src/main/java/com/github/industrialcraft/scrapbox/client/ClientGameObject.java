@@ -61,7 +61,10 @@ public class ClientGameObject {
         this.health = message.health;
     }
     private float getProgress(){
-        return ((float)(System.currentTimeMillis() - this.lastUpdate))/this.lastUpdateLength;
+        float progress = ((float)(System.currentTimeMillis() - this.lastUpdate))/this.lastUpdateLength;
+        if(Float.isNaN(progress))
+            progress = 10;
+        return Math.min(progress, 1.f);
     }
     public Vector2 getRealPosition(){
         return this.lastPosition.cpy().lerp(this.position, getProgress());
