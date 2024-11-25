@@ -39,7 +39,7 @@ public class Server {
     public final World physics;
     public final Terrain terrain;
     public final ClientWorldManager clientWorldManager;
-    public final NetXServer networkServer;
+    public NetXServer networkServer;
     private boolean stopped;
     public boolean paused;
     public boolean singleStep;
@@ -50,7 +50,7 @@ public class Server {
     public final ArrayList<Vector3> scheduledExplosions;
     public String password;
     public int soundIdGenerator;
-    public Server(int port, File saveFile) {
+    public Server(File saveFile) {
         this.soundIdGenerator = 0;
         this.password = null;
         this.saveFile = saveFile;
@@ -64,8 +64,7 @@ public class Server {
         this.gameObjects = new HashMap<>();
         this.newGameObjects = new ArrayList<>();
         this.clientWorldManager = new ClientWorldManager(this);
-        this.networkServer = new NetXServer(port, MessageRegistryCreator.create());
-        this.networkServer.start();
+        this.networkServer = null;
         this.stopped = false;
         this.tickCount = 0;
         this.runningTickCount = 0;
@@ -120,6 +119,12 @@ public class Server {
             @Override
             public void postSolve(Contact contact, ContactImpulse impulse) {}
         });
+    }
+    public void startNetwork(int port){
+        if(this.networkServer != null)
+            return;
+        this.networkServer = new NetXServer(port, MessageRegistryCreator.create());
+        this.networkServer.start();
     }
 
     public int getTicks() {
@@ -261,55 +266,59 @@ public class Server {
         this.scheduledExplosions.clear();
         this.clientWorldManager.updatePositions();
         this.players.removeIf(Player::isDisconnected);
-        while(this.networkServer.visitMessage(new ServerMessage.Visitor() {
-            @Override
-            public void connect(SocketUser user) {
-                if(password == null) {
-                    user.send(new SetGameState(SetGameState.GameState.PLAY));
-                    Player player = new Player(Server.this, new ServerNetXConnection(user), GameObject.GameObjectConfig.DEFAULT);
-                    addPlayer(player);
-                    user.setUserData(player);
-                } else {
-                    user.send(new SetGameState(SetGameState.GameState.REQUEST_PASSWORD));
+        if(this.networkServer != null) {
+            while (this.networkServer.visitMessage(new ServerMessage.Visitor() {
+                @Override
+                public void connect(SocketUser user) {
+                    if (password == null) {
+                        user.send(new SetGameState(SetGameState.GameState.PLAY));
+                        Player player = new Player(Server.this, new ServerNetXConnection(user), GameObject.GameObjectConfig.DEFAULT);
+                        addPlayer(player);
+                        user.setUserData(player);
+                    } else {
+                        user.send(new SetGameState(SetGameState.GameState.REQUEST_PASSWORD));
+                    }
                 }
-            }
-            @Override
-            public void disconnect(SocketUser user) {
-                if(user.getUserData() != null)
-                    ((Player)user.getUserData()).disconnect();
-            }
-            @Override
-            public void message(SocketUser user, Object msg) {
-                if(user.getUserData() == null){
-                    if(msg instanceof SubmitPassword){
-                        SubmitPassword submitPasswordMessage = (SubmitPassword) msg;
-                        if(password == null || submitPasswordMessage.password.equals(password)){
-                            user.send(new SetGameState(SetGameState.GameState.PLAY));
-                            Player player = new Player(Server.this, new ServerNetXConnection(user), GameObject.GameObjectConfig.DEFAULT);
-                            addPlayer(player);
-                            user.setUserData(player);
+
+                @Override
+                public void disconnect(SocketUser user) {
+                    if (user.getUserData() != null)
+                        ((Player) user.getUserData()).disconnect();
+                }
+
+                @Override
+                public void message(SocketUser user, Object msg) {
+                    if (user.getUserData() == null) {
+                        if (msg instanceof SubmitPassword) {
+                            SubmitPassword submitPasswordMessage = (SubmitPassword) msg;
+                            if (password == null || submitPasswordMessage.password.equals(password)) {
+                                user.send(new SetGameState(SetGameState.GameState.PLAY));
+                                Player player = new Player(Server.this, new ServerNetXConnection(user), GameObject.GameObjectConfig.DEFAULT);
+                                addPlayer(player);
+                                user.setUserData(player);
+                            } else {
+                                user.send(new DisconnectMessage("wrong password"));
+                                user.disconnect();
+                            }
                         } else {
-                            user.send(new DisconnectMessage("wrong password"));
+                            System.out.println("invalid handshake");
                             user.disconnect();
                         }
                     } else {
-                        System.out.println("invalid handshake");
-                        user.disconnect();
+                        ((ServerNetXConnection) ((Player) user.getUserData()).connection).queue.add(msg);
                     }
-                } else {
-                    ((ServerNetXConnection) ((Player) user.getUserData()).connection).queue.add(msg);
                 }
-            }
-        }));
-        if(tickCount%20==1){
-            InetSocketAddress address = networkServer.getAddress();
-            if(address != null) {
-                JsonValue json = new JsonValue(JsonValue.ValueType.object);
-                json.addChild("id", new JsonValue(uuid.toString()));
-                json.addChild("port", new JsonValue(address.getPort()));
-                try {
-                    LANBroadcaster.broadcast(json.toJson(JsonWriter.OutputType.json), InetAddress.getByName("230.1.2.3"), 4321);
-                } catch (Exception ignored){}
+            }));
+            if(tickCount%20==1){
+                InetSocketAddress address = networkServer.getAddress();
+                if(address != null) {
+                    JsonValue json = new JsonValue(JsonValue.ValueType.object);
+                    json.addChild("id", new JsonValue(uuid.toString()));
+                    json.addChild("port", new JsonValue(address.getPort()));
+                    try {
+                        LANBroadcaster.broadcast(json.toJson(JsonWriter.OutputType.json), InetAddress.getByName("230.1.2.3"), 4321);
+                    } catch (Exception ignored){}
+                }
             }
         }
         int autoSaveAfterTicks = 20*60;
@@ -477,7 +486,8 @@ public class Server {
                     throw new RuntimeException(e);
                 }
             }
-            this.networkServer.close();
+            if(this.networkServer != null)
+                this.networkServer.close();
             this.physics.dispose();
             try {
                 if(saveFile != null) {

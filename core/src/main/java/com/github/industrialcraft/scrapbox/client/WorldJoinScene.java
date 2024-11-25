@@ -52,7 +52,7 @@ public class WorldJoinScene extends StageBasedScreen {
                 if(list.getSelected() == null)
                     return;
                 File saveFile = new File("./saves/" + list.getSelected() + ".sbs");
-                Server server = new Server(0, saveFile);
+                Server server = new Server(saveFile);
                 try{
                     FileInputStream fileInputStream = new FileInputStream(saveFile);
                     server.loadSaveFile(new SaveFile(new DataInputStream(fileInputStream)));
@@ -134,7 +134,7 @@ public class WorldJoinScene extends StageBasedScreen {
                     public void result(Object obj) {
                         if(obj instanceof String && !input.getText().isEmpty()){
                             File saveFile = new File("./saves/" + input.getText() + ".sbs");
-                            Server server = new Server(0, saveFile);
+                            Server server = new Server(saveFile);
                             IConnection connection = server.joinLocalPlayer();
                             server.start();
                             ScrapBox.getInstance().setScene(new InGameScene(connection, server, null));

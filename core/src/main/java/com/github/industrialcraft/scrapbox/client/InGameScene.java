@@ -621,6 +621,37 @@ public class InGameScene implements IScene {
                 });
                 table.add(controlsHelp).row();
                 if(server != null) {
+                    TextButton openToLan = new TextButton("Open to LAN", ScrapBox.getInstance().getSkin());
+                    openToLan.setDisabled(server.networkServer!=null);
+                    if(server.networkServer == null) {
+                        openToLan.addListener(new ClickListener() {
+                            @Override
+                            public void clicked(InputEvent event, float x, float y) {
+                                escapeMenu.remove();
+                                escapeMenu = null;
+                                TextField input = new TextField("0", ScrapBox.getInstance().getSkin());
+                                input.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+                                Dialog helpWindow = new Dialog("Open to LAN", ScrapBox.getInstance().getSkin(), "dialog") {
+                                    @Override
+                                    protected void result(Object object) {
+                                        if (object instanceof String) {
+                                            try {
+                                                short port = Short.parseShort(input.getText());
+                                                server.startNetwork(port);
+                                            } catch (NumberFormatException e) {
+                                            }
+                                        }
+                                    }
+                                };
+                                helpWindow.getContentTable().add(new Label("port:", ScrapBox.getInstance().getSkin()));
+                                helpWindow.getContentTable().add(input);
+                                helpWindow.button("Cancel");
+                                helpWindow.button("Ok", "");
+                                helpWindow.show(stage);
+                            }
+                        });
+                    }
+                    table.add(openToLan).row();
                     TextButton setPasswordButton = new TextButton("Set Server Password", ScrapBox.getInstance().getSkin());
                     setPasswordButton.addListener(new ClickListener() {
                         @Override

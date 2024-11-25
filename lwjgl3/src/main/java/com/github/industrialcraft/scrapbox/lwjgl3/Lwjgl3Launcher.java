@@ -20,7 +20,9 @@ public class Lwjgl3Launcher {
             if(args.length > 2){
                 saveFile = new File(args[2]);
             }
-            Server server = new Server(Integer.parseInt(args[1]), saveFile);
+            Server server = new Server(saveFile);
+            int port = Integer.parseInt(args[1]);
+            server.startNetwork(port);
             if(args.length > 3){
                 server.password = args[3];
             }
