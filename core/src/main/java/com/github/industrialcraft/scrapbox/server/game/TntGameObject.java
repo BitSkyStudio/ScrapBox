@@ -9,6 +9,7 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
+import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
@@ -51,6 +52,13 @@ public class TntGameObject extends GameObject {
     }
 
     @Override
+    public void damage(float amount, EDamageType damageType) {
+        if(damageType != EDamageType.Wrench && amount > 1)
+            explode();
+        super.damage(amount, damageType);
+    }
+
+    @Override
     public void tick() {
         super.tick();
         if(getValueOnInput(0) != 0){
@@ -69,7 +77,10 @@ public class TntGameObject extends GameObject {
     }
 
     public void explode(){
+        if(isRemoved())
+            return;
         remove();
         server.createExplosion(getBaseBody().getPosition(), 3);
+        playSound("explosion", false, 0.7f);
     }
 }

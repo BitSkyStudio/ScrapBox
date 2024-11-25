@@ -15,6 +15,7 @@ import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
 import com.github.industrialcraft.scrapbox.common.net.msg.DisconnectMessage;
+import com.github.industrialcraft.scrapbox.common.net.msg.PlaySoundMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameState;
 import com.github.industrialcraft.scrapbox.common.net.msg.SubmitPassword;
 import com.github.industrialcraft.scrapbox.server.game.*;

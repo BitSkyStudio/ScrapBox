@@ -99,6 +99,7 @@ public class InGameScene implements IScene {
         sounds = new HashMap<>();
         sounds.put("wood_impact", Gdx.audio.newSound(Gdx.files.internal("wood_impact.wav")));
         sounds.put("metal_impact", Gdx.audio.newSound(Gdx.files.internal("metal_impact.wav")));
+        sounds.put("explosion", Gdx.audio.newSound(Gdx.files.internal("explosion_medium.wav")));
         font = new BitmapFont();
         stage = new Stage();
         editors = new HashMap<>();
