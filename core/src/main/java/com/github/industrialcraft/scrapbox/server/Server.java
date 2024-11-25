@@ -161,7 +161,7 @@ public class Server {
         GAME_OBJECT_CLASSES.put("math_unit", MathUnitGameObject.class);
         GAME_OBJECT_CLASSES.put("explosion_particle", ExplosionParticleGameObject.class);
         GAME_OBJECT_CLASSES.put("pid_controller", PIDControllerGameObject.class);
-        GAME_OBJECT_CLASSES.put("weigth", WeightGameObject.class);
+        GAME_OBJECT_CLASSES.put("weight", WeightGameObject.class);
         GAME_OBJECT_CLASSES.put("rope", RopeGameObject.class);
         GAME_OBJECT_CLASSES.put("grabber", GrabberGameObject.class);
         GAME_OBJECT_CLASSES.put("timer", TimerGameObject.class);
