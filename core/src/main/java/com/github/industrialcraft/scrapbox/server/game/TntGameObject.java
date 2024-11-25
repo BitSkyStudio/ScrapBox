@@ -53,7 +53,7 @@ public class TntGameObject extends GameObject {
 
     @Override
     public void damage(float amount, EDamageType damageType) {
-        if(damageType != EDamageType.Wrench && amount > 1)
+        if(damageType != EDamageType.Wrench)
             explode();
         super.damage(amount, damageType);
     }
