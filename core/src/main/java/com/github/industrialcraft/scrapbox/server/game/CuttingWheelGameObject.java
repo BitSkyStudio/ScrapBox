@@ -21,7 +21,7 @@ public class CuttingWheelGameObject extends BaseWheelGameObject{
     public void tick() {
         super.tick();
         if(motor.isMotorEnabled())
-            server.terrain.place("", getBody("wheel").getWorldCenter(), 1.05f, false);
+            server.terrain.place("", getBody("wheel").getWorldCenter(), config.size + .03f, false);
     }
 
     @Override
