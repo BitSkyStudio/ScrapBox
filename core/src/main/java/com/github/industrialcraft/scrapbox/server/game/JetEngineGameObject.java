@@ -51,7 +51,6 @@ public class JetEngineGameObject extends GameObject {
         super.getAnimationData(animationData);
         animationData.addNumber("speed", this.speed);
     }
-
     @Override
     public void tick() {
         super.tick();
@@ -60,12 +59,12 @@ public class JetEngineGameObject extends GameObject {
         getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(6000*speed), true);
         if(speed != 0) {
             for (int i = 0; i < 3; i++) {
-                FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getPosition(), 0, FireParticleGameObject::new, null, GameObjectConfig.DEFAULT);
+                FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getWorldPoint(new Vector2(0, -1)).cpy(), 0, FireParticleGameObject::new, null, GameObjectConfig.DEFAULT);
                 fireParticle.parent = this;
                 fireParticle.ttl = (int) (8 + Math.random() * 3);
                 float speed = 15f / 10f;
                 float angle2 = (float) (-getBaseBody().getAngle() + Math.PI + ((Math.random() * 2 - 1) * Math.PI / 12));
-                fireParticle.getBaseBody().applyLinearImpulse(new Vector2((float) (Math.sin(angle2) * speed), (float) (Math.cos(angle2) * speed)), getBaseBody().getPosition(), true);
+                fireParticle.getBaseBody().applyLinearImpulse(new Vector2((float) (Math.sin(angle2) * speed), (float) (Math.cos(angle2) * speed)), fireParticle.getBaseBody().getPosition(), true);
             }
         }
     }
