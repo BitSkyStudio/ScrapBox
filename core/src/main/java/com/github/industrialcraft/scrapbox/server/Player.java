@@ -105,7 +105,7 @@ public class Player extends GameObject{
                 pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), offset);
             }
             if(message instanceof GameObjectRelease){
-                if(!isInBuildableArea() && pinching != null && getPinching().getLocalMode() == EObjectInteractionMode.Ghost){
+                if(!isInBuildableArea() && getPinching() != null && getPinching().getLocalMode() == EObjectInteractionMode.Ghost){
                     trashVehicle(getPinching());
                 }
                 clearPinched();
@@ -134,7 +134,9 @@ public class Player extends GameObject{
                 if(team == null)
                     continue;
                 TrashObject trashObject = (TrashObject) message;
-                trashVehicle(server.gameObjects.get(trashObject.id));
+                GameObject go = server.gameObjects.get(trashObject.id);
+                if(go != null)
+                    trashVehicle(go);
             }
             if(message instanceof TakeObject){
                 if(team == null)
