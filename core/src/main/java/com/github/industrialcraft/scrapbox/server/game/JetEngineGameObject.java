@@ -56,7 +56,7 @@ public class JetEngineGameObject extends GameObject {
         super.tick();
         this.speed = Math.max(Math.min(getValueOnInput(0),1),-1);
         float angle = getBaseBody().getAngle();
-        getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(6000*speed), true);
+        getBaseBody().applyForceToCenter(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(15000*speed), true);
         if(speed != 0) {
             for (int i = 0; i < 3; i++) {
                 FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getWorldPoint(new Vector2(0, -1)).cpy(), 0, FireParticleGameObject::new, null, GameObjectConfig.DEFAULT);

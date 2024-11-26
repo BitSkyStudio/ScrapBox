@@ -9,11 +9,13 @@ import java.util.EnumMap;
 import java.util.HashSet;
 
 public class PlayerTeam {
+    public final String name;
     public HashSet<Player> players;
     public ArrayList<Rectangle> buildableAreas;
     public EnumMap<EItemType, Float> inventory;
     public boolean infiniteItems;
-    public PlayerTeam() {
+    public PlayerTeam(String name) {
+        this.name = name;
         this.players = new HashSet<>();
         this.buildableAreas = new ArrayList<>();
         this.inventory = new EnumMap<>(EItemType.class);

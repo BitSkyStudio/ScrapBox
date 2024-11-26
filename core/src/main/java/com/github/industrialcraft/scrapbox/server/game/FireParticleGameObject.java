@@ -31,6 +31,7 @@ public class FireParticleGameObject extends GameObject {
         shape.setRadius(0.5f);
         fixtureDef.shape = shape;
         fixtureDef.density = 0.1F;
+        fixtureDef.isSensor = true;
         base.createFixture(fixtureDef);
         this.setBody("base", "fire_particle", base, false);
         this.cancelled = false;
@@ -81,5 +82,6 @@ public class FireParticleGameObject extends GameObject {
             go.damage(damage, EDamageType.Fire);
         }
         this.cancelled = true;
+        remove();
     }
 }

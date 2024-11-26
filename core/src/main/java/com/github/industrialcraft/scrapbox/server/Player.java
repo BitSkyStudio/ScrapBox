@@ -52,6 +52,14 @@ public class Player extends GameObject{
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {
         animationData.addString("color", Integer.toHexString(((int) this.uuid.getLeastSignificantBits()) >>> 8));
     }
+    public boolean isGameObjectInBuildableArea(GameObject go){
+        if(this.team == null)
+            return false;
+        if(go == null)
+            return false;
+        Vector2 position = go.getBaseBody().getPosition();
+        return team.isInBuildableArea(position.x, position.y);
+    }
     @Override
     public void damage(float amount, EDamageType damageType) {}
     public void tick(){
@@ -206,6 +214,8 @@ public class Player extends GameObject{
             if(message instanceof OpenGameObjectEditUI){
                 OpenGameObjectEditUI openGameObjectEditUI = (OpenGameObjectEditUI) message;
                 GameObject go = server.gameObjects.get(openGameObjectEditUI.id);
+                if(!isGameObjectInBuildableArea(go))
+                    continue;
                 go.uiViewers.add(this);
                 go.updateUI();
             }
@@ -218,12 +228,16 @@ public class Player extends GameObject{
                 CreateValueConnection createValueConnection = (CreateValueConnection) message;
                 GameObject input = server.gameObjects.get(createValueConnection.inputObjectId);
                 GameObject output = server.gameObjects.get(createValueConnection.outputObjectId);
+                if(!isGameObjectInBuildableArea(input) || !isGameObjectInBuildableArea(output))
+                    continue;
                 input.createValueConnection(createValueConnection.inputId, new GameObject.ValueConnection(output, createValueConnection.outputId));
                 input.updateUI();
             }
             if(message instanceof DestroyValueConnection){
                 DestroyValueConnection destroyValueConnection = (DestroyValueConnection) message;
                 GameObject input = server.gameObjects.get(destroyValueConnection.inputObjectId);
+                if(!isGameObjectInBuildableArea(input))
+                    continue;
                 input.destroyValueConnection(destroyValueConnection.inputId);
                 input.updateUI();
             }
@@ -238,6 +252,8 @@ public class Player extends GameObject{
             if(message instanceof EditorUIInput){
                 EditorUIInput editorUIInput = (EditorUIInput) message;
                 GameObject gameObject = server.gameObjects.get(editorUIInput.gameObjectId);
+                if(!isGameObjectInBuildableArea(gameObject))
+                    continue;
                 if(gameObject != null){
                     try {
                         gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
@@ -262,6 +278,8 @@ public class Player extends GameObject{
             if(message instanceof ChangeObjectHealth){
                 ChangeObjectHealth changeObjectHealthMessage = (ChangeObjectHealth) message;
                 GameObject gameObject = server.gameObjects.get(changeObjectHealthMessage.gameObjectId);
+                if(!isGameObjectInBuildableArea(gameObject))
+                    continue;
                 if(gameObject != null){
                     gameObject.damage(changeObjectHealthMessage.health, EDamageType.Wrench);
                 }
@@ -270,6 +288,8 @@ public class Player extends GameObject{
                 CreateGearConnection createGearConnectionMessage = (CreateGearConnection) message;
                 GameObject goA = server.gameObjects.get(createGearConnectionMessage.objectA);
                 GameObject goB = server.gameObjects.get(createGearConnectionMessage.objectB);
+                if(!isGameObjectInBuildableArea(goA) || !isGameObjectInBuildableArea(goB))
+                    continue;
                 if(goA != null && goB != null){
                     goA.connectGearJoint(goB, createGearConnectionMessage.gearRatioA, createGearConnectionMessage.gearRatioB);
                 }
@@ -278,6 +298,8 @@ public class Player extends GameObject{
                 DestroyGearConnection destroyGearConnectionMessage = (DestroyGearConnection) message;
                 GameObject goA = server.gameObjects.get(destroyGearConnectionMessage.objectA);
                 GameObject goB = server.gameObjects.get(destroyGearConnectionMessage.objectB);
+                if(!isGameObjectInBuildableArea(goA) || !isGameObjectInBuildableArea(goB))
+                    continue;
                 if(goA != null && goB != null){
                     goA.disconnectGearJoint(goB);
                 }

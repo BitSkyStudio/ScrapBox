@@ -156,9 +156,9 @@ public abstract class GameObject {
     public void remove(){
         this.isRemoved = true;
         this.vehicle.gameObjects.remove(this);
-        for(UUID id : this.gearConnections.keySet().toArray(UUID[]::new)){
-            disconnectGearJoint(server.getGameObjectByUUID(id));
-        }
+        //for(UUID id : this.gearConnections.keySet().toArray(UUID[]::new)){
+        //    disconnectGearJoint(server.getGameObjectByUUID(id));
+        //}
     }
     public void destroy(){
         this.bodies.forEach((s, body) -> server.physics.destroyBody(body));

@@ -51,6 +51,7 @@ public class Server {
     public final ArrayList<Vector3> scheduledExplosions;
     public String password;
     public int soundIdGenerator;
+    public final ArrayList<PlayerTeam> teams;
     public Server(File saveFile) {
         this.soundIdGenerator = 0;
         this.password = null;
@@ -72,6 +73,9 @@ public class Server {
         this.scheduledExplosions = new ArrayList<>();
         this.paused = false;
         this.singleStep = false;
+        this.teams = new ArrayList<>();
+        this.teams.add(new PlayerTeam("RED"));
+        this.teams.add(new PlayerTeam("BLUE"));
         this.physics.setContactFilter((fixtureA, fixtureB) -> {
             Filter filterA = fixtureA.getFilterData();
             Filter filterB = fixtureB.getFilterData();
@@ -215,6 +219,13 @@ public class Server {
             throw new IllegalArgumentException("no id for gameobject " + gameObject.getClass().getSimpleName());
         return id;
     }
+    public PlayerTeam getTeamByName(String name) {
+        for(PlayerTeam team : teams){
+            if(team.name.equals(name))
+                return team;
+        }
+        return null;
+    }
     private void addPlayer(Player player){
         this.players.add(player);
         this.newGameObjects.add(player);
@@ -222,7 +233,8 @@ public class Server {
         this.clientWorldManager.addPlayer(player);
         player.send(this.terrain.createMessage());
         player.sendAll(messages);
-        player.setTeam(new PlayerTeam());
+        PlayerTeam team = this.teams.stream().min(Comparator.comparingInt(t -> t.players.size())).get();
+        player.setTeam(team);
     }
     private void tick(float deltaTime) {
         for(GameObject gameObject : this.newGameObjects){
