@@ -11,6 +11,7 @@ import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Player extends GameObject{
     public final Server server;
@@ -28,6 +29,7 @@ public class Player extends GameObject{
         this.uuid = UUID.randomUUID();
 
         connection.send(new GamePausedState(server.paused));
+        connection.send(new PlayerTeamList((ArrayList<String>) server.teams.stream().map(playerTeam -> playerTeam.name).collect(Collectors.toCollection(ArrayList::new))));
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
@@ -303,6 +305,12 @@ public class Player extends GameObject{
                 if(goA != null && goB != null){
                     goA.disconnectGearJoint(goB);
                 }
+            }
+            if(message instanceof PlayerTeamUpdate){
+                PlayerTeamUpdate playerTeamUpdateMessage = (PlayerTeamUpdate) message;
+                PlayerTeam team = server.getTeamByName(playerTeamUpdateMessage.team);
+                if(team != null)
+                    this.setTeam(team);
             }
         }
     }

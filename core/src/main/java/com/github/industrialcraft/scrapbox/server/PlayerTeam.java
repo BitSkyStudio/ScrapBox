@@ -1,6 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.github.industrialcraft.scrapbox.common.net.msg.PlayerTeamUpdate;
 import com.github.industrialcraft.scrapbox.common.net.msg.UpdateBuildableAreas;
 import com.github.industrialcraft.scrapbox.common.net.msg.UpdateInventory;
 
@@ -52,6 +53,7 @@ public class PlayerTeam {
     public void syncPlayer(Player player){
         player.connection.send(new UpdateInventory(this.inventory.clone(), infiniteItems));
         player.connection.send(new UpdateBuildableAreas(buildableAreas));
+        player.connection.send(new PlayerTeamUpdate(name));
     }
     public boolean isInBuildableArea(float x, float y){
         if(buildableAreas.isEmpty())

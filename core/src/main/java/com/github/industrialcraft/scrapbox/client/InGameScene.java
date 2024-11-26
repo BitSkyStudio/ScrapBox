@@ -78,6 +78,8 @@ public class InGameScene implements IScene {
     public EnumMap<EItemType,Float> inventory;
     public EnumMap<EItemType,Texture> itemTextures;
     public boolean infiniteItems;
+    public ArrayList<String> teams;
+    public String playerTeam;
     public InGameScene(IConnection connection, Server server, NetXClient client) {
         this.connection = connection;
         this.server = server;
@@ -556,6 +558,14 @@ public class InGameScene implements IScene {
                 this.inventory = updateInventory.inventory;
                 this.infiniteItems = updateInventory.infinite;
             }
+            if(message instanceof PlayerTeamUpdate){
+                PlayerTeamUpdate playerTeamUpdateMessage = (PlayerTeamUpdate) message;
+                this.playerTeam = playerTeamUpdateMessage.team;
+            }
+            if(message instanceof PlayerTeamList){
+                PlayerTeamList playerTeamListMessage = (PlayerTeamList) message;
+                this.teams = playerTeamListMessage.teams;
+            }
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             connection.send(new ToggleGamePaused(false));
@@ -621,6 +631,30 @@ public class InGameScene implements IScene {
                     }
                 });
                 table.add(controlsHelp).row();
+                TextButton changeTeam = new TextButton("Change Team", ScrapBox.getInstance().getSkin());
+                changeTeam.addListener(new ClickListener(){
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        escapeMenu.remove();
+                        escapeMenu = null;
+                        SelectBox<String> teamsSelector = new SelectBox<>(ScrapBox.getInstance().getSkin());
+                        teamsSelector.setItems(InGameScene.this.teams.toArray(String[]::new));
+                        teamsSelector.setSelected(InGameScene.this.playerTeam);
+                        Dialog setTeamWindow = new Dialog("Change Team", ScrapBox.getInstance().getSkin(), "dialog"){
+                            @Override
+                            protected void result(Object object) {
+                                if(object instanceof String){
+                                    connection.send(new PlayerTeamUpdate(teamsSelector.getSelected()));
+                                }
+                            }
+                        };
+                        setTeamWindow.getContentTable().add(teamsSelector);
+                        setTeamWindow.button("Cancel");
+                        setTeamWindow.button("Ok", "");
+                        setTeamWindow.show(stage);
+                    }
+                });
+                table.add(changeTeam).row();
                 if(server != null) {
                     TextButton openToLan = new TextButton("Open to LAN", ScrapBox.getInstance().getSkin());
                     openToLan.setDisabled(server.networkServer!=null);
