@@ -265,7 +265,7 @@ public abstract class GameObject {
     public ArrayList<EditorUIRow> createEditorUI(){
         return null;
     }
-    public void handleEditorUIInput(String elementId, String value){
+    public void handleEditorUIInput(String elementId, String value, Player player){
         try{
             int i = Integer.parseInt(elementId);
             float valueFloat = Float.parseFloat(value);

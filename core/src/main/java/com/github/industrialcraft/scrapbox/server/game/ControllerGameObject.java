@@ -2,10 +2,10 @@ package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
+import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.io.DataInputStream;
@@ -18,6 +18,7 @@ import java.util.HashMap;
 public class ControllerGameObject extends GameObject {
     public final boolean[] inputs;
     private final ControllerButtonData[] buttonData;
+    public String authorizedTeam;
     public ControllerGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
         super(position, rotation, server, config);
 
@@ -33,6 +34,8 @@ public class ControllerGameObject extends GameObject {
         fixtureDef.density = 1F;
         base.createFixture(fixtureDef);
         this.setBody("base", "controller", base);
+
+        this.authorizedTeam = null;
 
         this.inputs = new boolean[10];
         this.buttonData = new ControllerButtonData[10];
@@ -67,6 +70,8 @@ public class ControllerGameObject extends GameObject {
         for(int i = 0;i < 10;i++){
             buttonData[i] = new ControllerButtonData(stream);
         }
+        if(stream.readBoolean())
+            this.authorizedTeam = stream.readUTF();
     }
 
     @Override
@@ -75,11 +80,25 @@ public class ControllerGameObject extends GameObject {
         for(ControllerButtonData buttonData : this.buttonData){
             buttonData.toStream(stream);
         }
+        stream.writeBoolean(this.authorizedTeam != null);
+        if(authorizedTeam != null){
+            stream.writeUTF(authorizedTeam);
+        }
     }
 
     @Override
     public ArrayList<EditorUIRow> createEditorUI() {
         ArrayList<EditorUIRow> rows = new ArrayList<>();
+
+        ArrayList<EditorUIElement> lockRow = new ArrayList<>();
+        if(authorizedTeam != null) {
+            lockRow.add(new EditorUIButton("Unlock", "unlock"));
+        } else {
+            lockRow.add(new EditorUIButton("Lock", "lock"));
+        }
+        if(authorizedTeam != null)
+            lockRow.add(new EditorUILabel(authorizedTeam));
+        rows.add(new EditorUIRow(lockRow));
 
         ArrayList<String> holdSelection = new ArrayList<>();
         holdSelection.add("hold");
@@ -98,11 +117,18 @@ public class ControllerGameObject extends GameObject {
         return rows;
     }
     @Override
-    public void handleEditorUIInput(String elementId, String value) {
-        super.handleEditorUIInput(elementId, value);
+    public void handleEditorUIInput(String elementId, String value, Player player) {
+        super.handleEditorUIInput(elementId, value, player);
         if(elementId.startsWith("hold")){
             int i = Integer.parseInt(elementId.replace("hold", ""))-1;
             buttonData[i].keep = !buttonData[i].keep;
+        }
+        if(elementId.equals("lock")){
+            if(player.team != null)
+                this.authorizedTeam = player.team.name;
+        }
+        if(elementId.equals("unlock")){
+            this.authorizedTeam = null;
         }
         try{
             if(elementId.startsWith("low")){
