@@ -4,6 +4,8 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.codedisaster.steamworks.*;
 
@@ -19,8 +21,11 @@ public class ScrapBox extends ApplicationAdapter {
     }
     @Override
     public void create() {
-        skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
-        skin.get("default-font", BitmapFont.class).getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        skin = new Skin();
+        skin.add("default-font", new BitmapFont(Gdx.files.internal("skin/default.fnt"), new TextureRegion(new Texture("skin/default.png"))));
+        skin.add("big-font", new BitmapFont(Gdx.files.internal("skin/default-big.fnt"), new TextureRegion(new Texture("skin/default-big.png"))));
+        skin.addRegions(new TextureAtlas(Gdx.files.internal("skin/uiskin.atlas")));
+        skin.load(Gdx.files.internal("skin/uiskin.json"));
         scene = new MainMenuScene();
         scene.create();
         scene.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
