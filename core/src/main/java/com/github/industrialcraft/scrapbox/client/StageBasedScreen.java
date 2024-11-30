@@ -1,6 +1,7 @@
 package com.github.industrialcraft.scrapbox.client;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -33,6 +34,9 @@ public class StageBasedScreen implements IScene{
         stage.getBatch().end();
         stage.act();
         stage.draw();
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) && this.getClass() != MainMenuScene.class){
+            ScrapBox.getInstance().setScene(new MainMenuScene());
+        }
     }
 
     @Override

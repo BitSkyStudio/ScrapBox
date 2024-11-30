@@ -602,13 +602,19 @@ public class InGameScene implements IScene {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         escapeMenu.remove();
-                        escapeMenu = null;
-                        Dialog settingsWindow = new Dialog("Settings", ScrapBox.getInstance().getSkin(), "dialog");
+                        Dialog settingsWindow = new Dialog("Settings", ScrapBox.getInstance().getSkin(), "dialog"){
+                            @Override
+                            protected void result(Object object) {
+                                escapeMenu.remove();
+                                escapeMenu = null;
+                            }
+                        };
                         settingsWindow.getContentTable().add(ScrapBox.getSettings().createTable(() -> {
                             settingsWindow.pack();
                         }));
                         settingsWindow.button("Close");
                         settingsWindow.show(stage);
+                        escapeMenu = settingsWindow;
                     }
                 });
                 table.add(settings).row();
@@ -617,13 +623,14 @@ public class InGameScene implements IScene {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         escapeMenu.remove();
-                        escapeMenu = null;
                         SelectBox<String> teamsSelector = new SelectBox<>(ScrapBox.getInstance().getSkin());
                         teamsSelector.setItems(InGameScene.this.teams.toArray(String[]::new));
                         teamsSelector.setSelected(InGameScene.this.playerTeam);
                         Dialog setTeamWindow = new Dialog("Change Team", ScrapBox.getInstance().getSkin(), "dialog"){
                             @Override
                             protected void result(Object object) {
+                                escapeMenu.remove();
+                                escapeMenu = null;
                                 if(object instanceof String){
                                     connection.send(new PlayerTeamUpdate(teamsSelector.getSelected()));
                                 }
@@ -633,6 +640,7 @@ public class InGameScene implements IScene {
                         setTeamWindow.button("Cancel");
                         setTeamWindow.button("Ok", "");
                         setTeamWindow.show(stage);
+                        escapeMenu = setTeamWindow;
                     }
                 });
                 table.add(changeTeam).row();
@@ -644,12 +652,13 @@ public class InGameScene implements IScene {
                             @Override
                             public void clicked(InputEvent event, float x, float y) {
                                 escapeMenu.remove();
-                                escapeMenu = null;
                                 TextField input = new TextField("0", ScrapBox.getInstance().getSkin());
                                 input.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-                                Dialog helpWindow = new Dialog("Open to LAN", ScrapBox.getInstance().getSkin(), "dialog") {
+                                Dialog openLanMenu = new Dialog("Open to LAN", ScrapBox.getInstance().getSkin(), "dialog") {
                                     @Override
                                     protected void result(Object object) {
+                                        escapeMenu.remove();
+                                        escapeMenu = null;
                                         if (object instanceof String) {
                                             try {
                                                 short port = Short.parseShort(input.getText());
@@ -659,11 +668,12 @@ public class InGameScene implements IScene {
                                         }
                                     }
                                 };
-                                helpWindow.getContentTable().add(new Label("port:", ScrapBox.getInstance().getSkin()));
-                                helpWindow.getContentTable().add(input);
-                                helpWindow.button("Cancel");
-                                helpWindow.button("Ok", "");
-                                helpWindow.show(stage);
+                                openLanMenu.getContentTable().add(new Label("port:", ScrapBox.getInstance().getSkin()));
+                                openLanMenu.getContentTable().add(input);
+                                openLanMenu.button("Cancel");
+                                openLanMenu.button("Ok", "");
+                                openLanMenu.show(stage);
+                                escapeMenu = openLanMenu;
                             }
                         });
                     }
@@ -672,10 +682,13 @@ public class InGameScene implements IScene {
                     setPasswordButton.addListener(new ClickListener() {
                         @Override
                         public void clicked(InputEvent event, float x, float y) {
+                            escapeMenu.remove();
                             TextField input = new TextField("", ScrapBox.getInstance().getSkin());
                             Dialog passwordSet = new Dialog("Set Password", ScrapBox.getInstance().getSkin(), "dialog") {
                                 @Override
                                 protected void result(Object object) {
+                                    escapeMenu.remove();
+                                    escapeMenu = null;
                                     if (object instanceof String) {
                                         String password = input.getText().trim();
                                         if (password.isEmpty()) {
@@ -691,6 +704,7 @@ public class InGameScene implements IScene {
                             passwordSet.button("Ok", "");
                             passwordSet.getContentTable().add(input);
                             passwordSet.show(stage);
+                            escapeMenu = passwordSet;
                         }
                     });
                     table.add(setPasswordButton);

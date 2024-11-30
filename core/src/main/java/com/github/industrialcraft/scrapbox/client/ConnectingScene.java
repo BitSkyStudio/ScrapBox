@@ -1,9 +1,8 @@
 package com.github.industrialcraft.scrapbox.client;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.github.industrialcraft.netx.ClientMessage;
 import com.github.industrialcraft.netx.NetXClient;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
@@ -24,7 +23,15 @@ public class ConnectingScene extends StageBasedScreen {
         super.create();
         Skin skin = ScrapBox.getInstance().getSkin();
         Label connectingText = new Label("Connecting...", skin);
-        table.add(connectingText);
+        table.add(connectingText).row();
+        TextButton back = new TextButton("back", skin);
+        back.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ScrapBox.getInstance().setScene(new MainMenuScene());
+            }
+        });
+        table.add(back);
     }
 
     @Override
@@ -69,5 +76,11 @@ public class ConnectingScene extends StageBasedScreen {
                 ScrapBox.getInstance().setScene(new DisconnectedScene("connecting failed: " + exception.getLocalizedMessage()));
             }
         });
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        netXClient.disconnect();
     }
 }
