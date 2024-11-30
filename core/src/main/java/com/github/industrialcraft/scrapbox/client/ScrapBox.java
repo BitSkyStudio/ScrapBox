@@ -16,11 +16,13 @@ public class ScrapBox extends ApplicationAdapter {
     private IScene scene;
     private Skin skin;
     public SoundStateChecker soundStateChecker;
+    private SBSettings settings;
     public ScrapBox(SoundStateChecker soundStateChecker) {
         this.soundStateChecker = soundStateChecker;
     }
     @Override
     public void create() {
+        settings = new SBSettings();
         skin = new Skin();
         skin.add("default-font", new BitmapFont(Gdx.files.internal("skin/default.fnt"), new TextureRegion(new Texture("skin/default.png"))));
         skin.add("big-font", new BitmapFont(Gdx.files.internal("skin/default-big.fnt"), new TextureRegion(new Texture("skin/default-big.png"))));
@@ -67,6 +69,9 @@ public class ScrapBox extends ApplicationAdapter {
     }
     public static ScrapBox getInstance(){
         return (ScrapBox) Gdx.app.getApplicationListener();
+    }
+    public static SBSettings getSettings(){
+        return getInstance().settings;
     }
 
     public IScene getScene() {

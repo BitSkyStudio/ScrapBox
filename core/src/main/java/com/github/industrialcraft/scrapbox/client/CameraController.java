@@ -15,16 +15,16 @@ public class CameraController {
     }
     public void tick(){
         Vector2 move = new Vector2();
-        if(Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)){
+        if(ScrapBox.getSettings().UP.isDown()){
             move.y += 1;
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+        if(ScrapBox.getSettings().DOWN.isDown()){
             move.y -= 1;
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+        if(ScrapBox.getSettings().LEFT.isDown()){
             move.x -= 1;
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+        if(ScrapBox.getSettings().RIGHT.isDown()){
             move.x += 1;
         }
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && !move.isZero()){

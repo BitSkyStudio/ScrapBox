@@ -38,6 +38,15 @@ public class MainMenuScene extends StageBasedScreen{
         });
         table.add(serverListButton);
         table.row();
+        TextButton settingsButton = new TextButton("Settings", skin, "big");
+        settingsButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ScrapBox.getInstance().setScene(new SettingsScene());
+            }
+        });
+        table.add(settingsButton);
+        table.row();
         TextButton exitListButton = new TextButton("Exit", skin, "big");
         exitListButton.addListener(new ClickListener(){
             @Override

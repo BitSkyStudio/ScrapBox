@@ -318,7 +318,7 @@ public class InGameScene implements IScene {
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, new InputProcessor() {
             @Override
             public boolean keyDown(int keycode) {
-                if(keycode == Input.Keys.Q){
+                if(keycode == ScrapBox.getSettings().GHOST_MODE.key){
                     connection.send(new PinchingGhostToggle());
                 }
                 if(controllingData != null) {
@@ -350,15 +350,15 @@ public class InGameScene implements IScene {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if(!toolBox.isMouseInside()) {
-                    if(toolBox.tool == ToolBox.Tool.Hand && !(Gdx.input.isKeyPressed(Input.Keys.B) || Gdx.input.isKeyPressed(Input.Keys.G))) {
+                    if(toolBox.tool == ToolBox.Tool.Hand && !(ScrapBox.getSettings().BREAK_CONNECTION.isDown() || ScrapBox.getSettings().GEAR_CONNECTION.isDown())) {
                         selected = mouseSelector.getSelected();
                         if (selected != null) {
                             connection.send(new GameObjectPinch(selected.selectionId, new Vector2(selected.offsetX, selected.offsetY)));
                         }
                     }
-                    if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.B)){
+                    if(toolBox.tool == ToolBox.Tool.Hand && ScrapBox.getSettings().BREAK_CONNECTION.isDown()){
                         Vector2 mouse2 = mouseSelector.getWorldMousePosition().scl(BOX_TO_PIXELS_RATIO);
-                        if(Gdx.input.isKeyPressed(Input.Keys.G)){
+                        if(ScrapBox.getSettings().GEAR_CONNECTION.isDown()){
                             for (SendConnectionListData.GearConnection connection1 : gearConnectionsShowcase) {
                                 ClientGameObject objectA = gameObjects.get(connection1.goA);
                                 ClientGameObject objectB = gameObjects.get(connection1.goB);
@@ -377,7 +377,7 @@ public class InGameScene implements IScene {
                             }
                         }
                     }
-                    if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.G) && !Gdx.input.isKeyPressed(Input.Keys.B)){
+                    if(toolBox.tool == ToolBox.Tool.Hand && ScrapBox.getSettings().GEAR_CONNECTION.isDown() && !ScrapBox.getSettings().BREAK_CONNECTION.isDown()){
                         MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
                         if(selection != null){
                             gearJointSelection = selection.selectionId;
@@ -400,7 +400,7 @@ public class InGameScene implements IScene {
                         connection.send(new TrashObject(selected.selectionId));
                     }
                 }
-                if(Gdx.input.isKeyPressed(Input.Keys.G) && gearJointSelection != -1){
+                if(ScrapBox.getSettings().GEAR_CONNECTION.isDown() && gearJointSelection != -1){
                     MouseSelector.Selection sel = mouseSelector.getSelected();
                     if(sel != null){
                         TextField ratioA = new TextField("1", ScrapBox.getInstance().getSkin());
@@ -567,10 +567,10 @@ public class InGameScene implements IScene {
                 this.teams = playerTeamListMessage.teams;
             }
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
+        if(ScrapBox.getSettings().PAUSE_GAME.isJustDown()){
             connection.send(new ToggleGamePaused(false));
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
+        if(ScrapBox.getSettings().STEP_GAME.isJustDown()){
             connection.send(new ToggleGamePaused(true));
         }
         if(controllingData != null){
@@ -597,40 +597,21 @@ public class InGameScene implements IScene {
                 };
                 escapeMenu.setMovable(false);
                 Table table = escapeMenu.getContentTable();
-                TextButton controlsHelp = new TextButton("Controls Help", ScrapBox.getInstance().getSkin());
-                controlsHelp.addListener(new ClickListener(){
+                TextButton settings = new TextButton("Settings", ScrapBox.getInstance().getSkin());
+                settings.addListener(new ClickListener(){
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         escapeMenu.remove();
                         escapeMenu = null;
-                        Dialog helpWindow = new Dialog("Controls Help", ScrapBox.getInstance().getSkin()){
-                            @Override
-                            public void keepWithinStage () {
-                                Stage stage = getStage();
-                                if (stage == null) return;
-                                Camera camera = stage.getCamera();
-                                if (camera instanceof OrthographicCamera) {
-                                    OrthographicCamera orthographicCamera = (OrthographicCamera)camera;
-                                    float parentWidth = stage.getWidth();
-                                    float parentHeight = stage.getHeight();
-                                    if (getX(Align.right) - camera.position.x + toolBox.getWidth() > parentWidth / 2 / orthographicCamera.zoom)
-                                        setPosition(camera.position.x - toolBox.getWidth() + parentWidth / 2 / orthographicCamera.zoom, getY(Align.right), Align.right);
-                                    if (getX(Align.left) - camera.position.x < -parentWidth / 2 / orthographicCamera.zoom)
-                                        setPosition(camera.position.x - parentWidth / 2 / orthographicCamera.zoom, getY(Align.left), Align.left);
-                                    if (getY(Align.top) - camera.position.y > parentHeight / 2 / orthographicCamera.zoom)
-                                        setPosition(getX(Align.top), camera.position.y + parentHeight / 2 / orthographicCamera.zoom, Align.top);
-                                    if (getY(Align.bottom) - camera.position.y < -parentHeight / 2 / orthographicCamera.zoom)
-                                        setPosition(getX(Align.bottom), camera.position.y - parentHeight / 2 / orthographicCamera.zoom, Align.bottom);
-                                }
-                            }
-                        };
-                        String help = "[WASD]move\n[Q]toggle ghost mode\n[F]weld\n[X]freeze\n[C]open controller\n[V]edit object\n[B]break connection\n[G]create gear connection\n[N]repair/damage\n[1-10]controller buttons\n[F1]debug physics rendering\n[F2]pause game\n[F3]single game step";
-                        helpWindow.getContentTable().add(new Label(help, ScrapBox.getInstance().getSkin()));
-                        helpWindow.button("close");
-                        helpWindow.show(stage);
+                        Dialog settingsWindow = new Dialog("Settings", ScrapBox.getInstance().getSkin(), "dialog");
+                        settingsWindow.getContentTable().add(ScrapBox.getSettings().createTable(() -> {
+                            settingsWindow.pack();
+                        }));
+                        settingsWindow.button("Close");
+                        settingsWindow.show(stage);
                     }
                 });
-                table.add(controlsHelp).row();
+                table.add(settings).row();
                 TextButton changeTeam = new TextButton("Change Team", ScrapBox.getInstance().getSkin());
                 changeTeam.addListener(new ClickListener(){
                     @Override
@@ -732,7 +713,7 @@ public class InGameScene implements IScene {
         }
 
         cameraController.camera.update();
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
+        if(ScrapBox.getSettings().DEBUG_PHYSICS_RENDERING.isJustDown()){
             debugRendering = !debugRendering;
         }
         this.terrainRenderer.draw(this.cameraController);
@@ -813,7 +794,7 @@ public class InGameScene implements IScene {
             Vector2 start = ((EditorUILink.ConnectionData)dragAndDrop.getDragPayload().getObject()).position;
             shapeRenderer.rectLine(dragging.getX() + dragging.getWidth(), dragging.getY() + dragging.getHeight()/2, start.x, start.y, 3);
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.G) && gearJointSelection != -1){
+        if(ScrapBox.getSettings().GEAR_CONNECTION.isDown() && gearJointSelection != -1){
             shapeRenderer.setColor(Color.BLACK);
             shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
             Vector2 firstPos = gameObjects.get(gearJointSelection).getRealPosition();
@@ -821,7 +802,7 @@ public class InGameScene implements IScene {
             Vector2 secondPos = selection!=null?gameObjects.get(selection.selectionId).getRealPosition():mouseSelector.getWorldMousePosition();
             shapeRenderer.rectLine(firstPos.x * BOX_TO_PIXELS_RATIO, firstPos.y * BOX_TO_PIXELS_RATIO, secondPos.x * BOX_TO_PIXELS_RATIO, secondPos.y * BOX_TO_PIXELS_RATIO, 3);
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.G)){
+        if(ScrapBox.getSettings().GEAR_CONNECTION.isDown()){
             shapeRenderer.setColor(Color.BLACK);
             shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
             batch.setProjectionMatrix(cameraController.camera.combined);
@@ -866,7 +847,7 @@ public class InGameScene implements IScene {
             }
         }
         shapeRenderer.end();
-        if(Gdx.input.isKeyPressed(Input.Keys.N)) {
+        if(ScrapBox.getSettings().WRENCH.isDown()) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             MouseSelector.Selection selected = mouseSelector.getSelected();
             for(ClientGameObject gameObject : gameObjects.values()){
@@ -891,9 +872,9 @@ public class InGameScene implements IScene {
             shapeRenderer.end();
         }
         batch.setColor(0.5f, 0.5f, 0.5f, 1);
-        if(toolBox.tool == ToolBox.Tool.Hand && Gdx.input.isKeyPressed(Input.Keys.B)){
+        if(toolBox.tool == ToolBox.Tool.Hand && ScrapBox.getSettings().BREAK_CONNECTION.isDown()){
             batch.begin();
-            if(Gdx.input.isKeyPressed(Input.Keys.G)){
+            if(ScrapBox.getSettings().GEAR_CONNECTION.isDown()){
                 for (SendConnectionListData.GearConnection connection1 : gearConnectionsShowcase) {
                     ClientGameObject objectA = gameObjects.get(connection1.goA);
                     ClientGameObject objectB = gameObjects.get(connection1.goB);
@@ -937,19 +918,19 @@ public class InGameScene implements IScene {
             batch.end();
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
+        if(ScrapBox.getSettings().WELD.isJustDown()){
             connection.send(new CommitWeld());
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+        if(ScrapBox.getSettings().FREEZE.isJustDown()){
             connection.send(new LockGameObject());
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.V)){
+        if(ScrapBox.getSettings().EDIT_OBJECT.isJustDown()){
             MouseSelector.Selection selection = mouseSelector.getSelected();
             if(selection != null) {
                 connection.send(new OpenGameObjectEditUI(selection.selectionId));
             }
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
+        if(ScrapBox.getSettings().OPEN_CONTROLLER.isJustDown()){
             if(controllingData != null){
                 controllingData = null;
             } else {
