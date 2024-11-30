@@ -42,7 +42,7 @@ public class DisplayGameObject extends GameObject {
 
         ArrayList<EditorUIElement> row = new ArrayList<>();
         row.add(new EditorUILabel("value: "));
-        row.add(new EditorUILink(0, true, 0f, isInputFilled(0), false));
+        row.add(new EditorUILink(0, true, defaultValues.getOrDefault(0, 0f), isInputFilled(0), false));
         rows.add(new EditorUIRow(row));
 
         return rows;

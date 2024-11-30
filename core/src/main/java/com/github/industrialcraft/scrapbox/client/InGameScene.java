@@ -62,7 +62,6 @@ public class InGameScene implements IScene {
     private Texture jointBreakIcon;
     private boolean[] controllerState;
     private Texture controllerButton;
-    private BitmapFont font;
     private static final float JOINT_BREAK_ICON_SIZE = 48;
     private static final float CONTROLLER_BUTTON_SIZE = 80;
     public Dialog escapeMenu;
@@ -102,7 +101,6 @@ public class InGameScene implements IScene {
         sounds.put("wood_impact", Gdx.audio.newSound(Gdx.files.internal("wood_impact.wav")));
         sounds.put("metal_impact", Gdx.audio.newSound(Gdx.files.internal("metal_impact.wav")));
         sounds.put("explosion", Gdx.audio.newSound(Gdx.files.internal("explosion_medium.wav")));
-        font = new BitmapFont();
         stage = new Stage();
         editors = new HashMap<>();
         soundInstances = new HashMap<>();
@@ -266,9 +264,11 @@ public class InGameScene implements IScene {
             batch.setTransformMatrix(mx4Font);
             GlyphLayout layout = new GlyphLayout();
             String text = gameObject.getAnimationString("text", "");
+            BitmapFont font = ScrapBox.getInstance().getSkin().getFont("default-font");
+            font.setColor(Color.WHITE);
             layout.setText(font, text);
             float realWidth = Math.min(layout.width, FrameGameObject.INSIDE_SIZE*2);
-            font.draw(batch, text, translation.x - layout.width / 2, translation.y);
+            font.draw(batch, text, translation.x - layout.width / 2, translation.y + layout.height/2);
             mx4Font.idt();
             batch.setTransformMatrix(mx4Font);
         }));
