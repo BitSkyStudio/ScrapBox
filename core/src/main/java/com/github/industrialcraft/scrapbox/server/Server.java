@@ -52,7 +52,11 @@ public class Server {
     public String password;
     public int soundIdGenerator;
     public final ArrayList<PlayerTeam> teams;
+    public HashMap<Integer,Float> currentCommunications;
+    public HashMap<Integer,Float> backCommunications;
     public Server(File saveFile) {
+        this.currentCommunications = new HashMap<>();
+        this.backCommunications = new HashMap<>();
         this.soundIdGenerator = 0;
         this.password = null;
         this.saveFile = saveFile;
@@ -182,6 +186,8 @@ public class Server {
         GAME_OBJECT_CLASSES.put("fire_particle", FireParticleGameObject.class);
         GAME_OBJECT_CLASSES.put("flamethrower", FlamethrowerGameObject.class);
         GAME_OBJECT_CLASSES.put("motor", MotorGameObject.class);
+        GAME_OBJECT_CLASSES.put("receiver", ReceiverGameObject.class);
+        GAME_OBJECT_CLASSES.put("transmitter", TransmitterGameObject.class);
 
         for(Map.Entry<String, Class> entry : GAME_OBJECT_CLASSES.entrySet()){
             GAME_OBJECT_CLASSES_TYPES.put(entry.getValue(), entry.getKey());
@@ -237,6 +243,10 @@ public class Server {
         player.setTeam(team);
     }
     private void tick(float deltaTime) {
+        HashMap<Integer,Float> swap = backCommunications;
+        backCommunications = currentCommunications;
+        currentCommunications = swap;
+        currentCommunications.clear();
         for(GameObject gameObject : this.newGameObjects){
             this.gameObjects.put(gameObject.getId(), gameObject);
         }

@@ -52,6 +52,11 @@ public class BalloonGameObject extends GameObject implements IPairObject {
     }
 
     @Override
+    public String getImpactSound() {
+        return null;
+    }
+
+    @Override
     public void tick() {
         super.tick();
         getBaseBody().applyForce(new Vector2(0, 1000), getBaseBody().getWorldPoint(new Vector2(0, 1)), true);

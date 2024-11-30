@@ -247,6 +247,8 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("flamethrower", new RenderData(new Texture("flamethrower.png"), 1f, 1f));
         renderDataRegistry.put("motor", new RenderData(new Texture("motor.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("pid_controller", new RenderData(new Texture("pid_controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
+        renderDataRegistry.put("receiver", new RenderData(new Texture("receiver.png"), 0.55f, 0.75f));
+        renderDataRegistry.put("transmitter", new RenderData(new Texture("transmitter.png"), 0.6f, 0.45f));
         renderDataRegistry.put("player", new RenderData(new Texture("player.png"), 0.5f, 0.5f, (renderData, gameObject, batch1) -> {
             Vector2 lerpedPosition = gameObject.getRealPosition();
             int color = Integer.parseInt(gameObject.getAnimationString("color", "000000"), 16);
@@ -303,6 +305,8 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("spring", renderDataRegistry.get("spring"), SpringGameObject::getItemCost, false, false);
         this.toolBox.addPart("jet_engine", renderDataRegistry.get("jet_engine"), JetEngineGameObject::getItemCost, false, false);
         this.toolBox.addPart("flamethrower", renderDataRegistry.get("flamethrower"), FlamethrowerGameObject::getItemCost, false, false);
+        this.toolBox.addPart("receiver", renderDataRegistry.get("receiver"), ReceiverGameObject::getItemCost, false, false);
+        this.toolBox.addPart("transmitter", renderDataRegistry.get("transmitter"), TransmitterGameObject::getItemCost, false, false);
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
