@@ -1,6 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
@@ -247,8 +248,7 @@ public class Player extends GameObject{
                 GameObject gameObject = server.gameObjects.get(controllerInput.gameObjectId);
                 if(gameObject instanceof ControllerGameObject){
                     ControllerGameObject controller = (ControllerGameObject) gameObject;
-                    if(this.team != null && (controller.authorizedTeam == null || controller.authorizedTeam.equals(this.team.name)))
-                        controller.input(controllerInput.key, controllerInput.down);
+                    controller.input(controllerInput.key, controllerInput.down);
                 }
             }
             if(message instanceof EditorUIInput){
@@ -258,7 +258,7 @@ public class Player extends GameObject{
                     continue;
                 if(gameObject != null){
                     try {
-                        gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value, this);
+                        gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
                     } catch (Exception e){}
                     gameObject.updateUI();
                 }
