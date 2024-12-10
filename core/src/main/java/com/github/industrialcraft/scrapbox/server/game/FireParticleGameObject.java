@@ -35,7 +35,7 @@ public class FireParticleGameObject extends GameObject {
         base.createFixture(fixtureDef);
         this.setBody("base", "fire_particle", base, false);
         this.cancelled = false;
-        this.ttl = 20;
+        this.ttl = Server.TPS;
         this.damage = 0;
     }
 
