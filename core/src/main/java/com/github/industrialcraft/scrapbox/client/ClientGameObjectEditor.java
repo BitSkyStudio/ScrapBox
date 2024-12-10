@@ -16,6 +16,7 @@ public class ClientGameObjectEditor {
     public final int gameObjectID;
     public final Texture linkInput;
     public final Texture linkInputFilled;
+    public final Texture linkInputDefault;
     public final Texture linkOutput;
     public final InGameScene scene;
     public final Window window;
@@ -23,6 +24,7 @@ public class ClientGameObjectEditor {
         this.gameObjectID = gameObjectID;
         this.linkInput = new Texture("link_input.png");
         this.linkInputFilled = new Texture("link_input_filled.png");
+        this.linkInputDefault = new Texture("link_input_default.png");
         this.linkOutput = new Texture("link_output.png");
         this.scene = scene;
         Skin skin = ScrapBox.getInstance().getSkin();

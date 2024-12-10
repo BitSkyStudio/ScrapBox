@@ -46,7 +46,7 @@ public class EditorUILink extends EditorUIElement{
     }
     @Override
     public Actor createActor(Skin skin, ClientGameObjectEditor editor) {
-        Image image = new Image(input?(filled?editor.linkInputFilled:editor.linkInput):editor.linkOutput){
+        Image image = new Image(input?(filled?editor.linkInputFilled:(defaultValue!=0f?editor.linkInputDefault:editor.linkInput)):editor.linkOutput){
             @Override
             public float getMinWidth() {
                 return 30f;
