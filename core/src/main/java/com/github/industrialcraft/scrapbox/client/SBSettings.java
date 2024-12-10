@@ -8,8 +8,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SBSettings {
+    private static final Logger log = LoggerFactory.getLogger(SBSettings.class);
     public final Preferences preferences;
     public final Keybinding UP = new Keybinding("up", "Up", Input.Keys.W);
     public final Keybinding DOWN = new Keybinding("down", "Down", Input.Keys.S);
@@ -19,7 +22,7 @@ public class SBSettings {
     public final Keybinding WELD = new Keybinding("weld", "Weld", Input.Keys.F);
     public final Keybinding FREEZE = new Keybinding("freeze", "Freeze", Input.Keys.X);
     public final Keybinding OPEN_CONTROLLER = new Keybinding("controller_open", "Control Vehicle", Input.Keys.C);
-    public final Keybinding EDIT_OBJECT = new Keybinding("edit_object", "Edit Object", Input.Keys.V);
+    public final Keybinding EDIT_OBJECT = new Keybinding("edit_object", "Edit Object", Keybinding.fromButton(Input.Buttons.RIGHT));
     public final Keybinding BREAK_CONNECTION = new Keybinding("break_connection", "Break Connections", Input.Keys.B);
     public final Keybinding GEAR_CONNECTION = new Keybinding("gear_connection", "Gear Connections", Input.Keys.G);
     public final Keybinding WRENCH = new Keybinding("wrench", "Wrench", Input.Keys.N);
@@ -36,24 +39,41 @@ public class SBSettings {
     public Table createTable(Runnable onSettingChange){
         Table table = new Table();
         for(Keybinding keybinding : KEYBINDINGS){
-            TextButton button = new TextButton(Input.Keys.toString(keybinding.key), ScrapBox.getInstance().getSkin());
+            TextButton resetButton = new TextButton("Reset", ScrapBox.getInstance().getSkin());
+            TextButton button = new TextButton(keybinding.keyToString(), ScrapBox.getInstance().getSkin());
             button.addListener(new ClickListener(){
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int btn) {
-                    event.getStage().setKeyboardFocus(button);
+                    if(btn == Input.Buttons.LEFT) {
+                        event.getStage().setKeyboardFocus(button);
+                    } else {
+                        if(button.isPressed()){
+                            keybinding.key = Keybinding.fromButton(btn);
+                            button.setText(keybinding.keyToString());
+                            preferences.putInteger("key." + keybinding.id, keybinding.key);
+                            preferences.flush();
+                            resetButton.setDisabled(keybinding.isDefault());
+                            if(onSettingChange != null)
+                                onSettingChange.run();
+                            return true;
+                        }
+                    }
                     return false;
                 }
                 @Override
                 public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                    event.getStage().setKeyboardFocus(null);
+                    if(button == Input.Keys.LEFT) {
+                        event.getStage().setKeyboardFocus(null);
+                    }
                 }
                 @Override
                 public boolean keyDown(InputEvent event, int keycode) {
                     if(button.isPressed()){
                         keybinding.key = keycode;
-                        button.setText(Input.Keys.toString(keycode));
-                        preferences.putInteger("key." + keybinding.id, keycode);
+                        button.setText(keybinding.keyToString());
+                        preferences.putInteger("key." + keybinding.id, keybinding.key);
                         preferences.flush();
+                        resetButton.setDisabled(keybinding.isDefault());
                         if(onSettingChange != null)
                             onSettingChange.run();
                         return true;
@@ -61,7 +81,20 @@ public class SBSettings {
                     return false;
                 }
             });
-            table.add(new Label(keybinding.name, ScrapBox.getInstance().getSkin()), button).row();
+            resetButton.setDisabled(keybinding.isDefault());
+            resetButton.addListener(new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    keybinding.key = keybinding.defaultKey;
+                    button.setText(keybinding.keyToString());
+                    preferences.remove("key." + keybinding.id);
+                    preferences.flush();
+                    resetButton.setDisabled(true);
+                    if(onSettingChange != null)
+                        onSettingChange.run();
+                }
+            });
+            table.add(new Label(keybinding.name, ScrapBox.getInstance().getSkin()), button, resetButton).row();
         }
         return table;
     }
@@ -76,11 +109,45 @@ public class SBSettings {
             this.defaultKey = defaultKey;
             this.key = defaultKey;
         }
+        public static int fromButton(int button){
+            return -button - 1;
+        }
+        public String keyToString(){
+            if(key < 0){
+                switch(-key - 1){
+                    case Input.Buttons.LEFT:
+                        return "Left";
+                    case Input.Buttons.RIGHT:
+                        return "Right";
+                    case Input.Buttons.MIDDLE:
+                        return "Middle";
+                    case Input.Buttons.FORWARD:
+                        return "Forward";
+                    case Input.Buttons.BACK:
+                        return "Back";
+                    default:
+                        return "Unknown Button";
+                }
+            } else {
+                return Input.Keys.toString(key);
+            }
+        }
         public boolean isDown(){
-            return Gdx.input.isKeyPressed(key);
+            if(key < 0){
+                return Gdx.input.isButtonPressed(-key - 1);
+            } else {
+                return Gdx.input.isKeyPressed(key);
+            }
         }
         public boolean isJustDown(){
-            return Gdx.input.isKeyJustPressed(key);
+            if(key < 0){
+                return Gdx.input.isButtonJustPressed(-key - 1);
+            } else {
+                return Gdx.input.isKeyJustPressed(key);
+            }
+        }
+        public boolean isDefault(){
+            return key == defaultKey;
         }
     }
 }

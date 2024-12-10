@@ -354,41 +354,43 @@ public class InGameScene implements IScene {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if(!toolBox.isMouseInside()) {
-                    if(toolBox.tool == ToolBox.Tool.Hand && !(ScrapBox.getSettings().BREAK_CONNECTION.isDown() || ScrapBox.getSettings().GEAR_CONNECTION.isDown())) {
-                        selected = mouseSelector.getSelected();
-                        if (selected != null) {
-                            connection.send(new GameObjectPinch(selected.selectionId, new Vector2(selected.offsetX, selected.offsetY)));
+                    if(button == Input.Buttons.LEFT) {
+                        if (toolBox.tool == ToolBox.Tool.Hand && !(ScrapBox.getSettings().BREAK_CONNECTION.isDown() || ScrapBox.getSettings().GEAR_CONNECTION.isDown())) {
+                            selected = mouseSelector.getSelected();
+                            if (selected != null) {
+                                connection.send(new GameObjectPinch(selected.selectionId, new Vector2(selected.offsetX, selected.offsetY)));
+                            }
                         }
-                    }
-                    if(toolBox.tool == ToolBox.Tool.Hand && ScrapBox.getSettings().BREAK_CONNECTION.isDown()){
-                        Vector2 mouse2 = mouseSelector.getWorldMousePosition().scl(BOX_TO_PIXELS_RATIO);
-                        if(ScrapBox.getSettings().GEAR_CONNECTION.isDown()){
-                            for (SendConnectionListData.GearConnection connection1 : gearConnectionsShowcase) {
-                                ClientGameObject objectA = gameObjects.get(connection1.goA);
-                                ClientGameObject objectB = gameObjects.get(connection1.goB);
-                                if (objectA != null && objectB != null) {
-                                    Vector2 position = objectA.getRealPosition().lerp(objectB.getRealPosition(), 0.5f).scl(BOX_TO_PIXELS_RATIO);
-                                    if(mouse2.dst(position) < JOINT_BREAK_ICON_SIZE / 2) {
-                                        connection.send(new DestroyGearConnection(objectA.id, objectB.id));
+                        if (toolBox.tool == ToolBox.Tool.Hand && ScrapBox.getSettings().BREAK_CONNECTION.isDown()) {
+                            Vector2 mouse2 = mouseSelector.getWorldMousePosition().scl(BOX_TO_PIXELS_RATIO);
+                            if (ScrapBox.getSettings().GEAR_CONNECTION.isDown()) {
+                                for (SendConnectionListData.GearConnection connection1 : gearConnectionsShowcase) {
+                                    ClientGameObject objectA = gameObjects.get(connection1.goA);
+                                    ClientGameObject objectB = gameObjects.get(connection1.goB);
+                                    if (objectA != null && objectB != null) {
+                                        Vector2 position = objectA.getRealPosition().lerp(objectB.getRealPosition(), 0.5f).scl(BOX_TO_PIXELS_RATIO);
+                                        if (mouse2.dst(position) < JOINT_BREAK_ICON_SIZE / 2) {
+                                            connection.send(new DestroyGearConnection(objectA.id, objectB.id));
+                                        }
+                                    }
+                                }
+                            } else {
+                                for (SendConnectionListData.Connection connection1 : connectionsShowcase) {
+                                    if (mouse2.dst(connection1.position.cpy().scl(BOX_TO_PIXELS_RATIO)) < JOINT_BREAK_ICON_SIZE / 2) {
+                                        connection.send(new DestroyJoint(connection1.gameObjectId, connection1.name));
                                     }
                                 }
                             }
-                        } else {
-                            for (SendConnectionListData.Connection connection1 : connectionsShowcase) {
-                                if (mouse2.dst(connection1.position.cpy().scl(BOX_TO_PIXELS_RATIO)) < JOINT_BREAK_ICON_SIZE / 2) {
-                                    connection.send(new DestroyJoint(connection1.gameObjectId, connection1.name));
-                                }
+                        }
+                        if (toolBox.tool == ToolBox.Tool.Hand && ScrapBox.getSettings().GEAR_CONNECTION.isDown() && !ScrapBox.getSettings().BREAK_CONNECTION.isDown()) {
+                            MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
+                            if (selection != null) {
+                                gearJointSelection = selection.selectionId;
                             }
                         }
-                    }
-                    if(toolBox.tool == ToolBox.Tool.Hand && ScrapBox.getSettings().GEAR_CONNECTION.isDown() && !ScrapBox.getSettings().BREAK_CONNECTION.isDown()){
-                        MouseSelector.Selection selection = mouseSelector.getSelected(clientGameObject -> clientGameObject.gearJoinable);
-                        if(selection != null){
-                            gearJointSelection = selection.selectionId;
+                        if (toolBox.tool == ToolBox.Tool.TerrainModify) {
+                            connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2 * toolBox.brushSize, toolBox.brushRectangle));
                         }
-                    }
-                    if (toolBox.tool == ToolBox.Tool.TerrainModify) {
-                        connection.send(new PlaceTerrain(toolBox.getSelectedTerrainType(), mouseSelector.getWorldMousePosition(), 2*toolBox.brushSize, toolBox.brushRectangle));
                     }
                 } else {
                     if(button == Input.Buttons.LEFT || button == Input.Buttons.RIGHT)
@@ -398,48 +400,50 @@ public class InGameScene implements IScene {
             }
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                if(selected != null){
-                    connection.send(new GameObjectRelease());
-                    if(toolBox.isMouseInside()){
-                        connection.send(new TrashObject(selected.selectionId));
+                if(button == Input.Buttons.LEFT) {
+                    if (selected != null) {
+                        connection.send(new GameObjectRelease());
+                        if (toolBox.isMouseInside()) {
+                            connection.send(new TrashObject(selected.selectionId));
+                        }
                     }
-                }
-                if(ScrapBox.getSettings().GEAR_CONNECTION.isDown() && gearJointSelection != -1){
-                    MouseSelector.Selection sel = mouseSelector.getSelected();
-                    if(sel != null){
-                        TextField ratioA = new TextField("1", ScrapBox.getInstance().getSkin());
-                        TextField.TextFieldFilter fieldFilter = (textField, c) -> Character.isDigit(c) || c == '-';
-                        ratioA.setTextFieldFilter(fieldFilter);
-                        TextField ratioB = new TextField("1", ScrapBox.getInstance().getSkin());
-                        ratioB.setTextFieldFilter(fieldFilter);
-                        Dialog gearRatio = new Dialog("Enter gear ratio", ScrapBox.getInstance().getSkin(), "dialog"){
-                            @Override
-                            protected void result(Object object) {
-                                if(object instanceof String) {
-                                    try {
-                                        int rA = ratioA.getText().isEmpty() ? 1 : Integer.parseInt(ratioA.getText());
-                                        int rB = ratioB.getText().isEmpty() ? 1 : Integer.parseInt(ratioB.getText());
-                                        connection.send(new CreateGearConnection(gearJointSelection, rA, sel.id, rB));
-                                    } catch (Exception e) {
+                    if (ScrapBox.getSettings().GEAR_CONNECTION.isDown() && gearJointSelection != -1) {
+                        MouseSelector.Selection sel = mouseSelector.getSelected();
+                        if (sel != null) {
+                            TextField ratioA = new TextField("1", ScrapBox.getInstance().getSkin());
+                            TextField.TextFieldFilter fieldFilter = (textField, c) -> Character.isDigit(c) || c == '-';
+                            ratioA.setTextFieldFilter(fieldFilter);
+                            TextField ratioB = new TextField("1", ScrapBox.getInstance().getSkin());
+                            ratioB.setTextFieldFilter(fieldFilter);
+                            Dialog gearRatio = new Dialog("Enter gear ratio", ScrapBox.getInstance().getSkin(), "dialog") {
+                                @Override
+                                protected void result(Object object) {
+                                    if (object instanceof String) {
+                                        try {
+                                            int rA = ratioA.getText().isEmpty() ? 1 : Integer.parseInt(ratioA.getText());
+                                            int rB = ratioB.getText().isEmpty() ? 1 : Integer.parseInt(ratioB.getText());
+                                            connection.send(new CreateGearConnection(gearJointSelection, rA, sel.id, rB));
+                                        } catch (Exception e) {
+                                        }
                                     }
+                                    gearJointSelection = -1;
                                 }
-                                gearJointSelection = -1;
-                            }
-                        };
-                        gearRatio.setMovable(false);
-                        Table table = gearRatio.getContentTable();
-                        table.add(new Label("Ratio A: ", ScrapBox.getInstance().getSkin()), ratioA).row();
-                        table.add(new Label("Ratio B: ", ScrapBox.getInstance().getSkin()), ratioB).row();
-                        gearRatio.button("Ok", "");
-                        gearRatio.button("Back");
-                        gearRatio.show(stage);
+                            };
+                            gearRatio.setMovable(false);
+                            Table table = gearRatio.getContentTable();
+                            table.add(new Label("Ratio A: ", ScrapBox.getInstance().getSkin()), ratioA).row();
+                            table.add(new Label("Ratio B: ", ScrapBox.getInstance().getSkin()), ratioB).row();
+                            gearRatio.button("Ok", "");
+                            gearRatio.button("Back");
+                            gearRatio.show(stage);
+                        } else {
+                            gearJointSelection = -1;
+                        }
                     } else {
                         gearJointSelection = -1;
                     }
-                } else {
-                    gearJointSelection = -1;
+                    selected = null;
                 }
-                selected = null;
                 return false;
             }
             @Override
