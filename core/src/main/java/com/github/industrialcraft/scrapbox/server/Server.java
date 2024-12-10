@@ -15,7 +15,6 @@ import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
 import com.github.industrialcraft.scrapbox.common.net.msg.DisconnectMessage;
-import com.github.industrialcraft.scrapbox.common.net.msg.PlaySoundMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameState;
 import com.github.industrialcraft.scrapbox.common.net.msg.SubmitPassword;
 import com.github.industrialcraft.scrapbox.server.game.*;
@@ -26,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -268,12 +268,11 @@ public class Server {
         if(runTick) {
             runningTickCount++;
             singleStep = false;
-            int internalSteps = 20;
-            for(int i = 0;i < internalSteps;i++) {
+            for(int i = 0; i < INTERNAL_STEPS; i++) {
                 for(GameObject gameObject : this.gameObjects.values()){
                     gameObject.internalTick();
                 }
-                this.physics.step(1.35f * deltaTime / internalSteps, 20, 20);
+                this.physics.step(1.35f * deltaTime / INTERNAL_STEPS, 20, 20);
             }
         }
         for(Vector3 explosion : this.scheduledExplosions){
@@ -332,7 +331,7 @@ public class Server {
                     }
                 }
             }));
-            if(tickCount%20==1){
+            if(tickCount%TPS==1){
                 InetSocketAddress address = networkServer.getAddress();
                 if(address != null) {
                     JsonValue json = new JsonValue(JsonValue.ValueType.object);
@@ -344,7 +343,7 @@ public class Server {
                 }
             }
         }
-        int autoSaveAfterTicks = 20*60;
+        int autoSaveAfterTicks = TPS*60;
         if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1){
             try {
                 FileOutputStream stream = new FileOutputStream(saveFile);
@@ -488,21 +487,25 @@ public class Server {
         joint.upperAngle = 0f;
         return physics.createJoint(joint);
     }
+    public static final int TPS = 60;
+    public static final int INTERNAL_STEPS = 2;
     public void start(){
         new Thread(() -> {
             long startTime = System.currentTimeMillis();
             while(!stopped){
+                //long msptTimer = System.nanoTime();
                 synchronized (physics) {
                     try {
-                        tick(1f/20);
+                        tick(1f/TPS);
                     } catch (Exception e) {
                         e.printStackTrace();
                         stop();
                     }
                 }
+                //System.out.println("mspt: " + (System.nanoTime()-msptTimer)/1000000f);
                 tickCount++;
                 try {
-                    int sleepTime = (int) (tickCount*50-(System.currentTimeMillis()-startTime));
+                    int sleepTime = (int) (tickCount*(1000/((float)TPS))-(System.currentTimeMillis()-startTime));
                     if(sleepTime > 0)
                         Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
