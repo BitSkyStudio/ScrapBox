@@ -396,55 +396,57 @@ public class Server {
         return this.gameObjects.values().stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny().or(() -> this.newGameObjects.stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny()).orElse(null);
     }
     public void loadSaveFile(SaveFile saveFile){
-        this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
-        this.gameObjects.clear();
-        this.players.forEach(Player::clearPinched);
-        HashMap<UUID,byte[]> data = new HashMap<>();
-        for(SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects){
-            try {
-                spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id, gameObject.config);
-                data.put(gameObject.id, gameObject.data);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        this.terrain.terrain.clear();
-        for(Map.Entry<String, ArrayList<ArrayList<Vector2>>> entry : saveFile.terrain.entrySet()){
-            PathsD paths = new PathsD();
-            for(ArrayList<Vector2> pathsReal : entry.getValue()){
-                PathD path = new PathD();
-                for(Vector2 point : pathsReal){
-                    path.add(new PointD(point.x, point.y));
+        synchronized (physics) {
+            this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
+            this.gameObjects.clear();
+            this.players.forEach(Player::clearPinched);
+            HashMap<UUID, byte[]> data = new HashMap<>();
+            for (SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects) {
+                try {
+                    spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id, gameObject.config);
+                    data.put(gameObject.id, gameObject.data);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                paths.add(path);
             }
-            this.terrain.terrain.put(entry.getKey(), paths);
-        }
-        for(SaveFile.SavedJoint joint : saveFile.savedJoints) {
-            GameObject first = getGameObjectByUUID(joint.first);
-            GameObject second = getGameObjectByUUID(joint.second);
-            first.vehicle.add(second);
-        }
-        data.forEach((uuid1, bytes) -> {
-            try {
-                getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
-            } catch (IOException e) {
-                e.printStackTrace();
+            this.terrain.terrain.clear();
+            for (Map.Entry<String, ArrayList<ArrayList<Vector2>>> entry : saveFile.terrain.entrySet()) {
+                PathsD paths = new PathsD();
+                for (ArrayList<Vector2> pathsReal : entry.getValue()) {
+                    PathD path = new PathD();
+                    for (Vector2 point : pathsReal) {
+                        path.add(new PointD(point.x, point.y));
+                    }
+                    paths.add(path);
+                }
+                this.terrain.terrain.put(entry.getKey(), paths);
             }
-        });
-        for(SaveFile.SavedJoint joint : saveFile.savedJoints){
-            GameObject first = getGameObjectByUUID(joint.first);
-            GameObject second = getGameObjectByUUID(joint.second);
-            try {
-                joinGameObject(first, joint.firstName, second, joint.secondName);
-            } catch(Exception e){
-                e.printStackTrace();
+            for (SaveFile.SavedJoint joint : saveFile.savedJoints) {
+                GameObject first = getGameObjectByUUID(joint.first);
+                GameObject second = getGameObjectByUUID(joint.second);
+                first.vehicle.add(second);
             }
+            data.forEach((uuid1, bytes) -> {
+                try {
+                    getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            for (SaveFile.SavedJoint joint : saveFile.savedJoints) {
+                GameObject first = getGameObjectByUUID(joint.first);
+                GameObject second = getGameObjectByUUID(joint.second);
+                try {
+                    joinGameObject(first, joint.firstName, second, joint.secondName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            saveFile.savedVehicles.forEach(vehicle -> {
+                GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);
+                gameObject.vehicle.load(vehicle);
+            });
         }
-        saveFile.savedVehicles.forEach(vehicle -> {
-            GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);
-            gameObject.vehicle.load(vehicle);
-        });
     }
     public void joinGameObject(GameObject first, String firstName, GameObject second, String secondName){
         /*if(second instanceof FrameGameObject){
@@ -514,7 +516,6 @@ public class Server {
             }
             if(this.networkServer != null)
                 this.networkServer.close();
-            this.physics.dispose();
             try {
                 if(saveFile != null) {
                     FileOutputStream stream = new FileOutputStream(saveFile);
@@ -524,6 +525,7 @@ public class Server {
             } catch(IOException exception){
                 System.out.println("couldn't save");
             }
+            this.physics.dispose();
         }).start();
     }
     public void stop(){

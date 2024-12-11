@@ -34,7 +34,7 @@ public class CannonGameObject extends GameObject {
         fixtureDef.density = 1F;
         base.createFixture(fixtureDef);
         this.setBody("base", "cannon", base);
-        lastInput = false;
+        lastInput = true;
     }
     public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
         EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
