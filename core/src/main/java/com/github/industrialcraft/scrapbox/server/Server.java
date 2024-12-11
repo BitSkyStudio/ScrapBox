@@ -488,7 +488,7 @@ public class Server {
         return physics.createJoint(joint);
     }
     public static final int TPS = 60;
-    public static final int INTERNAL_STEPS = 2;
+    public static final int INTERNAL_STEPS = 5;
     public void start(){
         new Thread(() -> {
             long startTime = System.currentTimeMillis();
