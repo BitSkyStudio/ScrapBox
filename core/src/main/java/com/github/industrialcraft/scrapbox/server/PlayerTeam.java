@@ -1,6 +1,7 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.github.industrialcraft.scrapbox.common.net.msg.PlayerTeamUpdate;
 import com.github.industrialcraft.scrapbox.common.net.msg.UpdateBuildableAreas;
 import com.github.industrialcraft.scrapbox.common.net.msg.UpdateInventory;
 
@@ -9,11 +10,13 @@ import java.util.EnumMap;
 import java.util.HashSet;
 
 public class PlayerTeam {
+    public final String name;
     public HashSet<Player> players;
     public ArrayList<Rectangle> buildableAreas;
     public EnumMap<EItemType, Float> inventory;
     public boolean infiniteItems;
-    public PlayerTeam() {
+    public PlayerTeam(String name) {
+        this.name = name;
         this.players = new HashSet<>();
         this.buildableAreas = new ArrayList<>();
         this.inventory = new EnumMap<>(EItemType.class);
@@ -50,6 +53,7 @@ public class PlayerTeam {
     public void syncPlayer(Player player){
         player.connection.send(new UpdateInventory(this.inventory.clone(), infiniteItems));
         player.connection.send(new UpdateBuildableAreas(buildableAreas));
+        player.connection.send(new PlayerTeamUpdate(name));
     }
     public boolean isInBuildableArea(float x, float y){
         if(buildableAreas.isEmpty())

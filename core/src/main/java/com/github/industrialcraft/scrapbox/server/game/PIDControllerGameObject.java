@@ -64,7 +64,7 @@ public class PIDControllerGameObject extends GameObject {
     public void tick() {
         super.tick();
         float error = getValueOnInput(0);
-        this.lastOutput = (float) this.pid.getOutput(((double)server.getTicks())/20, -error);
+        this.lastOutput = (float) this.pid.getOutput(((double)server.getTicks())/Server.TPS, -error);
     }
 
     @Override

@@ -45,6 +45,8 @@ public class MessageRegistryCreator {
         messageRegistry.register(37, UpdateInventory.createDescriptor());
         messageRegistry.register(38, PlaySoundMessage.createDescriptor());
         messageRegistry.register(39, StopSoundMessage.createDescriptor());
+        messageRegistry.register(40, PlayerTeamUpdate.createDescriptor());
+        messageRegistry.register(41, PlayerTeamList.createDescriptor());
         return messageRegistry;
     }
 }

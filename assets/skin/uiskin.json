@@ -1,13 +1,13 @@
 {
 BitmapFont: {
-	default-font: {
-		file: default.fnt
+	big-font: {
+		file: default-big.fnt
 		scaledSize: -1
 		markupEnabled: false
 		flip: false
 	}
-	small-font: {
-		file: font-small.fnt
+	default-font: {
+		file: default.fnt
 		scaledSize: -1
 		markupEnabled: false
 		flip: false
@@ -101,22 +101,6 @@ ButtonStyle: {
 		checked: button-down
 	}
 }
-CheckBoxStyle: {
-	default: {
-		checkboxOn: check-on
-		checkboxOff: check-off
-		font: default-font
-		fontColor: white
-		disabledFontColor: grey
-	}
-	radio: {
-		checkboxOn: radio-on
-		checkboxOff: radio-off
-		font: default-font
-		fontColor: white
-		disabledFontColor: grey
-	}
-}
 ImageButtonStyle: {
 	default: {
 		up: button
@@ -132,52 +116,14 @@ ImageButtonStyle: {
 		checked: button-down
 	}
 }
-ImageTextButtonStyle: {
-	default: {
-		font: default-font
-		fontColor: white
-		disabledFontColor: grey
-		up: button
-		down: button-down
-		over: button-over
-		disabled: button
-	}
-	blue: {
-		font: default-font
-		fontColor: white
-		disabledFontColor: grey
-		up: button-blue
-		down: button-blue-down
-		over: button-blue-over
-		disabled: button
-	}
-	toggle: {
-		font: default-font
-		fontColor: white
-		disabledFontColor: grey
-		up: button
-		down: button-down
-		over: button-over
-		disabled: button
-		checked: button-down
-	}
-}
 LabelStyle: {
 	default: {
 		font: default-font
 		fontColor: white
 	}
-	link-label: {
-		font: default-font
-		fontColor: link-label
-	}
-	small: {
-		font: small-font
+	big: {
+		font: big-font
 		fontColor: white
-	}
-	menuitem-shortcut: {
-		font: default-font
-		fontColor: menuitem
 	}
 }
 ListStyle: {
@@ -262,24 +208,14 @@ TextButtonStyle: {
 		over: button-sel
 		disabled: button
 	}
-	blue: {
-		font: default-font
-		fontColor: white
-		disabledFontColor: grey
-		up: button-blue
-		down: button-blue-down
-		over: button-blue-over
-		disabled: button
-	}
-	toggle: {
-		font: default-font
+	big: {
+		font: big-font
 		fontColor: white
 		disabledFontColor: grey
 		up: button
-		down: button-down
-		over: button-over
+		down: button
+		over: button-sel
 		disabled: button
-		checked: button-down
 	}
 }
 TextFieldStyle: {
@@ -290,17 +226,6 @@ TextFieldStyle: {
 		background: button
 		cursor: cursor
 		selection: selection
-		messageFont: default-font
-		messageFontColor: grey
-	}
-	small: {
-		font: small-font
-		fontColor: white
-		disabledFontColor: grey
-		background: textfield
-		cursor: cursor
-		selection: selection
-		messageFont: default-font
 		messageFontColor: grey
 	}
 }
@@ -327,16 +252,6 @@ TreeStyle: {
 WindowStyle: {
 	default: {
 		background: win2
-		titleFont: default-font
-		titleFontColor: white
-	}
-	noborder: {
-		background: window
-		titleFont: default-font
-		titleFontColor: white
-	}
-	resizable: {
-		background: window-resizable
 		titleFont: default-font
 		titleFontColor: white
 	}

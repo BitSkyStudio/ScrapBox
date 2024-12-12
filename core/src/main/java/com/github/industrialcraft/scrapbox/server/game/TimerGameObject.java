@@ -62,7 +62,7 @@ public class TimerGameObject extends GameObject {
     }
     private void resetValues(float time){
         this.head = 0;
-        this.values = new float[(int) (time*20)];
+        this.values = new float[(int) (time*Server.TPS)];
     }
 
     @Override
@@ -79,7 +79,7 @@ public class TimerGameObject extends GameObject {
 
         EditorUIRow p = new EditorUIRow(new ArrayList<>());
         p.elements.add(new EditorUILabel("time: "));
-        p.elements.add(new EditorUIInputBox("time", ""+(((float)values.length)/20f)));
+        p.elements.add(new EditorUIInputBox("time", ""+(((float)values.length)/Server.TPS)));
         rows.add(p);
 
         EditorUIRow io = new EditorUIRow(new ArrayList<>());

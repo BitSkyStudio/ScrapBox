@@ -15,7 +15,6 @@ import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
 import com.github.industrialcraft.scrapbox.common.net.msg.DisconnectMessage;
-import com.github.industrialcraft.scrapbox.common.net.msg.PlaySoundMessage;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameState;
 import com.github.industrialcraft.scrapbox.common.net.msg.SubmitPassword;
 import com.github.industrialcraft.scrapbox.server.game.*;
@@ -26,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -51,7 +51,12 @@ public class Server {
     public final ArrayList<Vector3> scheduledExplosions;
     public String password;
     public int soundIdGenerator;
+    public final ArrayList<PlayerTeam> teams;
+    public HashMap<Integer,Float> currentCommunications;
+    public HashMap<Integer,Float> backCommunications;
     public Server(File saveFile) {
+        this.currentCommunications = new HashMap<>();
+        this.backCommunications = new HashMap<>();
         this.soundIdGenerator = 0;
         this.password = null;
         this.saveFile = saveFile;
@@ -72,6 +77,9 @@ public class Server {
         this.scheduledExplosions = new ArrayList<>();
         this.paused = false;
         this.singleStep = false;
+        this.teams = new ArrayList<>();
+        this.teams.add(new PlayerTeam("RED"));
+        this.teams.add(new PlayerTeam("BLUE"));
         this.physics.setContactFilter((fixtureA, fixtureB) -> {
             Filter filterA = fixtureA.getFilterData();
             Filter filterB = fixtureB.getFilterData();
@@ -178,6 +186,8 @@ public class Server {
         GAME_OBJECT_CLASSES.put("fire_particle", FireParticleGameObject.class);
         GAME_OBJECT_CLASSES.put("flamethrower", FlamethrowerGameObject.class);
         GAME_OBJECT_CLASSES.put("motor", MotorGameObject.class);
+        GAME_OBJECT_CLASSES.put("receiver", ReceiverGameObject.class);
+        GAME_OBJECT_CLASSES.put("transmitter", TransmitterGameObject.class);
 
         for(Map.Entry<String, Class> entry : GAME_OBJECT_CLASSES.entrySet()){
             GAME_OBJECT_CLASSES_TYPES.put(entry.getValue(), entry.getKey());
@@ -215,6 +225,13 @@ public class Server {
             throw new IllegalArgumentException("no id for gameobject " + gameObject.getClass().getSimpleName());
         return id;
     }
+    public PlayerTeam getTeamByName(String name) {
+        for(PlayerTeam team : teams){
+            if(team.name.equals(name))
+                return team;
+        }
+        return null;
+    }
     private void addPlayer(Player player){
         this.players.add(player);
         this.newGameObjects.add(player);
@@ -222,9 +239,14 @@ public class Server {
         this.clientWorldManager.addPlayer(player);
         player.send(this.terrain.createMessage());
         player.sendAll(messages);
-        player.setTeam(new PlayerTeam());
+        PlayerTeam team = this.teams.stream().min(Comparator.comparingInt(t -> t.players.size())).get();
+        player.setTeam(team);
     }
     private void tick(float deltaTime) {
+        HashMap<Integer,Float> swap = backCommunications;
+        backCommunications = currentCommunications;
+        currentCommunications = swap;
+        currentCommunications.clear();
         for(GameObject gameObject : this.newGameObjects){
             this.gameObjects.put(gameObject.getId(), gameObject);
         }
@@ -246,12 +268,11 @@ public class Server {
         if(runTick) {
             runningTickCount++;
             singleStep = false;
-            int internalSteps = 20;
-            for(int i = 0;i < internalSteps;i++) {
+            for(int i = 0; i < INTERNAL_STEPS; i++) {
                 for(GameObject gameObject : this.gameObjects.values()){
                     gameObject.internalTick();
                 }
-                this.physics.step(1.35f * deltaTime / internalSteps, 20, 20);
+                this.physics.step(1.35f * deltaTime / INTERNAL_STEPS, 20, 20);
             }
         }
         for(Vector3 explosion : this.scheduledExplosions){
@@ -310,7 +331,7 @@ public class Server {
                     }
                 }
             }));
-            if(tickCount%20==1){
+            if(tickCount%TPS==1){
                 InetSocketAddress address = networkServer.getAddress();
                 if(address != null) {
                     JsonValue json = new JsonValue(JsonValue.ValueType.object);
@@ -322,7 +343,7 @@ public class Server {
                 }
             }
         }
-        int autoSaveAfterTicks = 20*60;
+        int autoSaveAfterTicks = TPS*60;
         if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1){
             try {
                 FileOutputStream stream = new FileOutputStream(saveFile);
@@ -375,55 +396,57 @@ public class Server {
         return this.gameObjects.values().stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny().or(() -> this.newGameObjects.stream().filter(gameObject -> gameObject.uuid.equals(uuid)).findAny()).orElse(null);
     }
     public void loadSaveFile(SaveFile saveFile){
-        this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
-        this.gameObjects.clear();
-        this.players.forEach(Player::clearPinched);
-        HashMap<UUID,byte[]> data = new HashMap<>();
-        for(SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects){
-            try {
-                spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id, gameObject.config);
-                data.put(gameObject.id, gameObject.data);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        this.terrain.terrain.clear();
-        for(Map.Entry<String, ArrayList<ArrayList<Vector2>>> entry : saveFile.terrain.entrySet()){
-            PathsD paths = new PathsD();
-            for(ArrayList<Vector2> pathsReal : entry.getValue()){
-                PathD path = new PathD();
-                for(Vector2 point : pathsReal){
-                    path.add(new PointD(point.x, point.y));
+        synchronized (physics) {
+            this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
+            this.gameObjects.clear();
+            this.players.forEach(Player::clearPinched);
+            HashMap<UUID, byte[]> data = new HashMap<>();
+            for (SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects) {
+                try {
+                    spawnGameObject(gameObject.position, gameObject.rotation, gameObject.type, gameObject.id, gameObject.config);
+                    data.put(gameObject.id, gameObject.data);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                paths.add(path);
             }
-            this.terrain.terrain.put(entry.getKey(), paths);
-        }
-        for(SaveFile.SavedJoint joint : saveFile.savedJoints) {
-            GameObject first = getGameObjectByUUID(joint.first);
-            GameObject second = getGameObjectByUUID(joint.second);
-            first.vehicle.add(second);
-        }
-        data.forEach((uuid1, bytes) -> {
-            try {
-                getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
-            } catch (IOException e) {
-                e.printStackTrace();
+            this.terrain.terrain.clear();
+            for (Map.Entry<String, ArrayList<ArrayList<Vector2>>> entry : saveFile.terrain.entrySet()) {
+                PathsD paths = new PathsD();
+                for (ArrayList<Vector2> pathsReal : entry.getValue()) {
+                    PathD path = new PathD();
+                    for (Vector2 point : pathsReal) {
+                        path.add(new PointD(point.x, point.y));
+                    }
+                    paths.add(path);
+                }
+                this.terrain.terrain.put(entry.getKey(), paths);
             }
-        });
-        for(SaveFile.SavedJoint joint : saveFile.savedJoints){
-            GameObject first = getGameObjectByUUID(joint.first);
-            GameObject second = getGameObjectByUUID(joint.second);
-            try {
-                joinGameObject(first, joint.firstName, second, joint.secondName);
-            } catch(Exception e){
-                e.printStackTrace();
+            for (SaveFile.SavedJoint joint : saveFile.savedJoints) {
+                GameObject first = getGameObjectByUUID(joint.first);
+                GameObject second = getGameObjectByUUID(joint.second);
+                first.vehicle.add(second);
             }
+            data.forEach((uuid1, bytes) -> {
+                try {
+                    getGameObjectByUUID(uuid1).load(new DataInputStream(new ByteArrayInputStream(bytes)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            for (SaveFile.SavedJoint joint : saveFile.savedJoints) {
+                GameObject first = getGameObjectByUUID(joint.first);
+                GameObject second = getGameObjectByUUID(joint.second);
+                try {
+                    joinGameObject(first, joint.firstName, second, joint.secondName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            saveFile.savedVehicles.forEach(vehicle -> {
+                GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);
+                gameObject.vehicle.load(vehicle);
+            });
         }
-        saveFile.savedVehicles.forEach(vehicle -> {
-            GameObject gameObject = getGameObjectByUUID(vehicle.firstGameObjectId);
-            gameObject.vehicle.load(vehicle);
-        });
     }
     public void joinGameObject(GameObject first, String firstName, GameObject second, String secondName){
         /*if(second instanceof FrameGameObject){
@@ -466,21 +489,25 @@ public class Server {
         joint.upperAngle = 0f;
         return physics.createJoint(joint);
     }
+    public static final int TPS = 60;
+    public static final int INTERNAL_STEPS = 5;
     public void start(){
         new Thread(() -> {
             long startTime = System.currentTimeMillis();
             while(!stopped){
+                //long msptTimer = System.nanoTime();
                 synchronized (physics) {
                     try {
-                        tick(1f/20);
+                        tick(1f/TPS);
                     } catch (Exception e) {
                         e.printStackTrace();
                         stop();
                     }
                 }
+                //System.out.println("mspt: " + (System.nanoTime()-msptTimer)/1000000f);
                 tickCount++;
                 try {
-                    int sleepTime = (int) (tickCount*50-(System.currentTimeMillis()-startTime));
+                    int sleepTime = (int) (tickCount*(1000/((float)TPS))-(System.currentTimeMillis()-startTime));
                     if(sleepTime > 0)
                         Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
@@ -489,7 +516,6 @@ public class Server {
             }
             if(this.networkServer != null)
                 this.networkServer.close();
-            this.physics.dispose();
             try {
                 if(saveFile != null) {
                     FileOutputStream stream = new FileOutputStream(saveFile);
@@ -499,6 +525,7 @@ public class Server {
             } catch(IOException exception){
                 System.out.println("couldn't save");
             }
+            this.physics.dispose();
         }).start();
     }
     public void stop(){

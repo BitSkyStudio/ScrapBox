@@ -1,6 +1,5 @@
 package com.github.industrialcraft.scrapbox.server;
 
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -10,10 +9,9 @@ import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
-import com.github.industrialcraft.scrapbox.server.game.RopeGameObject;
-import com.github.industrialcraft.scrapbox.server.game.StickGameObject;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Player extends GameObject{
     public final Server server;
@@ -31,6 +29,7 @@ public class Player extends GameObject{
         this.uuid = UUID.randomUUID();
 
         connection.send(new GamePausedState(server.paused));
+        connection.send(new PlayerTeamList((ArrayList<String>) server.teams.stream().map(playerTeam -> playerTeam.name).collect(Collectors.toCollection(ArrayList::new))));
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
@@ -54,6 +53,14 @@ public class Player extends GameObject{
     @Override
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {
         animationData.addString("color", Integer.toHexString(((int) this.uuid.getLeastSignificantBits()) >>> 8));
+    }
+    public boolean isGameObjectInBuildableArea(GameObject go){
+        if(this.team == null)
+            return false;
+        if(go == null)
+            return false;
+        Vector2 position = go.getBaseBody().getPosition();
+        return team.isInBuildableArea(position.x, position.y);
     }
     @Override
     public void damage(float amount, EDamageType damageType) {}
@@ -82,7 +89,7 @@ public class Player extends GameObject{
             if(message instanceof GameObjectPinch){
                 if(team == null)
                     continue;
-                if(pinching != null){
+                if(getPinching() != null && getPinching().isRemoved()){
                     server.physics.destroyJoint(pinching.mouseJoint);
                 }
                 GameObjectPinch gameObjectPinch = (GameObjectPinch) message;
@@ -102,10 +109,10 @@ public class Player extends GameObject{
                 mouseJointDef.maxForce = 10000;
                 mouseJointDef.collideConnected = true;
                 Vector2 offset = gameObject.vehicle.getCenterOfMass().sub(gameObject.getBaseBody().getWorldCenter().cpy().add(gameObjectPinch.offset));
-                pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), offset);
+                pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), offset, gameObject);
             }
             if(message instanceof GameObjectRelease){
-                if(!isInBuildableArea() && pinching != null && getPinching().getLocalMode() == EObjectInteractionMode.Ghost){
+                if(!isInBuildableArea() && getPinching() != null && getPinching().getLocalMode() == EObjectInteractionMode.Ghost){
                     trashVehicle(getPinching());
                 }
                 clearPinched();
@@ -115,9 +122,9 @@ public class Player extends GameObject{
                 getBaseBody().setTransform(mouseMoved.position.cpy(), 0);
                 if(pinching != null) {
                     if(isInBuildableArea()) {
-                        pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
                         GameObject gameObject = getPinching();
-                        if (gameObject != null) {
+                        if (gameObject != null && !gameObject.isRemoved()) {
+                            pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
                             if (gameObject.isSideUsed("center") && gameObject.getConnectionEdges().size() == 1) {
                                 gameObject = gameObject.connections.get("center").other;
                             }
@@ -134,7 +141,9 @@ public class Player extends GameObject{
                 if(team == null)
                     continue;
                 TrashObject trashObject = (TrashObject) message;
-                trashVehicle(server.gameObjects.get(trashObject.id));
+                GameObject go = server.gameObjects.get(trashObject.id);
+                if(go != null)
+                    trashVehicle(go);
             }
             if(message instanceof TakeObject){
                 if(team == null)
@@ -207,6 +216,8 @@ public class Player extends GameObject{
             if(message instanceof OpenGameObjectEditUI){
                 OpenGameObjectEditUI openGameObjectEditUI = (OpenGameObjectEditUI) message;
                 GameObject go = server.gameObjects.get(openGameObjectEditUI.id);
+                if(!isGameObjectInBuildableArea(go))
+                    continue;
                 go.uiViewers.add(this);
                 go.updateUI();
             }
@@ -219,12 +230,16 @@ public class Player extends GameObject{
                 CreateValueConnection createValueConnection = (CreateValueConnection) message;
                 GameObject input = server.gameObjects.get(createValueConnection.inputObjectId);
                 GameObject output = server.gameObjects.get(createValueConnection.outputObjectId);
+                if(!isGameObjectInBuildableArea(input) || !isGameObjectInBuildableArea(output))
+                    continue;
                 input.createValueConnection(createValueConnection.inputId, new GameObject.ValueConnection(output, createValueConnection.outputId));
                 input.updateUI();
             }
             if(message instanceof DestroyValueConnection){
                 DestroyValueConnection destroyValueConnection = (DestroyValueConnection) message;
                 GameObject input = server.gameObjects.get(destroyValueConnection.inputObjectId);
+                if(!isGameObjectInBuildableArea(input))
+                    continue;
                 input.destroyValueConnection(destroyValueConnection.inputId);
                 input.updateUI();
             }
@@ -239,6 +254,8 @@ public class Player extends GameObject{
             if(message instanceof EditorUIInput){
                 EditorUIInput editorUIInput = (EditorUIInput) message;
                 GameObject gameObject = server.gameObjects.get(editorUIInput.gameObjectId);
+                if(!isGameObjectInBuildableArea(gameObject))
+                    continue;
                 if(gameObject != null){
                     try {
                         gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
@@ -263,6 +280,8 @@ public class Player extends GameObject{
             if(message instanceof ChangeObjectHealth){
                 ChangeObjectHealth changeObjectHealthMessage = (ChangeObjectHealth) message;
                 GameObject gameObject = server.gameObjects.get(changeObjectHealthMessage.gameObjectId);
+                if(!isGameObjectInBuildableArea(gameObject))
+                    continue;
                 if(gameObject != null){
                     gameObject.damage(changeObjectHealthMessage.health, EDamageType.Wrench);
                 }
@@ -271,6 +290,8 @@ public class Player extends GameObject{
                 CreateGearConnection createGearConnectionMessage = (CreateGearConnection) message;
                 GameObject goA = server.gameObjects.get(createGearConnectionMessage.objectA);
                 GameObject goB = server.gameObjects.get(createGearConnectionMessage.objectB);
+                if(!isGameObjectInBuildableArea(goA) || !isGameObjectInBuildableArea(goB))
+                    continue;
                 if(goA != null && goB != null){
                     goA.connectGearJoint(goB, createGearConnectionMessage.gearRatioA, createGearConnectionMessage.gearRatioB);
                 }
@@ -279,9 +300,17 @@ public class Player extends GameObject{
                 DestroyGearConnection destroyGearConnectionMessage = (DestroyGearConnection) message;
                 GameObject goA = server.gameObjects.get(destroyGearConnectionMessage.objectA);
                 GameObject goB = server.gameObjects.get(destroyGearConnectionMessage.objectB);
+                if(!isGameObjectInBuildableArea(goA) || !isGameObjectInBuildableArea(goB))
+                    continue;
                 if(goA != null && goB != null){
                     goA.disconnectGearJoint(goB);
                 }
+            }
+            if(message instanceof PlayerTeamUpdate){
+                PlayerTeamUpdate playerTeamUpdateMessage = (PlayerTeamUpdate) message;
+                PlayerTeam team = server.getTeamByName(playerTeamUpdateMessage.team);
+                if(team != null)
+                    this.setTeam(team);
             }
         }
     }
@@ -309,11 +338,14 @@ public class Player extends GameObject{
     public void clearPinched(){
         if(pinching != null){
             GameObject gameObject = this.getPinching();
+            if(gameObject == null)
+                return;
             if(gameObject.vehicle.getMode() == EObjectInteractionMode.Ghost){
                 gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
             }
-            if(!gameObject.isRemoved())
+            if(!gameObject.isRemoved()) {
                 server.physics.destroyJoint(pinching.mouseJoint);
+            }
             pinching = null;
             this.send(new ShowActivePossibleWelds(new ArrayList<>()));
         }
@@ -322,11 +354,9 @@ public class Player extends GameObject{
         if(pinching == null){
             return null;
         }
-        Body body = pinching.mouseJoint.getBodyB();
-        if(body == null){
+        if(pinching.gameObject.isRemoved())
             return null;
-        }
-        return (GameObject) body.getUserData();
+        return pinching.gameObject;
     }
     public void send(Object message){
         this.connection.send(message);
@@ -351,9 +381,11 @@ public class Player extends GameObject{
     public static class PinchingData{
         public final MouseJoint mouseJoint;
         public final Vector2 offset;
-        public PinchingData(MouseJoint mouseJoint, Vector2 offset) {
+        public final GameObject gameObject;
+        public PinchingData(MouseJoint mouseJoint, Vector2 offset, GameObject gameObject) {
             this.mouseJoint = mouseJoint;
             this.offset = offset;
+            this.gameObject = gameObject;
         }
     }
 }

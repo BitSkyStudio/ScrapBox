@@ -20,7 +20,7 @@ public class MainMenuScene extends StageBasedScreen{
     public void create() {
         super.create();
         Skin skin = ScrapBox.getInstance().getSkin();
-        TextButton startGameButton = new TextButton("Start Game", skin);
+        TextButton startGameButton = new TextButton("Start Game", skin, "big");
         startGameButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -29,7 +29,7 @@ public class MainMenuScene extends StageBasedScreen{
         });
         table.add(startGameButton);
         table.row();
-        TextButton serverListButton = new TextButton("Server List", skin);
+        TextButton serverListButton = new TextButton("Server List", skin, "big");
         serverListButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -38,7 +38,16 @@ public class MainMenuScene extends StageBasedScreen{
         });
         table.add(serverListButton);
         table.row();
-        TextButton exitListButton = new TextButton("Exit", skin);
+        TextButton settingsButton = new TextButton("Settings", skin, "big");
+        settingsButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ScrapBox.getInstance().setScene(new SettingsScene());
+            }
+        });
+        table.add(settingsButton);
+        table.row();
+        TextButton exitListButton = new TextButton("Exit", skin, "big");
         exitListButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {

@@ -28,7 +28,7 @@ public class WeightGameObject extends GameObject {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE);
         fixtureDef.shape = shape;
-        fixtureDef.density = 5F;
+        fixtureDef.density = 10F;
         base.createFixture(fixtureDef);
         this.setBody("base", "weight", base);
     }
