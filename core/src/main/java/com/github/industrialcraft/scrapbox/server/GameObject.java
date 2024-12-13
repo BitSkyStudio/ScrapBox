@@ -280,7 +280,7 @@ public abstract class GameObject {
     }
     public void setBody(String name, String type, Body body){
         boolean base = name.equals("base");
-        setBody(name, type, body, base && !(this instanceof Player));
+        setBody(name, type, body, base);
     }
     public void setBody(String name, String type, Body body, boolean selectable){
         //todo: overwrites

@@ -873,6 +873,8 @@ public class InGameScene implements IScene {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             MouseSelector.Selection selected = mouseSelector.getSelected();
             for(ClientGameObject gameObject : gameObjects.values()){
+                if(gameObject.selectionId == -1)
+                    continue;
                 float healthPercent = gameObject.health/gameObject.maxHealth;
                 float size = (selected != null && gameObject.id == selected.id) ? 1 : 0.5f;
                 final float BAR_WIDTH = 200 * size;

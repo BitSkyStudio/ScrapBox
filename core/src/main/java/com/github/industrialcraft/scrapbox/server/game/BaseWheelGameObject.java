@@ -36,7 +36,7 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
         baseFixtureDef.shape = baseShape;
         baseFixtureDef.density = config.material.density;
         base.createFixture(baseFixtureDef);
-        this.setBody("base", joinType, base);
+        this.setBody("base", joinType, base, false);
 
 
         bodyDef.bullet = true;

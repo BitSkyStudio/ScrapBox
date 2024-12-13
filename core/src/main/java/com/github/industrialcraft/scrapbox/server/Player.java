@@ -33,7 +33,7 @@ public class Player extends GameObject{
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
-        setBody("base", "player", server.physics.createBody(bodyDef));
+        setBody("base", "player", server.physics.createBody(bodyDef), false);
 
         this.team = null;
     }
