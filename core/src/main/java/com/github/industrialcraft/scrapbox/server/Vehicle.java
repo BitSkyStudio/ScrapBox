@@ -42,10 +42,13 @@ public class Vehicle {
         this.mode = mode;
         for(GameObject go : this.gameObjects){
             go.setMode(mode);
-            if(mode != EObjectInteractionMode.Static && go instanceof IPairObject){
+            if(go instanceof IPairObject){
                 GameObject other = ((IPairObject) go).getOther();
-                if(other != null)
+                if(other != null && mode != EObjectInteractionMode.Static && other.getLocalMode() != EObjectInteractionMode.Static)
                     other.setMode(mode);
+                else if(other != null && other.getLocalMode() == EObjectInteractionMode.Ghost){
+                    other.setMode(EObjectInteractionMode.Normal);
+                }
             }
         }
     }
