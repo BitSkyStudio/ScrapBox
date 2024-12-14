@@ -124,7 +124,11 @@ public class Player extends GameObject{
                     if(isInBuildableArea()) {
                         GameObject gameObject = getPinching();
                         if (gameObject != null && !gameObject.isRemoved()) {
-                            pinching.mouseJoint.setTarget(mouseMoved.position.add(pinching.offset));
+                            Vector2 realPosition = mouseMoved.position.add(pinching.offset);
+                            pinching.mouseJoint.setTarget(realPosition);
+                            if(gameObject.getLocalMode() == EObjectInteractionMode.Ghost && gameObject.vehicle.gameObjects.size() == 1){
+                                gameObject.getBaseBody().setTransform(realPosition, gameObject.getBaseBody().getAngle());
+                            }
                             if (gameObject.isSideUsed("center") && gameObject.getConnectionEdges().size() == 1) {
                                 gameObject = gameObject.connections.get("center").other;
                             }

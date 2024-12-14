@@ -116,7 +116,7 @@ public class InGameScene implements IScene {
         renderDataRegistry.put("rope", new RenderData(new Texture("rope.png"), 1, 1));//only icon
         renderDataRegistry.put("spring", new RenderData(new Texture("spring.png"), 1, 1));//only icon
         renderDataRegistry.put("spring_start", new RenderData(new Texture("spring_end.png"), 0.125f, 0.5f, (renderData, gameObject, batch1) -> {
-            float animation = -gameObject.getAnimationNumber("length", 0);
+            float animation = gameObject.getAnimationNumber("length", 0);
             Vector2 lerpedPosition = gameObject.getRealPosition();
             lerpedPosition.add(new Vector2(1, -0.5f).rotateRad(gameObject.getRealAngle()));
             batch.draw(springTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, animation * InGameScene.BOX_TO_PIXELS_RATIO, 1, 1, (float) Math.toDegrees(gameObject.getRealAngle() - Math.PI/2));

@@ -46,11 +46,14 @@ public class SpringGameObject extends GameObject {
         endBody.createFixture(endFixtureDef);
 
         PrismaticJointDef prismaticJoint = new PrismaticJointDef();
-        prismaticJoint.bodyA = endBody;
-        prismaticJoint.bodyB = base;
+        prismaticJoint.bodyB = endBody;
+        prismaticJoint.bodyA = base;
         prismaticJoint.localAnchorA.set(new Vector2(0, 0));
         prismaticJoint.localAnchorB.set(new Vector2(0, 0));
-        prismaticJoint.localAxisA.set(-1, 0);
+        prismaticJoint.localAxisA.set(1, 0);
+        prismaticJoint.enableLimit = true;
+        prismaticJoint.lowerTranslation = 0.2f;
+        prismaticJoint.upperTranslation = 3f;
         prismaticJoint.referenceAngle = (float) (endBody.getAngle() - base.getAngle() - Math.PI);
         this.prismatic = (PrismaticJoint) this.server.physics.createJoint(prismaticJoint);
 
@@ -88,9 +91,9 @@ public class SpringGameObject extends GameObject {
     @Override
     public void load(DataInputStream stream) throws IOException {
         super.load(stream);
-        Vector2 offset = new Vector2(-stream.readFloat()-0.1f, 0);
+        Vector2 offset = new Vector2(stream.readFloat()-0.1f, 0);
         offset.rotateRad((float) (getBaseBody().getAngle()));
-        getBody("second").setTransform(getBaseBody().getPosition().add(offset), (float) (getBaseBody().getAngle()+Math.PI));
+        getBody("second").setTransform(getBaseBody().getPosition().add(offset), (float) (getBaseBody().getAngle()-Math.PI));
     }
 
     @Override
