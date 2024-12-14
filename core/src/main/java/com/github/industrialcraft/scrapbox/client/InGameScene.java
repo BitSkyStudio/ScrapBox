@@ -354,7 +354,7 @@ public class InGameScene implements IScene {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 if(!toolBox.isMouseInside()) {
-                    if(button == Input.Buttons.LEFT) {
+                    if(button == Input.Buttons.LEFT && !ScrapBox.getSettings().WRENCH.isDown()) {
                         if (toolBox.tool == ToolBox.Tool.Hand && !(ScrapBox.getSettings().BREAK_CONNECTION.isDown() || ScrapBox.getSettings().GEAR_CONNECTION.isDown())) {
                             selected = mouseSelector.getSelected();
                             if (selected != null) {
@@ -948,7 +948,7 @@ public class InGameScene implements IScene {
         if(ScrapBox.getSettings().FREEZE.isJustDown()){
             connection.send(new LockGameObject());
         }
-        if(ScrapBox.getSettings().EDIT_OBJECT.isJustDown()){
+        if(ScrapBox.getSettings().EDIT_OBJECT.isJustDown() && !ScrapBox.getSettings().WRENCH.isDown()){
             MouseSelector.Selection selection = mouseSelector.getSelected();
             if(selection != null) {
                 connection.send(new OpenGameObjectEditUI(selection.selectionId));
