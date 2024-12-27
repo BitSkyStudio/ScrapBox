@@ -40,7 +40,7 @@ public class EditorUIButton extends EditorUIElement{
         return button;
     }
     @Override
-    public int getText() {
+    public int getType() {
         return 5;
     }
 }

@@ -11,7 +11,7 @@ import java.io.IOException;
 public abstract class EditorUIElement {
     public abstract void toStream(DataOutputStream stream) throws IOException;
     public abstract Actor createActor(Skin skin, ClientGameObjectEditor editor);
-    public abstract int getText();
+    public abstract int getType();
 
     public static EditorUIElement load(DataInputStream stream) throws IOException {
         int id = stream.readInt();
@@ -29,6 +29,9 @@ public abstract class EditorUIElement {
         }
         if(id == 5){
             return new EditorUIButton(stream);
+        }
+        if(id == 6){
+            return new EditorUIInventory(stream);
         }
         return null;
     }

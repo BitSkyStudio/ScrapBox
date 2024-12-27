@@ -2,10 +2,10 @@ package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.github.industrialcraft.scrapbox.common.editui.*;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
+import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.io.DataInputStream;
@@ -98,8 +98,8 @@ public class ControllerGameObject extends GameObject {
         return rows;
     }
     @Override
-    public void handleEditorUIInput(String elementId, String value) {
-        super.handleEditorUIInput(elementId, value);
+    public void handleEditorUIInput(String elementId, String value, Player player) {
+        super.handleEditorUIInput(elementId, value, player);
         if(elementId.startsWith("hold")){
             int i = Integer.parseInt(elementId.replace("hold", ""))-1;
             buttonData[i].keep = !buttonData[i].keep;

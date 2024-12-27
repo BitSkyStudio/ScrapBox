@@ -38,7 +38,7 @@ public class EditorUIInputBox extends EditorUIElement{
         return inputBox;
     }
     @Override
-    public int getText() {
+    public int getType() {
         return 4;
     }
 }

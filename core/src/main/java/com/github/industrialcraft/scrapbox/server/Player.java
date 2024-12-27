@@ -1,13 +1,13 @@
 package com.github.industrialcraft.scrapbox.server;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
+import com.github.industrialcraft.scrapbox.server.game.ChestGameObject;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
 
 import java.util.*;
@@ -262,7 +262,7 @@ public class Player extends GameObject{
                     continue;
                 if(gameObject != null){
                     try {
-                        gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value);
+                        gameObject.handleEditorUIInput(editorUIInput.elementId, editorUIInput.value, this);
                     } catch (Exception e){}
                     gameObject.updateUI();
                 }
@@ -325,6 +325,13 @@ public class Player extends GameObject{
             go.remove();
             for(Map.Entry<EItemType, Float> entry : server.getGameObjectCost(server.getGameObjectId(go), go.config).entrySet()){
                 team.addItems(entry.getKey(), entry.getValue());
+            }
+            if(gameObject instanceof ChestGameObject){
+                EnumMap<EItemType, Float> inventory = ((ChestGameObject) gameObject).inventory;
+                for(Map.Entry<EItemType, Float> entry : inventory.entrySet()){
+                    team.addItems(entry.getKey(), entry.getValue());
+                }
+                inventory.clear();
             }
         }
     }

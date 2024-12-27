@@ -53,7 +53,7 @@ public class EditorUIDropDown extends EditorUIElement{
         return dropdown;
     }
     @Override
-    public int getText() {
+    public int getType() {
         return 3;
     }
 }

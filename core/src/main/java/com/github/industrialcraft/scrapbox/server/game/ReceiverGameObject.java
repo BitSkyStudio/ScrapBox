@@ -6,10 +6,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.github.industrialcraft.scrapbox.common.editui.*;
-import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
-import com.github.industrialcraft.scrapbox.server.EItemType;
-import com.github.industrialcraft.scrapbox.server.GameObject;
-import com.github.industrialcraft.scrapbox.server.Server;
+import com.github.industrialcraft.scrapbox.server.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -17,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ReceiverGameObject extends GameObject {
     public int channel;
@@ -78,8 +74,8 @@ public class ReceiverGameObject extends GameObject {
     }
 
     @Override
-    public void handleEditorUIInput(String elementId, String value) {
-        super.handleEditorUIInput(elementId, value);
+    public void handleEditorUIInput(String elementId, String value, Player player) {
+        super.handleEditorUIInput(elementId, value, player);
         if(elementId.equals("channel")){
             try{
                 this.channel = Integer.parseInt(value);

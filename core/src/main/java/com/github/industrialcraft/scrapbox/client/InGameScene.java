@@ -187,6 +187,7 @@ public class InGameScene implements IScene {
             }
         }));
         renderDataRegistry.put("controller", new RenderData(new Texture("controller.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
+        renderDataRegistry.put("chest", new RenderData(new Texture("chest.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("timer", new RenderData(new Texture("timer.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("weight", new RenderData(new Texture("weight.png"), FrameGameObject.INSIDE_SIZE, FrameGameObject.INSIDE_SIZE));
         renderDataRegistry.put("distance_sensor", new RenderData(new Texture("distance_sensor.png"), 0.45f, 0.15f, (renderData, gameObject, batch1) -> {
@@ -294,6 +295,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("position_sensor", renderDataRegistry.get("position_sensor"), PositionSensorGameObject::getItemCost, false, false);
         this.toolBox.addPart("display", renderDataRegistry.get("display"), DisplayGameObject::getItemCost, false, false);
         this.toolBox.addPart("math_unit", renderDataRegistry.get("math_unit"), MathUnitGameObject::getItemCost, false, false);
+        this.toolBox.addPart("chest", renderDataRegistry.get("chest"), ChestGameObject::getItemCost, false, false);
         this.toolBox.addPart("distance_sensor", renderDataRegistry.get("distance_sensor"), DistanceSensorGameObject::getItemCost, false, false);
         this.toolBox.addPart("pid_controller", renderDataRegistry.get("pid_controller"), PIDControllerGameObject::getItemCost, false, false);
         this.toolBox.addPart("weight", renderDataRegistry.get("weight"), WeightGameObject::getItemCost, false, false);

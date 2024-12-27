@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.github.industrialcraft.scrapbox.common.editui.*;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
+import com.github.industrialcraft.scrapbox.server.Player;
 import com.github.industrialcraft.scrapbox.server.Server;
 
 import java.io.DataInputStream;
@@ -76,8 +77,8 @@ public class TransmitterGameObject extends GameObject {
         return rows;
     }
     @Override
-    public void handleEditorUIInput(String elementId, String value) {
-        super.handleEditorUIInput(elementId, value);
+    public void handleEditorUIInput(String elementId, String value, Player player) {
+        super.handleEditorUIInput(elementId, value, player);
         if(elementId.equals("channel")){
             try{
                 this.channel = Integer.parseInt(value);
