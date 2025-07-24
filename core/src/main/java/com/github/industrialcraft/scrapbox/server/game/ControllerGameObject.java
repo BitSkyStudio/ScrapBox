@@ -18,6 +18,7 @@ import java.util.HashMap;
 public class ControllerGameObject extends GameObject {
     public final boolean[] inputs;
     private final ControllerButtonData[] buttonData;
+    public String team;
     public ControllerGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
         super(position, rotation, server, config);
 
@@ -67,6 +68,8 @@ public class ControllerGameObject extends GameObject {
         for(int i = 0;i < 10;i++){
             buttonData[i] = new ControllerButtonData(stream);
         }
+        if(stream.readBoolean())
+            this.team = stream.readUTF();
     }
 
     @Override
@@ -74,6 +77,10 @@ public class ControllerGameObject extends GameObject {
         super.save(stream);
         for(ControllerButtonData buttonData : this.buttonData){
             buttonData.toStream(stream);
+        }
+        stream.writeBoolean(this.team != null);
+        if(team != null){
+            stream.writeUTF(team);
         }
     }
 

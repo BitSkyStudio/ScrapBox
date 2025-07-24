@@ -164,6 +164,9 @@ public class Player extends GameObject{
                         team.removeItems(entry.getKey(), entry.getValue());
                     }
                     GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null, takeObject.config);
+                    if(gameObject instanceof ControllerGameObject && this.team != null){
+                        ((ControllerGameObject) gameObject).team = this.team.name;
+                    }
                     gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
                     connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
                 }
@@ -252,7 +255,8 @@ public class Player extends GameObject{
                 GameObject gameObject = server.gameObjects.get(controllerInput.gameObjectId);
                 if(gameObject instanceof ControllerGameObject){
                     ControllerGameObject controller = (ControllerGameObject) gameObject;
-                    controller.input(controllerInput.key, controllerInput.down);
+                    if(controller.team == null || (this.team != null && controller.team.equals(this.team.name)))
+                        controller.input(controllerInput.key, controllerInput.down);
                 }
             }
             if(message instanceof EditorUIInput){
