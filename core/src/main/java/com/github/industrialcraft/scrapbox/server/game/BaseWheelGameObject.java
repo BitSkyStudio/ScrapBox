@@ -11,6 +11,7 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.IGearJoinable;
 import com.github.industrialcraft.scrapbox.server.Server;
+import com.github.industrialcraft.scrapbox.server.Terrain;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +92,7 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
         for(Contact contact : server.physics.getContactList()){
             if(contact.isTouching()){
                 if((contact.getFixtureA().getBody().getUserData() == this && (contact.getFixtureA().getUserData() instanceof String)) || (contact.getFixtureB().getBody().getUserData() == this && (contact.getFixtureB().getUserData() instanceof String))){
-                    if(contact.getFixtureA().getBody().getType() != BodyDef.BodyType.StaticBody && contact.getFixtureB().getBody().getType() != BodyDef.BodyType.StaticBody) {
+                    if(!(contact.getFixtureA().getUserData() instanceof Terrain || contact.getFixtureB().getUserData() instanceof Terrain)) {
                         Body otherBody = contact.getFixtureA().getBody().getUserData()==this?contact.getFixtureB().getBody():contact.getFixtureA().getBody();
                         if(otherBody.getUserData() instanceof GameObject)
                             handleContact((GameObject) otherBody.getUserData());

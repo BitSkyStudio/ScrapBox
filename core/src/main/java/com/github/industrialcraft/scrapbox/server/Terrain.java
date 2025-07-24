@@ -100,7 +100,7 @@ public class Terrain {
                 TerrainType terrainType = this.terrainTypes.get(type.getKey());
                 fixtureDef.friction = terrainType.friction;
                 fixtureDef.restitution = terrainType.restitution;
-                body.createFixture(fixtureDef);
+                body.createFixture(fixtureDef).setUserData(this);
             }
         }
     }
