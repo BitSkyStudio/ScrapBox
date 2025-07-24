@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.server.game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.editui.*;
 import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.EItemType;
@@ -59,6 +60,12 @@ public class DistanceSensorGameObject extends GameObject {
     public float getValueOnOutput(int id) {
         AtomicReference<Float> length = new AtomicReference<>(max);
         server.physics.rayCast((fixture, point, normal, fraction) -> {
+            Object userData = fixture.getBody().getUserData();
+            if(userData instanceof GameObject){
+                if(((GameObject) userData).getLocalMode() == EObjectInteractionMode.Ghost){
+                    return -1;
+                }
+            }
             if(length.get() > fraction * max)
                 length.set(fraction * max);
             return fraction;
