@@ -28,7 +28,7 @@ public class CameraController {
             move.x += 1;
         }
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && !move.isZero()){
-            if (scene.toolBox.tool == ToolBox.Tool.TerrainModify) {
+            if (scene.toolBox.tool == ToolBox.Tool.TerrainModify && !scene.toolBox.isMouseInside()) {
                 scene.connection.send(new PlaceTerrain(scene.toolBox.getSelectedTerrainType(), scene.mouseSelector.getWorldMousePosition(), 2*scene.toolBox.brushSize, scene.toolBox.brushRectangle));
             }
         }
