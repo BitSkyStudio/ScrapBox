@@ -210,7 +210,7 @@ public class InGameScene implements IScene {
             if(Float.isNaN(time)) {
                 time = 0;
             }
-            float speed = gameObject.getAnimationNumber("speed", 0);
+            float speed = Math.min(Math.abs(gameObject.getAnimationNumber("speed", 0)), 1);
             time += Gdx.graphics.getDeltaTime() * Math.max(speed * 30, time != 0?5:0);
             if(speed == 0 && Math.cos(time) > 0.9 && Math.cos(time) < 1.){
                 time = 0;
