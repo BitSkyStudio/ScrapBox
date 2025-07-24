@@ -424,7 +424,7 @@ public class InGameScene implements IScene {
                                         try {
                                             int rA = ratioA.getText().isEmpty() ? 1 : Integer.parseInt(ratioA.getText());
                                             int rB = ratioB.getText().isEmpty() ? 1 : Integer.parseInt(ratioB.getText());
-                                            connection.send(new CreateGearConnection(gearJointSelection, rA, sel.id, rB));
+                                            connection.send(new CreateGearConnection(gearJointSelection, rA, sel.selectionId, rB));
                                         } catch (Exception e) {
                                         }
                                     }

@@ -292,7 +292,7 @@ public abstract class GameObject {
         this.bodies.put(name, body);
         body.setUserData(this);
         boolean base = name.equals("base");
-        int id = server.clientWorldManager.addBody(this, body, type, selectable, base && this instanceof IGearJoinable);
+        int id = server.clientWorldManager.addBody(this, body, type, selectable, this instanceof IGearJoinable);
         if(base){
             this.baseId = id;
         }
