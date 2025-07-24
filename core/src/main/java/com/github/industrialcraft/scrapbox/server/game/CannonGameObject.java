@@ -53,12 +53,16 @@ public class CannonGameObject extends GameObject {
     public void tick() {
         super.tick();
         boolean newInput = getValueOnInput(0) != 0;
-        if(newInput && !lastInput){
-            BulletGameObject bullet = server.spawnGameObject(getBaseBody().getPosition(), 0, BulletGameObject::new, null, GameObjectConfig.DEFAULT);
-            bullet.parent = this;
-            float speed = 100f;
-            float angle = -getBaseBody().getAngle();
-            bullet.getBaseBody().applyLinearImpulse(new Vector2((float) (Math.sin(angle)*speed), (float) (Math.cos(angle)*speed)), getBaseBody().getPosition(), true);
+        if(newInput && !lastInput) {
+            if (this.vehicle.countItem(EItemType.Metal) > 5 && this.vehicle.countItem(EItemType.Explosive) > 5) {
+                this.vehicle.removeItem(EItemType.Metal, 5);
+                this.vehicle.removeItem(EItemType.Explosive, 5);
+                BulletGameObject bullet = server.spawnGameObject(getBaseBody().getPosition(), 0, BulletGameObject::new, null, GameObjectConfig.DEFAULT);
+                bullet.parent = this;
+                float speed = 100f;
+                float angle = -getBaseBody().getAngle();
+                bullet.getBaseBody().applyLinearImpulse(new Vector2((float) (Math.sin(angle) * speed), (float) (Math.cos(angle) * speed)), getBaseBody().getPosition(), true);
+            }
         }
         lastInput = newInput;
     }

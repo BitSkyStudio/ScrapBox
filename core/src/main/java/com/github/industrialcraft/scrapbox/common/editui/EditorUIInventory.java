@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.github.industrialcraft.scrapbox.client.ClientGameObjectEditor;
+import com.github.industrialcraft.scrapbox.client.ToolBox;
 import com.github.industrialcraft.scrapbox.common.net.msg.EditorUIInput;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 
@@ -49,9 +50,10 @@ public class EditorUIInventory extends EditorUIElement{
                     return 32;
                 }
             };
-            Label label = new Label(inventory.getOrDefault(itemType, 0f)+"", skin);
+            Label label = new Label(ToolBox.formatFloat(inventory.getOrDefault(itemType, 0f)), skin);
             TextButton more = new TextButton(">", skin);
-            table.add(less, image, label, more).row();
+            Actor linkActor = new EditorUILink(itemType.id, false, 0f, false, false).createActor(skin, editor);
+            table.add(less, image, label, more, linkActor).row();
             less.addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y) {

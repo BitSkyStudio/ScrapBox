@@ -136,7 +136,8 @@ public class ToolBox {
             }
         }
     }
-    private static String formatFloat(float number){
+    public static String formatFloat(float number){
+        number = (float) (Math.round(number * 100.0) / 100.0);
         if(number == (long) number)
             return String.valueOf((long)number);
         else

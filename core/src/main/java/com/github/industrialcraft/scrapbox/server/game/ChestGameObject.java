@@ -44,6 +44,12 @@ public class ChestGameObject extends GameObject {
         items.put(EItemType.Wood, 50f);
         return items;
     }
+
+    @Override
+    public float getValueOnOutput(int id) {
+        return inventory.getOrDefault(EItemType.byId((byte) id), 0f);
+    }
+
     @Override
     public void save(DataOutputStream stream) throws IOException {
         super.save(stream);
