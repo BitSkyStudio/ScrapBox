@@ -8,7 +8,6 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
-import com.github.industrialcraft.scrapbox.server.ClientWorldManager;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.IGearJoinable;
 import com.github.industrialcraft.scrapbox.server.Server;
@@ -79,9 +78,15 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
         return getBody("wheel");
     }
 
+    private ArrayList<Vector2> attractionPoints = new ArrayList<>();
     @Override
     public void internalTick() {
         super.internalTick();
+        for(Vector2 point : attractionPoints){
+            //System.out.println(point + "%" + wheelBody.getWorldCenter() + "%" + point.cpy().sub(wheelBody.getWorldCenter()).nor());
+            wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion * 50 * vehicle.getMass()), wheelBody.getWorldCenter(), true);
+        }
+        this.attractionPoints.clear();
         float value = Math.max(Math.min(getValueOnInput(0),1),-1);
         for(Contact contact : server.physics.getContactList()){
             if(contact.isTouching()){
@@ -94,7 +99,7 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
                         WorldManifold worldManifold = contact.getWorldManifold();
                         for(int i = 0;i < worldManifold.getNumberOfContactPoints();i++){
                             Vector2 point = worldManifold.getPoints()[i];
-                            wheelBody.applyForce(point.cpy().sub(wheelBody.getWorldCenter()).nor().scl(adhesion * 300 * vehicle.getMass()), wheelBody.getWorldCenter(), true);
+                            attractionPoints.add(point.cpy());
                         }
                     }
                 }

@@ -15,7 +15,7 @@ public class Terrain {
     public final Body body;
     public HashMap<String,PathsD> terrain;
     private final HashMap<String, TerrainType> terrainTypes;
-    private boolean dirty;
+    public boolean dirty;
     public Terrain(Server server) {
         this.server = server;
         this.body = server.physics.createBody(new BodyDef());
@@ -42,13 +42,18 @@ public class Terrain {
         } else {
             shape = Clipper.Ellipse(new PointD(point.x, point.y), radius, radius, 20);
         }
+        float simplifyEpsilon = 0.05f;
         if(type.isEmpty()) {
-            this.terrain.replaceAll((k, v) -> Clipper.Difference(this.terrain.get(k), new PathsD(Collections.singletonList(shape)), FillRule.Positive));
+            this.terrain.replaceAll((k, v) -> {
+                PathsD terrain = Clipper.Difference(this.terrain.get(k), new PathsD(Collections.singletonList(shape)), FillRule.Positive);
+                terrain = Clipper.SimplifyPaths(terrain, simplifyEpsilon);
+                return terrain;
+            });
         } else {
             PathsD currentTerrain = getTerrainType(type);
             currentTerrain.add(shape);
             currentTerrain = Clipper.Union(currentTerrain, FillRule.Positive);
-            currentTerrain = Clipper.SimplifyPaths(currentTerrain, 0.03);
+            currentTerrain = Clipper.SimplifyPaths(currentTerrain, simplifyEpsilon);
             for(Map.Entry<String, PathsD> e : this.terrain.entrySet()){
                 if(!e.getKey().equals(type)){
                     currentTerrain = Clipper.Difference(currentTerrain, e.getValue(), FillRule.Positive);

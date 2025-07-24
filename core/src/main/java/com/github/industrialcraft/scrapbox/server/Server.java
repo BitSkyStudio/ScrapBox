@@ -399,8 +399,15 @@ public class Server {
     public void loadSaveFile(SaveFile saveFile){
         synchronized (physics) {
             this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
-            this.gameObjects.clear();
-            this.players.forEach(Player::clearPinched);
+            this.gameObjects.values().removeIf(gameObject -> {
+                if(gameObject instanceof Player){
+                    ((Player) gameObject).clearPinched();
+                    return false;
+                }
+                gameObject.remove();
+                gameObject.destroy();
+                return true;
+            });
             HashMap<UUID, byte[]> data = new HashMap<>();
             for (SaveFile.SavedGameObject gameObject : saveFile.savedGameObjects) {
                 try {
@@ -422,6 +429,8 @@ public class Server {
                 }
                 this.terrain.terrain.put(entry.getKey(), paths);
             }
+            this.terrain.dirty = true;
+            this.terrain.rebuildIfNeeded();
             for (SaveFile.SavedJoint joint : saveFile.savedJoints) {
                 GameObject first = getGameObjectByUUID(joint.first);
                 GameObject second = getGameObjectByUUID(joint.second);
