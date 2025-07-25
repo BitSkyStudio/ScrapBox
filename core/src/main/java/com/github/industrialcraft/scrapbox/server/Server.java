@@ -556,7 +556,7 @@ public class Server {
             if(this.networkServer != null)
                 this.networkServer.close();
             try {
-                if(saveFile != null) {
+                if(saveFile != null && saveState == null) {
                     FileOutputStream stream = new FileOutputStream(saveFile);
                     dumpToSaveFile().toStream(new DataOutputStream(stream));
                     stream.close();
