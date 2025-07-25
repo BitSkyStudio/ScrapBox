@@ -602,7 +602,10 @@ public class InGameScene implements IScene {
             connection.send(new ToggleGamePaused(true));
         }
         if(ScrapBox.getSettings().SAVESTATE.isJustDown()){
-            connection.send(new ToggleSaveState());
+            connection.send(new ToggleSaveState(false));
+        }
+        if(ScrapBox.getSettings().SAVESTATE_RESET.isJustDown()){
+            connection.send(new ToggleSaveState(true));
         }
         if(controllingData != null){
             connection.send(new RequestControllerState(controllingData.controllingId));

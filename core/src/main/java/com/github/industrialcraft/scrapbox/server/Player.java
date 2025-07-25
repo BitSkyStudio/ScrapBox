@@ -89,7 +89,7 @@ public class Player extends GameObject{
                 }
             }
             if(message instanceof ToggleSaveState){
-                server.scheduleSavestateToggle = true;
+                server.scheduleSavestateToggle = ((ToggleSaveState) message).reset?2:1;
             }
             if(message instanceof GameObjectPinch){
                 if(team == null)

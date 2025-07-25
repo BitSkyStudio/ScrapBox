@@ -56,7 +56,7 @@ public class Server {
     public HashMap<Integer,Float> currentCommunications;
     public HashMap<Integer,Float> backCommunications;
     public SaveFile saveState;
-    public boolean scheduleSavestateToggle;
+    public int scheduleSavestateToggle;
     public Server(File saveFile) {
         this.currentCommunications = new HashMap<>();
         this.backCommunications = new HashMap<>();
@@ -81,7 +81,7 @@ public class Server {
         this.scheduledExplosions = new ArrayList<>();
         this.paused = false;
         this.singleStep = false;
-        this.scheduleSavestateToggle = false;
+        this.scheduleSavestateToggle = 0;
         this.teams = new ArrayList<>();
         this.teams.add(new PlayerTeam("RED"));
         this.teams.add(new PlayerTeam("BLUE"));
@@ -515,27 +515,21 @@ public class Server {
             long startTime = System.currentTimeMillis();
             while(!stopped){
                 //long msptTimer = System.nanoTime();
-                if(scheduleSavestateToggle){
-                    if(saveState == null){
+                if(scheduleSavestateToggle == 1){
+                    if (saveState == null) {
                         this.saveState = this.dumpToSaveFile();
-                        try {
-                            FileOutputStream stream = new FileOutputStream(saveFile);
-                            saveState.toStream(new DataOutputStream(stream));
-                            stream.close();
-                            System.out.println("autosaved");
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
                     } else {
-                        this.loadSaveFile(saveState);
                         this.saveState = null;
                     }
                     GameSaveStateActive message = new GameSaveStateActive(saveState != null);
-                    for(Player player : players){
+                    for (Player player : players) {
                         player.connection.send(message);
                     }
-                    scheduleSavestateToggle = false;
                 }
+                if(scheduleSavestateToggle == 2 && saveState != null){
+                    this.loadSaveFile(saveState);
+                }
+                scheduleSavestateToggle = 0;
                 synchronized (physics) {
                     try {
                         tick(1f/TPS);

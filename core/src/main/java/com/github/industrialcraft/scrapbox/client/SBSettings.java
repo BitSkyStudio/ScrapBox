@@ -29,6 +29,7 @@ public class SBSettings {
     public final Keybinding DEBUG_PHYSICS_RENDERING = new Keybinding("debug_physics_rendering", "Debug Physics Rendering", Input.Keys.F1);
     public final Keybinding PAUSE_GAME = new Keybinding("pause_game", "Pause Game", Input.Keys.F2);
     public final Keybinding SAVESTATE = new Keybinding("save_state", "Save State", Input.Keys.F4);
+    public final Keybinding SAVESTATE_RESET = new Keybinding("save_state_reset", "Rollback Save State", Input.Keys.F5);
     public final Keybinding STEP_GAME = new Keybinding("step_game", "Single Step Game", Input.Keys.F3);
     public final Keybinding[] KEYBINDINGS = new Keybinding[]{UP, DOWN, LEFT, RIGHT, GHOST_MODE, WELD, FREEZE, OPEN_CONTROLLER, EDIT_OBJECT, BREAK_CONNECTION, GEAR_CONNECTION, WRENCH, DEBUG_PHYSICS_RENDERING, PAUSE_GAME, STEP_GAME, SAVESTATE};
     public SBSettings() {
