@@ -68,6 +68,7 @@ public class InGameScene implements IScene {
     private boolean isPaused;
     private TextureRegion pausedTexture;
     private TextureRegion grabberStickyTexture;
+    private TextureRegion stabilizerWingTexture;
     private BuildAreaRenderer buildAreaRenderer;
     private int gearJointSelection;
     public HashMap<String, Sound> sounds;
@@ -108,6 +109,7 @@ public class InGameScene implements IScene {
         springTexture = new TextureRegion(new Texture("spring.png"));
         pausedTexture = new TextureRegion(new Texture("paused.png"));
         grabberStickyTexture = new TextureRegion(new Texture("grabber_sticky.png"));
+        stabilizerWingTexture = new TextureRegion(new Texture("stabilizer_wing.png"));
         buildAreaRenderer = new BuildAreaRenderer();
         renderDataRegistry = new HashMap<>();
         renderDataRegistry.put("frame", new RenderData(null, 1, 1).addMaterialTexture(new Texture("frame.png")));
@@ -275,6 +277,11 @@ public class InGameScene implements IScene {
         }));
         renderDataRegistry.put("triangle", new RenderData(new Texture("triangle.png"), 1, 1));
         renderDataRegistry.put("triangle_arm", new RenderData(new Texture("triangle_arm.png"), 1, 0.1f));
+        renderDataRegistry.put("stabilizer", new RenderData(new Texture("stabilizer.png"), 1, 1, (renderData, gameObject, batch1) -> {
+            renderData.draw(batch1, gameObject);
+            Vector2 lerpedPosition = gameObject.getRealPosition();
+            batch.draw(stabilizerWingTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1 * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, gameObject.getAnimationNumber("angle", 0));
+        }));
         batch = new ColorfulBatch();
         gameObjects = new HashMap<>();
         debugRendering = false;
@@ -310,6 +317,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("flamethrower", renderDataRegistry.get("flamethrower"), FlamethrowerGameObject::getItemCost, false, false, false);
         this.toolBox.addPart("receiver", renderDataRegistry.get("receiver"), ReceiverGameObject::getItemCost, false, false, false);
         this.toolBox.addPart("transmitter", renderDataRegistry.get("transmitter"), TransmitterGameObject::getItemCost, false, false, false);
+        this.toolBox.addPart("stabilizer", renderDataRegistry.get("stabilizer"), StabilizerGameObject::getItemCost, false, false, false);
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();
@@ -1003,6 +1011,11 @@ public class InGameScene implements IScene {
         for(RenderData renderData : renderDataRegistry.values()){
             renderData.dispose();
         }
+        stabilizerWingTexture.getTexture().dispose();
+        grabberStickyTexture.getTexture().dispose();
+        pausedTexture.getTexture().dispose();
+        puncherSpringTexture.getTexture().dispose();
+        springTexture.getTexture().dispose();
     }
     private static class ControllingData{
         public final int controllingId;
