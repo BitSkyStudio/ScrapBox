@@ -196,6 +196,7 @@ public class Server {
         GAME_OBJECT_CLASSES.put("chest", ChestGameObject.class);
         GAME_OBJECT_CLASSES.put("triangle", TriangleGameObject.class);
         GAME_OBJECT_CLASSES.put("stabilizer", StabilizerGameObject.class);
+        GAME_OBJECT_CLASSES.put("pin", PinGameObject.class);
 
         for(Map.Entry<String, Class> entry : GAME_OBJECT_CLASSES.entrySet()){
             GAME_OBJECT_CLASSES_TYPES.put(entry.getValue(), entry.getKey());

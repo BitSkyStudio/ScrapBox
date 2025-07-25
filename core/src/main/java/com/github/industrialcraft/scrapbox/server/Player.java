@@ -9,6 +9,7 @@ import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.*;
 import com.github.industrialcraft.scrapbox.server.game.ChestGameObject;
 import com.github.industrialcraft.scrapbox.server.game.ControllerGameObject;
+import com.github.industrialcraft.scrapbox.server.game.PinGameObject;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -106,6 +107,12 @@ public class Player extends GameObject{
                 if(gameObject.vehicle.getMode() == EObjectInteractionMode.Static){
                     gameObject.vehicle.setMode(EObjectInteractionMode.Normal);
                 }
+                for(GameObject go : gameObject.vehicle.gameObjects){
+                    if(go instanceof PinGameObject) {
+                        gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
+                        break;
+                    }
+                }
                 MouseJointDef mouseJointDef = new MouseJointDef();
                 mouseJointDef.bodyA = server.terrain.body;
                 mouseJointDef.bodyB = gameObject.getBaseBody();
@@ -184,10 +191,19 @@ public class Player extends GameObject{
                     continue;
                 GameObject pinching = getPinching();
                 if(pinching != null){
-                    if(pinching.vehicle.getMode() == EObjectInteractionMode.Normal){
-                        pinching.vehicle.setMode(EObjectInteractionMode.Ghost);
-                    } else {
-                        pinching.vehicle.setMode(EObjectInteractionMode.Normal);
+                    boolean can = true;
+                    for(GameObject go : pinching.vehicle.gameObjects){
+                        if(go instanceof PinGameObject){
+                            can = false;
+                            break;
+                        }
+                    }
+                    if(can) {
+                        if (pinching.vehicle.getMode() == EObjectInteractionMode.Normal) {
+                            pinching.vehicle.setMode(EObjectInteractionMode.Ghost);
+                        } else {
+                            pinching.vehicle.setMode(EObjectInteractionMode.Normal);
+                        }
                     }
                 }
             }

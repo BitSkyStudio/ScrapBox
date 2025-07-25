@@ -285,6 +285,7 @@ public class InGameScene implements IScene {
             Vector2 lerpedPosition = gameObject.getRealPosition();
             batch.draw(stabilizerWingTexture, (lerpedPosition.x - 1) * InGameScene.BOX_TO_PIXELS_RATIO, (lerpedPosition.y - 1) * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO, 1 * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1 * InGameScene.BOX_TO_PIXELS_RATIO * 2, 1, 1, gameObject.getAnimationNumber("angle", 0));
         }));
+        renderDataRegistry.put("pin", new RenderData(new Texture("pin.png"), 1, 1f));
         batch = new ColorfulBatch();
         gameObjects = new HashMap<>();
         debugRendering = false;
@@ -321,6 +322,7 @@ public class InGameScene implements IScene {
         this.toolBox.addPart("receiver", renderDataRegistry.get("receiver"), ReceiverGameObject::getItemCost, false, false, false);
         this.toolBox.addPart("transmitter", renderDataRegistry.get("transmitter"), TransmitterGameObject::getItemCost, false, false, false);
         this.toolBox.addPart("stabilizer", renderDataRegistry.get("stabilizer"), StabilizerGameObject::getItemCost, false, false, false);
+        this.toolBox.addPart("pin", renderDataRegistry.get("pin"), StabilizerGameObject::getItemCost, false, false, false);
         this.weldShowcase = new ArrayList<>();
         this.shapeRenderer = new ShapeRenderer();
         this.terrainRenderer = new TerrainRenderer();

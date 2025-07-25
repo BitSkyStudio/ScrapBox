@@ -384,7 +384,7 @@ public abstract class GameObject {
         }
         return weldCandidates;
     }
-    private EObjectInteractionMode localMode = EObjectInteractionMode.Normal;
+    protected EObjectInteractionMode localMode = EObjectInteractionMode.Normal;
     public EObjectInteractionMode getLocalMode() {
         return localMode;
     }
