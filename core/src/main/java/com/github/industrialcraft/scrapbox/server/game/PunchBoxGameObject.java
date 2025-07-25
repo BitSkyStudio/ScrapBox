@@ -9,6 +9,9 @@ import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
 import com.github.industrialcraft.scrapbox.server.*;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -60,6 +63,20 @@ public class PunchBoxGameObject extends GameObject {
         items.put(EItemType.StickyResin, 20f);
         items.put(EItemType.Metal, 40f);
         return items;
+    }
+
+    @Override
+    public void save(DataOutputStream stream) throws IOException {
+        super.save(stream);
+        stream.writeFloat(motor.getJointTranslation());
+    }
+
+    @Override
+    public void load(DataInputStream stream) throws IOException {
+        super.load(stream);
+        Vector2 offset = new Vector2(0, stream.readFloat());
+        offset.rotateRad(getBaseBody().getAngle());
+        getBody("puncher").setTransform(getBaseBody().getPosition().add(offset), getBaseBody().getAngle());
     }
 
     @Override

@@ -13,6 +13,9 @@ import com.github.industrialcraft.scrapbox.server.IGearJoinable;
 import com.github.industrialcraft.scrapbox.server.Server;
 import com.github.industrialcraft.scrapbox.server.Terrain;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -58,6 +61,18 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
         revoluteJoint.maxMotorTorque = 1000;
         this.motor = (RevoluteJoint) this.server.physics.createJoint(revoluteJoint);
         this.setBody("wheel", wheelType, wheelBody, true);
+    }
+
+    @Override
+    public void save(DataOutputStream stream) throws IOException {
+        super.save(stream);
+        stream.writeFloat(getBody("wheel").getAngle());
+    }
+
+    @Override
+    public void load(DataInputStream stream) throws IOException {
+        super.load(stream);
+        getBody("wheel").setTransform(getBody("wheel").getPosition(), stream.readFloat());
     }
 
     @Override
