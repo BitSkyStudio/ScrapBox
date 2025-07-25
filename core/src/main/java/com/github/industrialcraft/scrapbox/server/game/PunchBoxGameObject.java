@@ -66,20 +66,6 @@ public class PunchBoxGameObject extends GameObject {
     }
 
     @Override
-    public void save(DataOutputStream stream) throws IOException {
-        super.save(stream);
-        stream.writeFloat(motor.getJointTranslation());
-    }
-
-    @Override
-    public void load(DataInputStream stream) throws IOException {
-        super.load(stream);
-        Vector2 offset = new Vector2(0, stream.readFloat());
-        offset.rotateRad(getBaseBody().getAngle());
-        getBody("puncher").setTransform(getBaseBody().getPosition().add(offset), getBaseBody().getAngle());
-    }
-
-    @Override
     public boolean collidesWith(Fixture thisFixture, Fixture other) {
         if(thisFixture.getBody() != motor.getBodyA()){
             return true;

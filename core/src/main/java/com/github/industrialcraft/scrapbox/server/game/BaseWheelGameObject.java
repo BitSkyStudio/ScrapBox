@@ -64,18 +64,6 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
     }
 
     @Override
-    public void save(DataOutputStream stream) throws IOException {
-        super.save(stream);
-        stream.writeFloat(getBody("wheel").getAngle());
-    }
-
-    @Override
-    public void load(DataInputStream stream) throws IOException {
-        super.load(stream);
-        getBody("wheel").setTransform(getBody("wheel").getPosition(), stream.readFloat());
-    }
-
-    @Override
     public float getMaxHealth() {
         return 100 * config.material.baseHealthMultiplier;
     }

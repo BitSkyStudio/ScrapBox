@@ -85,20 +85,6 @@ public class PistonGameObject extends GameObject implements IGearJoinable {
     }
 
     @Override
-    public void save(DataOutputStream stream) throws IOException {
-        super.save(stream);
-        stream.writeFloat(motor.getJointTranslation());
-    }
-
-    @Override
-    public void load(DataInputStream stream) throws IOException {
-        super.load(stream);
-        Vector2 offset = new Vector2(0, 1 + stream.readFloat());
-        offset.rotateRad(getBaseBody().getAngle());
-        getBody("end").setTransform(getBaseBody().getPosition().add(offset), getBaseBody().getAngle());
-    }
-
-    @Override
     public void tick() {
         super.tick();
         float value = Math.max(Math.min(getValueOnInput(0),2.5f),0)*2;

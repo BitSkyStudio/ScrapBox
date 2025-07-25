@@ -65,17 +65,6 @@ public class RotatorGameObject extends GameObject {
         items.put(EItemType.Circuit, 10f);
         return items;
     }
-    @Override
-    public void save(DataOutputStream stream) throws IOException {
-        super.save(stream);
-        stream.writeFloat(getBody("end").getAngle()-getBaseBody().getAngle());
-    }
-
-    @Override
-    public void load(DataInputStream stream) throws IOException {
-        super.load(stream);
-        getBody("end").setTransform(getBody("end").getPosition(), getBaseBody().getAngle()+stream.readFloat());
-    }
 
     @Override
     public void tick() {

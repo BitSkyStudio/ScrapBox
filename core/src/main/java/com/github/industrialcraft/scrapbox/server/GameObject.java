@@ -130,6 +130,13 @@ public abstract class GameObject {
             if(other != null)
                 connectGearJoint(other, stream.readInt(), stream.readInt());
         }
+        int bodiesLen = stream.readInt();
+        for(int i = 0;i < bodiesLen;i++){
+            Body body = getBody(stream.readUTF());
+            body.setTransform(new Vector2(stream.readFloat(), stream.readFloat()), stream.readFloat());
+            body.setLinearVelocity(new Vector2(stream.readFloat(), stream.readFloat()));
+            body.setAngularVelocity(stream.readFloat());
+        }
     }
     public void save(DataOutputStream stream) throws IOException {
         stream.writeFloat(health);
@@ -152,6 +159,16 @@ public abstract class GameObject {
             stream.writeLong(gearConnection.other.uuid.getLeastSignificantBits());
             stream.writeInt(gearConnection.thisRatio);
             stream.writeInt(gearConnection.otherRatio);
+        }
+        stream.writeInt(this.bodies.size());
+        for(Map.Entry<String, Body> entry : this.bodies.entrySet()){
+            stream.writeUTF(entry.getKey());
+            stream.writeFloat(entry.getValue().getPosition().x);
+            stream.writeFloat(entry.getValue().getPosition().y);
+            stream.writeFloat(entry.getValue().getAngle());
+            stream.writeFloat(entry.getValue().getLinearVelocity().x);
+            stream.writeFloat(entry.getValue().getLinearVelocity().y);
+            stream.writeFloat(entry.getValue().getAngularVelocity());
         }
     }
     public void remove(){
