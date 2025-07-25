@@ -1,6 +1,7 @@
 package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
@@ -20,7 +21,7 @@ public class CuttingWheelGameObject extends BaseWheelGameObject{
     @Override
     public void tick() {
         super.tick();
-        if(motor.isMotorEnabled())
+        if(motor.isMotorEnabled() && getLocalMode() != EObjectInteractionMode.Ghost)
             server.terrain.place("", getBody("wheel").getWorldCenter(), config.size + .03f, false);
     }
 

@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -178,6 +177,9 @@ public class ToolBox {
                     TextField sizeField = new TextField(""+config.size, ScrapBox.getInstance().getSkin());
                     sizeField.setTextFieldFilter((textField, c) -> Character.isDigit(c) || c == '.');
                     sizeField.setDisabled(!part.sizeModification);
+                    TextField angleField = new TextField(""+config.angle, ScrapBox.getInstance().getSkin());
+                    angleField.setTextFieldFilter((textField, c) -> Character.isDigit(c) || c == '.');
+                    angleField.setDisabled(!part.angleModification);
                     Dialog dialog = new Dialog("Object Config", ScrapBox.getInstance().getSkin(), "dialog") {
                         @Override
                         protected void result(Object object) {
@@ -186,7 +188,11 @@ public class ToolBox {
                                 try{
                                     newSize = Float.parseFloat(sizeField.getText());
                                 } catch (Exception e){}
-                                GameObject.GameObjectConfig newConfig = new GameObject.GameObjectConfig(Material.byId((byte) materials.getSelectedIndex()), newSize);
+                                float newAngle = config.angle;
+                                try{
+                                    newAngle = Float.parseFloat(angleField.getText());
+                                } catch (Exception e){}
+                                GameObject.GameObjectConfig newConfig = new GameObject.GameObjectConfig(Material.byId((byte) materials.getSelectedIndex()), newSize, newAngle);
                                 partsConfig.set((int)y, newConfig);
                             }
                         }
@@ -195,6 +201,8 @@ public class ToolBox {
                     dialog.getContentTable().add(materials).row();
                     dialog.getContentTable().add(new Label("size: ", ScrapBox.getInstance().getSkin()));
                     dialog.getContentTable().add(sizeField).row();
+                    dialog.getContentTable().add(new Label("angle: ", ScrapBox.getInstance().getSkin()));
+                    dialog.getContentTable().add(angleField).row();
                     dialog.button("Ok", "");
                     dialog.button("Cancel");
                     dialog.show(game.stage);
@@ -217,8 +225,8 @@ public class ToolBox {
         this.background.dispose();
         this.tools.forEach(toolType -> toolType.texture.dispose());
     }
-    public void addPart(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, boolean materialModification, boolean sizeModification){
-        this.parts.add(new Part(type, renderData, costCalculator, materialModification, sizeModification));
+    public void addPart(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, boolean materialModification, boolean sizeModification, boolean angleModification){
+        this.parts.add(new Part(type, renderData, costCalculator, materialModification, sizeModification, angleModification));
         this.partsConfig.add(GameObject.GameObjectConfig.DEFAULT);
     }
     public void scroll(int value){
@@ -231,12 +239,14 @@ public class ToolBox {
         public final GameObject.GameObjectCostCalculator costCalculator;
         public final boolean materialModification;
         public final boolean sizeModification;
-        public Part(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, boolean materialModification, boolean sizeModification) {
+        public final boolean angleModification;
+        public Part(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, boolean materialModification, boolean sizeModification, boolean angleModification) {
             this.type = type;
             this.renderData = renderData;
             this.costCalculator = costCalculator;
             this.materialModification = materialModification;
             this.sizeModification = sizeModification;
+            this.angleModification = angleModification;
         }
     }
     public static class ToolType{

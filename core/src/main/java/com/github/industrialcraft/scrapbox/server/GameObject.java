@@ -127,7 +127,8 @@ public abstract class GameObject {
         for(int i = 0;i < gearConnectionSize;i++){
             UUID otherId = new UUID(stream.readLong(), stream.readLong());
             GameObject other = server.getGameObjectByUUID(otherId);
-            connectGearJoint(other, stream.readInt(), stream.readInt());
+            if(other != null)
+                connectGearJoint(other, stream.readInt(), stream.readInt());
         }
     }
     public void save(DataOutputStream stream) throws IOException {
@@ -520,20 +521,24 @@ public abstract class GameObject {
         }
     }
     public static class GameObjectConfig{
-        public static GameObjectConfig DEFAULT = new GameObjectConfig(Material.Wood, 1);
+        public static GameObjectConfig DEFAULT = new GameObjectConfig(Material.Wood, 1, 45);
         public final Material material;
         public final float size;
-        public GameObjectConfig(Material material, float size) {
+        public final float angle;
+        public GameObjectConfig(Material material, float size, float angle) {
             this.material = material;
             this.size = size;
+            this.angle = angle;
         }
         public GameObjectConfig(DataInputStream stream) throws IOException {
             this.material = Material.byId(stream.readByte());
             this.size = stream.readFloat();
+            this.angle = stream.readFloat();
         }
         public void toStream(DataOutputStream stream) throws IOException {
             stream.writeByte(material.id);
             stream.writeFloat(size);
+            stream.writeFloat(angle);
         }
     }
 }

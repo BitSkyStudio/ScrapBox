@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
@@ -53,7 +54,7 @@ public class CannonGameObject extends GameObject {
     public void tick() {
         super.tick();
         boolean newInput = getValueOnInput(0) != 0;
-        if(newInput && !lastInput) {
+        if(newInput && !lastInput && getLocalMode() != EObjectInteractionMode.Ghost) {
             if (this.vehicle.countItem(EItemType.Metal) > 5 && this.vehicle.countItem(EItemType.Explosive) > 5) {
                 this.vehicle.removeItem(EItemType.Metal, 5);
                 this.vehicle.removeItem(EItemType.Explosive, 5);

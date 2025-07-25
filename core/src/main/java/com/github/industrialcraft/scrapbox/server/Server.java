@@ -189,6 +189,7 @@ public class Server {
         GAME_OBJECT_CLASSES.put("receiver", ReceiverGameObject.class);
         GAME_OBJECT_CLASSES.put("transmitter", TransmitterGameObject.class);
         GAME_OBJECT_CLASSES.put("chest", ChestGameObject.class);
+        GAME_OBJECT_CLASSES.put("triangle", TriangleGameObject.class);
 
         for(Map.Entry<String, Class> entry : GAME_OBJECT_CLASSES.entrySet()){
             GAME_OBJECT_CLASSES_TYPES.put(entry.getValue(), entry.getKey());
@@ -471,9 +472,11 @@ public class Server {
             throw new RuntimeException("one of joined must be frame");
         }*/
 
-        Body firstBase = first.getBody(first.getOpenConnections().get(firstName).connectionEdge.bodyName);
-        Body secondBase = second.getBody(second.getOpenConnections().get(secondName).connectionEdge.bodyName);
-        float rotationOffset = firstBase.getAngle()+((float) (Math.round((secondBase.getAngle()-firstBase.getAngle())/HALF_PI)*HALF_PI));
+        GameObject.ConnectionEdge firstEdge = first.getOpenConnections().get(firstName).connectionEdge;
+        GameObject.ConnectionEdge secondEdge = second.getOpenConnections().get(secondName).connectionEdge;
+        Body firstBase = first.getBody(firstEdge.bodyName);
+        Body secondBase = second.getBody(secondEdge.bodyName);
+        float rotationOffset = (firstBase.getAngle())+((float) (Math.round(((secondBase.getAngle())-(firstBase.getAngle()))/HALF_PI)*HALF_PI));
         secondBase.setTransform(secondBase.getPosition(), rotationOffset);
         secondBase.setTransform(secondBase.getPosition().add(first.getOpenConnections().get(firstName).getPosition().sub(second.getOpenConnections().get(secondName).getPosition())), secondBase.getAngle());
         //Joint joint = second.createJoint(secondName, first, firstName);
@@ -494,7 +497,7 @@ public class Server {
         //System.out.println(weldCandidate.angle);
         //joint.referenceAngle = (float) -weldCandidate.angle;
         //joint.referenceAngle = (float) Math.PI;
-        joint.referenceAngle = (float) (Math.round((joint.bodyB.getAngle() - joint.bodyA.getAngle())/HALF_PI)*HALF_PI);
+        joint.referenceAngle = (float) (Math.round(((joint.bodyB.getAngle()) - (joint.bodyA.getAngle()))/HALF_PI)*HALF_PI);
         joint.lowerAngle = 0f;
         joint.upperAngle = 0f;
         return physics.createJoint(joint);

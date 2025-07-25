@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
@@ -51,7 +52,7 @@ public class FlamethrowerGameObject extends GameObject {
     public void tick() {
         super.tick();
         boolean newInput = getValueOnInput(0) != 0;
-        if(newInput) {
+        if(newInput && getLocalMode() != EObjectInteractionMode.Ghost) {
             float explosiveCost = 1f/50f;
             if(vehicle.countItem(EItemType.Explosive) >= explosiveCost) {
                 vehicle.removeItem(EItemType.Explosive, explosiveCost);
