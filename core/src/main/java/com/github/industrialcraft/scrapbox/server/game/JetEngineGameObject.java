@@ -27,7 +27,6 @@ public class JetEngineGameObject extends GameObject {
         bodyDef.position.set(position);
         bodyDef.angle = rotation;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.linearDamping = 3;
         Body base = server.physics.createBody(bodyDef);
         FixtureDef fixtureDef = new FixtureDef();
         PolygonShape shape = new PolygonShape();
@@ -57,6 +56,7 @@ public class JetEngineGameObject extends GameObject {
         this.speed = Math.max(Math.min(getValueOnInput(0),1),-1);
         float angle = getBaseBody().getAngle();
         getBaseBody().applyLinearImpulse(new Vector2((float) -Math.sin(angle), (float) Math.cos(angle)).scl(50/4f*speed), getBaseBody().getPosition(), true);
+        getBaseBody().setLinearDamping(Math.abs(speed*3));
         if(speed != 0) {
             for (int i = 0; i < 3; i++) {
                 FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getWorldPoint(new Vector2(0, -1)).cpy(), 0, FireParticleGameObject::new, null, GameObjectConfig.DEFAULT);

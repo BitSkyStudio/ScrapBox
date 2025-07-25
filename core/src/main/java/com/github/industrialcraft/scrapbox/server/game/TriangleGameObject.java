@@ -36,7 +36,7 @@ public class TriangleGameObject extends GameObject {
         fixtureDef.shape = shape;
         fixtureDef.density = config.material.density;
         end.createFixture(fixtureDef);
-        this.setBody("end", "triangle_arm", end);
+        this.setBody("end", "triangle_arm", end, true);
 
         WeldJointDef joint = new WeldJointDef();
         joint.initialize(getBody("base"), getBody("end"), getBody("base").getPosition());
