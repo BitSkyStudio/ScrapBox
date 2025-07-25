@@ -29,6 +29,7 @@ public class Player extends GameObject{
         this.uuid = UUID.randomUUID();
 
         connection.send(new GamePausedState(server.paused));
+        connection.send(new GameSaveStateActive(server.saveState != null));
         connection.send(new PlayerTeamList((ArrayList<String>) server.teams.stream().map(playerTeam -> playerTeam.name).collect(Collectors.toCollection(ArrayList::new))));
 
         BodyDef bodyDef = new BodyDef();
@@ -85,6 +86,9 @@ public class Player extends GameObject{
                         client.send(pausedStateMessage);
                     }
                 }
+            }
+            if(message instanceof ToggleSaveState){
+                server.scheduleSavestateToggle = true;
             }
             if(message instanceof GameObjectPinch){
                 if(team == null)

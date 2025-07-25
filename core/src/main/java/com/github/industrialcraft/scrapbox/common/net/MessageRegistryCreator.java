@@ -47,6 +47,8 @@ public class MessageRegistryCreator {
         messageRegistry.register(39, StopSoundMessage.createDescriptor());
         messageRegistry.register(40, PlayerTeamUpdate.createDescriptor());
         messageRegistry.register(41, PlayerTeamList.createDescriptor());
+        messageRegistry.register(42, ToggleSaveState.createDescriptor());
+        messageRegistry.register(43, GameSaveStateActive.createDescriptor());
         return messageRegistry;
     }
 }

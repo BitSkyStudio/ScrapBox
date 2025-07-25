@@ -15,6 +15,7 @@ import com.github.industrialcraft.netx.ServerMessage;
 import com.github.industrialcraft.netx.SocketUser;
 import com.github.industrialcraft.scrapbox.common.net.MessageRegistryCreator;
 import com.github.industrialcraft.scrapbox.common.net.msg.DisconnectMessage;
+import com.github.industrialcraft.scrapbox.common.net.msg.GameSaveStateActive;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameState;
 import com.github.industrialcraft.scrapbox.common.net.msg.SubmitPassword;
 import com.github.industrialcraft.scrapbox.server.game.*;
@@ -54,12 +55,15 @@ public class Server {
     public final ArrayList<PlayerTeam> teams;
     public HashMap<Integer,Float> currentCommunications;
     public HashMap<Integer,Float> backCommunications;
+    public SaveFile saveState;
+    public boolean scheduleSavestateToggle;
     public Server(File saveFile) {
         this.currentCommunications = new HashMap<>();
         this.backCommunications = new HashMap<>();
         this.soundIdGenerator = 0;
         this.password = null;
         this.saveFile = saveFile;
+        this.saveState = null;
         this.uuid = UUID.randomUUID();
         this.players = new ArrayList<>();
         this.physics = new World(GRAVITY, true);
@@ -77,6 +81,7 @@ public class Server {
         this.scheduledExplosions = new ArrayList<>();
         this.paused = false;
         this.singleStep = false;
+        this.scheduleSavestateToggle = false;
         this.teams = new ArrayList<>();
         this.teams.add(new PlayerTeam("RED"));
         this.teams.add(new PlayerTeam("BLUE"));
@@ -347,7 +352,7 @@ public class Server {
             }
         }
         int autoSaveAfterTicks = TPS*60;
-        if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1){
+        if(tickCount%autoSaveAfterTicks==autoSaveAfterTicks-1 && saveState == null){
             try {
                 FileOutputStream stream = new FileOutputStream(saveFile);
                 dumpToSaveFile().toStream(new DataOutputStream(stream));
@@ -400,7 +405,6 @@ public class Server {
     }
     public void loadSaveFile(SaveFile saveFile){
         synchronized (physics) {
-            this.gameObjects.forEach((integer, gameObject) -> gameObject.remove());
             this.gameObjects.values().removeIf(gameObject -> {
                 if(gameObject instanceof Player){
                     ((Player) gameObject).clearPinched();
@@ -510,6 +514,27 @@ public class Server {
             long startTime = System.currentTimeMillis();
             while(!stopped){
                 //long msptTimer = System.nanoTime();
+                if(scheduleSavestateToggle){
+                    if(saveState == null){
+                        this.saveState = this.dumpToSaveFile();
+                        try {
+                            FileOutputStream stream = new FileOutputStream(saveFile);
+                            saveState.toStream(new DataOutputStream(stream));
+                            stream.close();
+                            System.out.println("autosaved");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        this.loadSaveFile(saveState);
+                        this.saveState = null;
+                    }
+                    GameSaveStateActive message = new GameSaveStateActive(saveState != null);
+                    for(Player player : players){
+                        player.connection.send(message);
+                    }
+                    scheduleSavestateToggle = false;
+                }
                 synchronized (physics) {
                     try {
                         tick(1f/TPS);

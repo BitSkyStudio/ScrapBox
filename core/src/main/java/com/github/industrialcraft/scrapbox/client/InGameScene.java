@@ -66,7 +66,9 @@ public class InGameScene implements IScene {
     private TextureRegion puncherSpringTexture;
     private TextureRegion springTexture;
     private boolean isPaused;
+    private boolean isSaveState;
     private TextureRegion pausedTexture;
+    private TextureRegion saveStateTexture;
     private TextureRegion grabberStickyTexture;
     private TextureRegion stabilizerWingTexture;
     private BuildAreaRenderer buildAreaRenderer;
@@ -108,6 +110,7 @@ public class InGameScene implements IScene {
         puncherSpringTexture = new TextureRegion(new Texture("puncher_spring.png"));
         springTexture = new TextureRegion(new Texture("spring.png"));
         pausedTexture = new TextureRegion(new Texture("paused.png"));
+        saveStateTexture = new TextureRegion(new Texture("savestate.png"));
         grabberStickyTexture = new TextureRegion(new Texture("grabber_sticky.png"));
         stabilizerWingTexture = new TextureRegion(new Texture("stabilizer_wing.png"));
         buildAreaRenderer = new BuildAreaRenderer();
@@ -508,6 +511,10 @@ public class InGameScene implements IScene {
                 GamePausedState gamePausedStateMessage = (GamePausedState) message;
                 isPaused = gamePausedStateMessage.paused;
             }
+            if(message instanceof GameSaveStateActive){
+                GameSaveStateActive gameSaveStateActive = (GameSaveStateActive) message;
+                isSaveState = gameSaveStateActive.active;
+            }
             if(message instanceof AddGameObjectMessage){
                 AddGameObjectMessage addGameObjectMessage = (AddGameObjectMessage) message;
                 gameObjects.put(addGameObjectMessage.id, new ClientGameObject(addGameObjectMessage));
@@ -591,6 +598,9 @@ public class InGameScene implements IScene {
         }
         if(ScrapBox.getSettings().STEP_GAME.isJustDown()){
             connection.send(new ToggleGamePaused(true));
+        }
+        if(ScrapBox.getSettings().SAVESTATE.isJustDown()){
+            connection.send(new ToggleSaveState());
         }
         if(controllingData != null){
             connection.send(new RequestControllerState(controllingData.controllingId));
@@ -954,6 +964,13 @@ public class InGameScene implements IScene {
             batch.draw(pausedTexture, realWidth/2- width/2, Gdx.graphics.getHeight()-50-height, width, height);
             batch.end();
         }
+        if(isSaveState){
+            batch.begin();
+            float width = saveStateTexture.getRegionWidth()*3;
+            float height = saveStateTexture.getRegionHeight()*3;
+            batch.draw(saveStateTexture, realWidth/2- width/2, Gdx.graphics.getHeight()-50-height*2.5f, width, height);
+            batch.end();
+        }
 
         if(ScrapBox.getSettings().WELD.isJustDown()){
             connection.send(new CommitWeld());
@@ -1016,6 +1033,7 @@ public class InGameScene implements IScene {
         pausedTexture.getTexture().dispose();
         puncherSpringTexture.getTexture().dispose();
         springTexture.getTexture().dispose();
+        saveStateTexture.getTexture().dispose();
     }
     private static class ControllingData{
         public final int controllingId;
