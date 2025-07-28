@@ -123,7 +123,7 @@ public class Player extends GameObject{
                 mouseJointDef.target.set(gameObject.vehicle.getCenterOfMass());
                 mouseJointDef.maxForce = 10000;
                 mouseJointDef.collideConnected = true;
-                Vector2 offset = gameObject.vehicle.getCenterOfMass().sub(gameObject.getBaseBody().getWorldCenter().cpy().add(gameObjectPinch.offset));
+                Vector2 offset = gameObject.vehicle.getCenterOfMass().sub(gameObject.getBaseBody().getPosition().cpy().add(gameObjectPinch.offset));
                 pinching = new PinchingData((MouseJoint) server.physics.createJoint(mouseJointDef), offset, gameObject);
             }
             if(message instanceof GameObjectRelease){
