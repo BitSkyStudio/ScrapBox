@@ -31,9 +31,9 @@ public class Vehicle {
             this.gameObjects.add(gameObject);
             gameObject.vehicle = this;
         } else {
+            gameObject.vehicle.setMode(this.mode);
             for(GameObject go : gameObject.vehicle.gameObjects){
                 this.gameObjects.add(go);
-                go.setMode(this.mode);
                 go.vehicle = this;
             }
         }
