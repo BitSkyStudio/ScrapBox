@@ -65,8 +65,7 @@ public class StabilizerGameObject extends GameObject {
         value %= Math.PI * 2;
         float distance = (float) Math.min(Math.abs(value), Math.abs(Math.PI-value));
         float sign = value>Math.PI?1:-1;
-        float speed = getBaseBody().getLinearVelocity().len();
-        getBaseBody().applyLinearImpulse(new Vector2(0, sign * speed * 0.1f * Math.min(distance, 1)), getBaseBody().getWorldPoint(Vector2.Zero), true);
+        getBaseBody().applyLinearImpulse(getBaseBody().getLinearVelocity().rotate90((int) sign).scl(0.1f * Math.min(distance, 1)), getBaseBody().getWorldPoint(Vector2.Zero), true);
     }
 
     @Override
