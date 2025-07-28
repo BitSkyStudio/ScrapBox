@@ -31,7 +31,7 @@ public class SBSettings {
     public final Keybinding SAVESTATE = new Keybinding("save_state", "Save State", Input.Keys.F4);
     public final Keybinding SAVESTATE_RESET = new Keybinding("save_state_reset", "Rollback Save State", Input.Keys.F5);
     public final Keybinding STEP_GAME = new Keybinding("step_game", "Single Step Game", Input.Keys.F3);
-    public final Keybinding[] KEYBINDINGS = new Keybinding[]{UP, DOWN, LEFT, RIGHT, GHOST_MODE, WELD, FREEZE, OPEN_CONTROLLER, EDIT_OBJECT, BREAK_CONNECTION, GEAR_CONNECTION, WRENCH, DEBUG_PHYSICS_RENDERING, PAUSE_GAME, STEP_GAME, SAVESTATE};
+    public final Keybinding[] KEYBINDINGS = new Keybinding[]{UP, DOWN, LEFT, RIGHT, GHOST_MODE, WELD, FREEZE, OPEN_CONTROLLER, EDIT_OBJECT, BREAK_CONNECTION, GEAR_CONNECTION, WRENCH, DEBUG_PHYSICS_RENDERING, PAUSE_GAME, STEP_GAME, SAVESTATE, SAVESTATE_RESET};
     public SBSettings() {
         this.preferences = Gdx.app.getPreferences("ScrapBoxPrefs");
         for(Keybinding keybinding : KEYBINDINGS){

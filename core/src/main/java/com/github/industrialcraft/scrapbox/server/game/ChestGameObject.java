@@ -81,14 +81,14 @@ public class ChestGameObject extends GameObject {
         super.handleEditorUIInput(elementId, value, player);
         if(elementId.equals("inventory_add")){
             EItemType itemType = EItemType.byId(Byte.parseByte(value));
-            float itemTransfer = player.team.infiniteItems?1:Math.min(1, player.team.getItemCount(itemType));
-            player.team.removeItems(itemType, itemTransfer);
+            float itemTransfer = player.getTeam().infiniteItems?1:Math.min(1, player.getTeam().getItemCount(itemType));
+            player.getTeam().removeItems(itemType, itemTransfer);
             inventory.put(itemType, inventory.getOrDefault(itemType, 0f)+itemTransfer);
         }
         if(elementId.equals("inventory_sub")){
             EItemType itemType = EItemType.byId(Byte.parseByte(value));
             float itemTransfer = Math.min(1, inventory.getOrDefault(itemType, 0f));
-            player.team.addItems(itemType, itemTransfer);
+            player.getTeam().addItems(itemType, itemTransfer);
             inventory.put(itemType, inventory.getOrDefault(itemType, 0f)-itemTransfer);
         }
     }

@@ -20,7 +20,7 @@ public class Player extends GameObject{
     private PinchingData pinching;
     private boolean isDisconnected;
     public final UUID uuid;
-    public PlayerTeam team;
+    public String team;
     public Player(Server server, IConnection connection, GameObjectConfig config) {
         super(Vector2.Zero.cpy(), 0, server, config);
         this.server = server;
@@ -31,7 +31,7 @@ public class Player extends GameObject{
 
         connection.send(new GamePausedState(server.paused));
         connection.send(new GameSaveStateActive(server.saveState != null));
-        connection.send(new PlayerTeamList((ArrayList<String>) server.teams.stream().map(playerTeam -> playerTeam.name).collect(Collectors.toCollection(ArrayList::new))));
+        connection.send(new PlayerTeamList(new ArrayList<>(server.teams.keySet())));
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
@@ -39,18 +39,22 @@ public class Player extends GameObject{
 
         this.team = null;
     }
-    public void setTeam(PlayerTeam team){
+    public void setTeam(String teamName){
         if(this.team != null){
-            this.team.players.remove(this);
+            this.server.teams.get(this.team).players.remove(this);
         }
-        this.team = team;
+        this.team = teamName;
+        PlayerTeam team = this.server.teams.get(teamName);
         team.players.add(this);
-        team.syncPlayer(this);
+        team.syncPlayer(this, teamName);
+    }
+    public PlayerTeam getTeam(){
+        return this.server.teams.get(this.team);
     }
     public boolean isInBuildableArea(){
         if(this.team == null)
             return false;
-        return team.isInBuildableArea(getBaseBody().getPosition().x, getBaseBody().getPosition().y);
+        return getTeam().isInBuildableArea(getBaseBody().getPosition().x, getBaseBody().getPosition().y);
     }
     @Override
     public void getAnimationData(ClientWorldManager.AnimationData animationData) {
@@ -62,7 +66,7 @@ public class Player extends GameObject{
         if(go == null)
             return false;
         Vector2 position = go.getBaseBody().getPosition();
-        return team.isInBuildableArea(position.x, position.y);
+        return getTeam().isInBuildableArea(position.x, position.y);
     }
     @Override
     public void damage(float amount, EDamageType damageType) {}
@@ -167,16 +171,16 @@ public class Player extends GameObject{
                 EnumMap<EItemType, Float> cost = server.getGameObjectCost(takeObject.type, takeObject.config);
                 boolean failed = false;
                 for(Map.Entry<EItemType, Float> entry : cost.entrySet()){
-                    if(team.getItemCount(entry.getKey()) < entry.getValue())
+                    if(getTeam().getItemCount(entry.getKey()) < entry.getValue())
                         failed = true;
                 }
                 if(!failed) {
                     for(Map.Entry<EItemType, Float> entry : cost.entrySet()){
-                        team.removeItems(entry.getKey(), entry.getValue());
+                        getTeam().removeItems(entry.getKey(), entry.getValue());
                     }
                     GameObject gameObject = server.spawnGameObject(takeObject.position, 0, takeObject.type, null, takeObject.config);
                     if(gameObject instanceof ControllerGameObject && this.team != null){
-                        ((ControllerGameObject) gameObject).team = this.team.name;
+                        ((ControllerGameObject) gameObject).team = this.team;
                     }
                     gameObject.vehicle.setMode(EObjectInteractionMode.Ghost);
                     connection.send(new TakeObjectResponse(gameObject.getId(), takeObject.offset));
@@ -275,7 +279,7 @@ public class Player extends GameObject{
                 GameObject gameObject = server.gameObjects.get(controllerInput.gameObjectId);
                 if(gameObject instanceof ControllerGameObject){
                     ControllerGameObject controller = (ControllerGameObject) gameObject;
-                    if(controller.team == null || (this.team != null && controller.team.equals(this.team.name)))
+                    if(controller.team == null || controller.team.equals(this.team))
                         controller.input(controllerInput.key, controllerInput.down);
                 }
             }
@@ -336,9 +340,8 @@ public class Player extends GameObject{
             }
             if(message instanceof PlayerTeamUpdate){
                 PlayerTeamUpdate playerTeamUpdateMessage = (PlayerTeamUpdate) message;
-                PlayerTeam team = server.getTeamByName(playerTeamUpdateMessage.team);
-                if(team != null)
-                    this.setTeam(team);
+                if(server.teams.containsKey(playerTeamUpdateMessage.team))
+                    this.setTeam(playerTeamUpdateMessage.team);
             }
         }
     }
@@ -348,12 +351,12 @@ public class Player extends GameObject{
         for(GameObject go : gameObject.vehicle.gameObjects.toArray(GameObject[]::new)){
             go.remove();
             for(Map.Entry<EItemType, Float> entry : server.getGameObjectCost(server.getGameObjectId(go), go.config).entrySet()){
-                team.addItems(entry.getKey(), entry.getValue());
+                getTeam().addItems(entry.getKey(), entry.getValue());
             }
             if(gameObject instanceof ChestGameObject){
                 EnumMap<EItemType, Float> inventory = ((ChestGameObject) gameObject).inventory;
                 for(Map.Entry<EItemType, Float> entry : inventory.entrySet()){
-                    team.addItems(entry.getKey(), entry.getValue());
+                    getTeam().addItems(entry.getKey(), entry.getValue());
                 }
                 inventory.clear();
             }

@@ -52,7 +52,7 @@ public class Server {
     public final ArrayList<Vector3> scheduledExplosions;
     public String password;
     public int soundIdGenerator;
-    public final ArrayList<PlayerTeam> teams;
+    public HashMap<String, PlayerTeam> teams;
     public HashMap<Integer,Float> currentCommunications;
     public HashMap<Integer,Float> backCommunications;
     public SaveFile saveState;
@@ -82,9 +82,8 @@ public class Server {
         this.paused = false;
         this.singleStep = false;
         this.scheduleSavestateToggle = 0;
-        this.teams = new ArrayList<>();
-        this.teams.add(new PlayerTeam("RED"));
-        this.teams.add(new PlayerTeam("BLUE"));
+        this.teams = new HashMap<>();
+        this.teams.put("RED", new PlayerTeam());
         this.physics.setContactFilter((fixtureA, fixtureB) -> {
             Filter filterA = fixtureA.getFilterData();
             Filter filterB = fixtureB.getFilterData();
@@ -234,13 +233,6 @@ public class Server {
             throw new IllegalArgumentException("no id for gameobject " + gameObject.getClass().getSimpleName());
         return id;
     }
-    public PlayerTeam getTeamByName(String name) {
-        for(PlayerTeam team : teams){
-            if(team.name.equals(name))
-                return team;
-        }
-        return null;
-    }
     private void addPlayer(Player player){
         this.players.add(player);
         this.newGameObjects.add(player);
@@ -248,7 +240,7 @@ public class Server {
         this.clientWorldManager.addPlayer(player);
         player.send(this.terrain.createMessage());
         player.sendAll(messages);
-        PlayerTeam team = this.teams.stream().min(Comparator.comparingInt(t -> t.players.size())).get();
+        String team = this.teams.entrySet().stream().min(Comparator.comparingInt(t -> t.getValue().players.size())).get().getKey();
         player.setTeam(team);
     }
     private void tick(float deltaTime) {
@@ -365,7 +357,7 @@ public class Server {
         }
     }
     public SaveFile dumpToSaveFile(){
-        SaveFile saveFile = new SaveFile(new HashMap<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        SaveFile saveFile = new SaveFile(new HashMap<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), teams);
         this.terrain.terrain.forEach((s, pathDS) -> {
             ArrayList<ArrayList<Vector2>> paths = new ArrayList<>();
             for(PathD path : pathDS){
@@ -406,6 +398,21 @@ public class Server {
     }
     public void loadSaveFile(SaveFile saveFile){
         synchronized (physics) {
+            this.teams = saveFile.teams;
+            for(PlayerTeam team : teams.values()){
+                team.players.clear();
+            }
+            for(Player player : players){
+                String newTeam;
+                if(this.teams.containsKey(player.team)){
+                    newTeam = player.team;
+                } else {
+                    newTeam = this.teams.entrySet().stream().min(Comparator.comparingInt(t -> t.getValue().players.size())).get().getKey();
+                }
+                player.team = null;
+                player.setTeam(newTeam);
+            }
+
             this.gameObjects.values().removeIf(gameObject -> {
                 if(gameObject instanceof Player){
                     ((Player) gameObject).clearPinched();

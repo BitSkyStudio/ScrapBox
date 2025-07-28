@@ -1,5 +1,6 @@
 package com.github.industrialcraft.scrapbox.server;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.io.DataInputStream;
@@ -15,11 +16,13 @@ public class SaveFile {
     public final ArrayList<SavedGameObject> savedGameObjects;
     public final ArrayList<SavedJoint> savedJoints;
     public final ArrayList<SavedVehicle> savedVehicles;
-    public SaveFile(HashMap<String, ArrayList<ArrayList<Vector2>>> terrain, ArrayList<SavedGameObject> savedGameObjects, ArrayList<SavedJoint> savedJoints, ArrayList<SavedVehicle> savedVehicles) {
+    public final HashMap<String, PlayerTeam> teams;
+    public SaveFile(HashMap<String, ArrayList<ArrayList<Vector2>>> terrain, ArrayList<SavedGameObject> savedGameObjects, ArrayList<SavedJoint> savedJoints, ArrayList<SavedVehicle> savedVehicles, HashMap<String, PlayerTeam> teams) {
         this.terrain = terrain;
         this.savedGameObjects = savedGameObjects;
         this.savedJoints = savedJoints;
         this.savedVehicles = savedVehicles;
+        this.teams = teams;
     }
     public SaveFile(DataInputStream stream) throws IOException {
         this.terrain = new HashMap<>();
@@ -53,6 +56,22 @@ public class SaveFile {
         for(int i = 0;i < savedVehicleCount;i++){
             this.savedVehicles.add(new SavedVehicle(stream));
         }
+        this.teams = new HashMap<>();
+        int teamCount = stream.readInt();
+        for(int i = 0;i < teamCount;i++){
+            String name = stream.readUTF();
+            PlayerTeam team = new PlayerTeam();
+            int buildAreaCount = stream.readInt();
+            for(int j = 0;j < buildAreaCount;j++){
+                team.buildableAreas.add(new Rectangle(stream.readFloat(), stream.readFloat(), stream.readFloat(), stream.readFloat()));
+            }
+            int inventorySize = stream.readInt();
+            for(int j = 0;j < inventorySize;j++){
+                team.inventory.put(EItemType.byId(stream.readByte()), stream.readFloat());
+            }
+            team.infiniteItems = stream.readBoolean();
+            this.teams.put(name, team);
+        }
     }
     public void toStream(DataOutputStream stream) throws IOException {
         stream.writeInt(terrain.size());
@@ -78,6 +97,23 @@ public class SaveFile {
         stream.writeInt(savedVehicles.size());
         for(SavedVehicle vehicle : savedVehicles){
             vehicle.toStream(stream);
+        }
+        stream.writeInt(teams.size());
+        for(Map.Entry<String, PlayerTeam> team : teams.entrySet()){
+            stream.writeUTF(team.getKey());
+            stream.writeInt(team.getValue().buildableAreas.size());
+            for(Rectangle area : team.getValue().buildableAreas){
+                stream.writeFloat(area.x);
+                stream.writeFloat(area.y);
+                stream.writeFloat(area.width);
+                stream.writeFloat(area.height);
+            }
+            stream.writeInt(team.getValue().inventory.size());
+            for(Map.Entry<EItemType, Float> entry : team.getValue().inventory.entrySet()){
+                stream.writeByte(entry.getKey().id);
+                stream.writeFloat(entry.getValue());
+            }
+            stream.writeBoolean(team.getValue().infiniteItems);
         }
     }
     public static class SavedGameObject{
