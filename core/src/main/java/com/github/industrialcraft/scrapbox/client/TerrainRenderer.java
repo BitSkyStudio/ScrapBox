@@ -1,5 +1,6 @@
 package com.github.industrialcraft.scrapbox.client;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.PolygonRegion;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
@@ -30,8 +31,9 @@ public class TerrainRenderer {
         this.terrain = new ArrayList<>();
     }
     public void addTerrainType(String type, String texture){
-        Texture texture1 = new Texture(texture);
+        Texture texture1 = new Texture(Gdx.files.internal(texture), true);
         texture1.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        texture1.setFilter(Texture.TextureFilter.MipMap, Texture.TextureFilter.MipMap);
         TextureRegion textureRegion = new TextureRegion(texture1);
         this.textures.put(type, textureRegion);
     }
