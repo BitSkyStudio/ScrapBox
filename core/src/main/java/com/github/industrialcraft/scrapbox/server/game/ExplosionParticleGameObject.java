@@ -64,7 +64,7 @@ public class ExplosionParticleGameObject extends GameObject {
             go.damage(30, EDamageType.Explosion);
         }
         if(other.getBody().getType() == BodyDef.BodyType.StaticBody){
-            server.terrain.place("", thisFixture.getBody().getWorldCenter(), power/Math.max(3-ttl, 1), false);
+            server.terrain.addExplosionBreak(thisFixture.getBody().getWorldCenter(), power/Math.max(3-ttl, 1));
         }
         this.cancelled = true;
     }

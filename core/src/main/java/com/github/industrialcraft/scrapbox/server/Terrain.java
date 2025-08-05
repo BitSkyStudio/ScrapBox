@@ -16,12 +16,14 @@ public class Terrain {
     public HashMap<String,PathsD> terrain;
     private final HashMap<String, TerrainType> terrainTypes;
     public boolean dirty;
+    private PathsD explosionDestroyBatch;
     public Terrain(Server server) {
         this.server = server;
         this.body = server.physics.createBody(new BodyDef());
         this.terrain = new HashMap<>();
         this.terrainTypes = new HashMap<>();
         this.dirty = true;
+        this.explosionDestroyBatch = new PathsD();
     }
     private PathsD getTerrainType(String terrainType){
         return this.terrain.getOrDefault(terrainType, new PathsD());
@@ -30,6 +32,7 @@ public class Terrain {
     public void placeFromMessage(PlaceTerrain placeTerrain){
         place(placeTerrain.type, placeTerrain.position, placeTerrain.radius, placeTerrain.rectangle);
     }
+    private static final float simplifyEpsilon = 0.05f;
     public void place(String type, Vector2 point, float radius, boolean rectangle){
         PathD shape;
         if(rectangle){
@@ -42,7 +45,6 @@ public class Terrain {
         } else {
             shape = Clipper.Ellipse(new PointD(point.x, point.y), radius, radius, 20);
         }
-        float simplifyEpsilon = 0.05f;
         if(type.isEmpty()) {
             this.terrain.replaceAll((k, v) -> {
                 PathsD terrain = Clipper.Difference(this.terrain.get(k), new PathsD(Collections.singletonList(shape)), FillRule.Positive);
@@ -63,7 +65,20 @@ public class Terrain {
         }
         dirty = true;
     }
+    public void addExplosionBreak(Vector2 point, float radius){
+        PathD shape = Clipper.Ellipse(new PointD(point.x, point.y), radius, radius, 20);
+        explosionDestroyBatch.add(shape);
+    }
     public void rebuildIfNeeded(){
+        if(!explosionDestroyBatch.isEmpty()){
+            this.terrain.replaceAll((k, v) -> {
+                PathsD terrain = Clipper.Difference(this.terrain.get(k), explosionDestroyBatch, FillRule.Positive);
+                terrain = Clipper.SimplifyPaths(terrain, simplifyEpsilon);
+                return terrain;
+            });
+            dirty = true;
+            explosionDestroyBatch.clear();
+        }
         if(!dirty){
             return;
         }

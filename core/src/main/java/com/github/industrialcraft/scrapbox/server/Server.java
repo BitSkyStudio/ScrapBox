@@ -278,7 +278,7 @@ public class Server {
         }
         for(Vector3 explosion : this.scheduledExplosions){
             Vector2 position = new Vector2(explosion.x, explosion.y);
-            this.terrain.place("", position, explosion.z*2, false);
+            terrain.addExplosionBreak(position, explosion.z*2);
             Random random = new Random();
             for(int i = 0;i < 40;i++){
                 ExplosionParticleGameObject go = spawnGameObject(position, 0f, ExplosionParticleGameObject::new, null, GameObject.GameObjectConfig.DEFAULT);
