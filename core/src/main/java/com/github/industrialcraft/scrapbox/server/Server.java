@@ -546,6 +546,7 @@ public class Server {
                     }
                 }
                 //System.out.println("mspt: " + (System.nanoTime()-msptTimer)/1000000f);
+                //System.out.println("fps: " + (tickCount*1000f)/(System.currentTimeMillis()-startTime));
                 tickCount++;
                 try {
                     int sleepTime = (int) (tickCount*(1000/((float)TPS))-(System.currentTimeMillis()-startTime));

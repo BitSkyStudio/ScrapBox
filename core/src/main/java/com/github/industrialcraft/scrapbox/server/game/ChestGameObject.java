@@ -6,6 +6,8 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.github.industrialcraft.scrapbox.common.editui.*;
+import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
+import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIInventory;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Player;
@@ -75,6 +77,10 @@ public class ChestGameObject extends GameObject {
         row.elements.add(new EditorUIInventory(inventory));
         rows.add(row);
         return rows;
+    }
+    public void updateViewers(){
+        SetGameObjectEditUIInventory message = new SetGameObjectEditUIInventory(this.getId(), inventory);
+        this.uiViewers.forEach(player -> player.send(message));
     }
     @Override
     public void handleEditorUIInput(String elementId, String value, Player player) {

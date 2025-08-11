@@ -37,6 +37,7 @@ public class EditorUIInventory extends EditorUIElement{
     }
     @Override
     public Actor createActor(Skin skin, ClientGameObjectEditor editor) {
+        editor.itemTypes = new EnumMap<>(EItemType.class);
         Table table = new Table();
         for(EItemType itemType : EItemType.values()){
             TextButton less = new TextButton("<", skin);
@@ -50,7 +51,8 @@ public class EditorUIInventory extends EditorUIElement{
                     return 32;
                 }
             };
-            Label label = new Label(ToolBox.formatFloat(inventory.getOrDefault(itemType, 0f)), skin);
+            Label label = new Label(String.format("%.2f", inventory.getOrDefault(itemType, 0f)), skin);
+            editor.itemTypes.put(itemType, label);
             TextButton more = new TextButton(">", skin);
             Actor linkActor = new EditorUILink(itemType.id, false, 0f, false, false).createActor(skin, editor);
             table.add(less, image, label, more, linkActor).row();

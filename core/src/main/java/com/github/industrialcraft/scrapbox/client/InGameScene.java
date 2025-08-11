@@ -33,6 +33,7 @@ import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Map;
 
 public class InGameScene implements IScene {
     public static final float BOX_TO_PIXELS_RATIO = 100;
@@ -561,6 +562,15 @@ public class InGameScene implements IScene {
                     this.editors.put(setGameObjectEditUIData.id, editor);
                 } else {
                     editor.rebuild(setGameObjectEditUIData);
+                }
+            }
+            if(message instanceof SetGameObjectEditUIInventory){
+                SetGameObjectEditUIInventory setGameObjectEditUIInventory = (SetGameObjectEditUIInventory) message;
+                ClientGameObjectEditor editor = this.editors.get(setGameObjectEditUIInventory.id);
+                if(editor != null){
+                    for(Map.Entry<EItemType, Label> entry : editor.itemTypes.entrySet()){
+                        entry.getValue().setText(String.format("%.2f", setGameObjectEditUIInventory.inventory.getOrDefault(entry.getKey(), 0f)));
+                    }
                 }
             }
             if(message instanceof SendConnectionListData){

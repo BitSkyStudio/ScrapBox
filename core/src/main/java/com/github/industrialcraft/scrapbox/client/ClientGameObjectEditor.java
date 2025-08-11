@@ -11,6 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.github.industrialcraft.scrapbox.common.net.msg.CloseGameObjectEditUI;
 import com.github.industrialcraft.scrapbox.common.net.msg.SetGameObjectEditUIData;
+import com.github.industrialcraft.scrapbox.server.EItemType;
+
+import java.util.EnumMap;
 
 public class ClientGameObjectEditor {
     public final int gameObjectID;
@@ -20,6 +23,7 @@ public class ClientGameObjectEditor {
     public final Texture linkOutput;
     public final InGameScene scene;
     public final Window window;
+    public EnumMap<EItemType, Label> itemTypes;
     public ClientGameObjectEditor(int gameObjectID, InGameScene scene, SetGameObjectEditUIData data) {
         this.gameObjectID = gameObjectID;
         this.linkInput = new Texture("link_input.png");
@@ -53,6 +57,7 @@ public class ClientGameObjectEditor {
         rebuild(data);
     }
     public void rebuild(SetGameObjectEditUIData data){
+        this.itemTypes = null;
         this.window.clearChildren();
         Skin skin = ScrapBox.getInstance().getSkin();
         for(int i = 0;i < data.rows.size();i++){

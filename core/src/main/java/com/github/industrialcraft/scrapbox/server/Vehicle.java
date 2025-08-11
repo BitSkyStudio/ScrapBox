@@ -88,7 +88,7 @@ public class Vehicle {
                     float removeCount = Math.min(count, inventory.get(item));
                     count -= removeCount;
                     inventory.put(item, inventory.get(item)-removeCount);
-                    go.updateUI();
+                    ((ChestGameObject) go).updateViewers();
                     if(count <= 0)
                         return 0;
                 }
@@ -101,7 +101,7 @@ public class Vehicle {
             if(go instanceof ChestGameObject){
                 EnumMap<EItemType, Float> inventory = ((ChestGameObject) go).inventory;
                 inventory.put(item, inventory.getOrDefault(item, 0f) + count);
-                go.updateUI();
+                ((ChestGameObject) go).updateViewers();
                 return;
             }
         }
