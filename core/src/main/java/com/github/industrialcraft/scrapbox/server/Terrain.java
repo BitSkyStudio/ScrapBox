@@ -32,7 +32,7 @@ public class Terrain {
     public void placeFromMessage(PlaceTerrain placeTerrain){
         place(placeTerrain.type, placeTerrain.position, placeTerrain.radius, placeTerrain.rectangle);
     }
-    private static final float simplifyEpsilon = 0.05f;
+    public static final float simplifyEpsilon = 0.05f;
     public void place(String type, Vector2 point, float radius, boolean rectangle){
         PathD shape;
         if(rectangle){

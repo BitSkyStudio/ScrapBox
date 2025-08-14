@@ -101,6 +101,15 @@ ButtonStyle: {
 		checked: button-down
 	}
 }
+CheckBoxStyle: {
+	default: {
+		checkboxOn: button-sel
+		checkboxOff: button
+		font: default-font
+		fontColor: white
+		disabledFontColor: grey
+	}
+}
 ImageButtonStyle: {
 	default: {
 		up: button

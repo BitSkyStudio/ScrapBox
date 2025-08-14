@@ -10,4 +10,5 @@ dependencies {
   implementation 'org.orbisgis:poly2tri-core:0.1.2'
   implementation "com.code-disaster.steamworks4j:steamworks4j:1.9.0"
   implementation "com.code-disaster.steamworks4j:steamworks4j-server:1.9.0"
+  implementation 'com.github.micycle1:jSimplex:326e1f67f9'
 }

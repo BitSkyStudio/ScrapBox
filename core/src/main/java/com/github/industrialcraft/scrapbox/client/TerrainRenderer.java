@@ -48,15 +48,20 @@ public class TerrainRenderer {
                     }
                     Poly2Tri.triangulate(polygon);
                     List<DelaunayTriangle> triangles = polygon.getTriangles();
-                    short[] vertexIndexes = new short[triangles.size() * 3];
+                    int maxTriangleCount = 1000;
+                    short[] vertexIndexes = new short[Math.min(maxTriangleCount, triangles.size()) * 3];
                     VertexDeduplicator vertexDeduplicator = new VertexDeduplicator();
                     for (int i = 0; i < triangles.size(); i++) {
                         for (int j = 0; j < 3; j++) {
                             TriangulationPoint point = triangles.get(i).points[j];
-                            vertexIndexes[i * 3 + j] = vertexDeduplicator.addVertex(new Vector2((float) (point.getX() * TERRAIN_TEXTURE_SIZE), (float) (point.getY() * TERRAIN_TEXTURE_SIZE)));
+                            vertexIndexes[(i%maxTriangleCount) * 3 + j] = vertexDeduplicator.addVertex(new Vector2((float) (point.getX() * TERRAIN_TEXTURE_SIZE), (float) (point.getY() * TERRAIN_TEXTURE_SIZE)));
+                        }
+                        if(i % maxTriangleCount == maxTriangleCount-1 || i == triangles.size()-1){
+                            this.terrain.add(new PolygonRegion(this.textures.get(entry.getKey()), vertexDeduplicator.listVertices(), vertexIndexes));
+                            vertexDeduplicator.reset();
+                            vertexIndexes = new short[Math.min(maxTriangleCount, triangles.size()-i) * 3];
                         }
                     }
-                    this.terrain.add(new PolygonRegion(this.textures.get(entry.getKey()), vertexDeduplicator.listVertices(), vertexIndexes));
                 } catch(Exception e){
                     System.out.println("terrain crash");
                 }
@@ -92,6 +97,10 @@ public class TerrainRenderer {
             vertices.add(position);
             this.duplicates.put(position, index);
             return index;
+        }
+        public void reset(){
+            this.vertices.clear();
+            this.duplicates.clear();
         }
         public float[] listVertices(){
             float[] vertices = new float[this.vertices.size()*2];

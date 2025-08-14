@@ -10,6 +10,8 @@ import com.github.industrialcraft.scrapbox.common.net.IConnection;
 import com.github.industrialcraft.scrapbox.common.net.msg.EditorUIInput;
 import com.github.industrialcraft.scrapbox.server.SaveFile;
 import com.github.industrialcraft.scrapbox.server.Server;
+import com.github.industrialcraft.scrapbox.server.WorldGenerator;
+import micycle.jsimplex.generator.NoiseSurface;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -130,11 +132,16 @@ public class WorldJoinScene extends StageBasedScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 TextField input = new TextField("", skin);
+                CheckBox generateTerrain = new CheckBox("Generate Terrain", skin);
                 Dialog dialog = new Dialog("Create World", skin, "dialog") {
                     public void result(Object obj) {
                         if(obj instanceof String && !input.getText().isEmpty()){
                             File saveFile = new File("./saves/" + input.getText() + ".sbs");
                             Server server = new Server(saveFile);
+                            if(generateTerrain.isChecked()) {
+                                server.terrain.terrain.put("dirt", WorldGenerator.generateMap());
+                                server.terrain.dirty = true;
+                            }
                             IConnection connection = server.joinLocalPlayer();
                             server.start();
                             ScrapBox.getInstance().setScene(new InGameScene(connection, server, null));
@@ -143,7 +150,8 @@ public class WorldJoinScene extends StageBasedScreen {
                 };
                 dialog.button("Cancel");
                 dialog.button("Ok", "");
-                dialog.getContentTable().add(input);
+                dialog.getContentTable().add(input).row();
+                dialog.getContentTable().add(generateTerrain).row();
                 dialog.show(stage);
             }
         });
