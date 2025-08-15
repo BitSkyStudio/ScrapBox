@@ -43,7 +43,7 @@ public class TriangleGameObject extends GameObject {
         server.physics.createJoint(joint);
     }
     private float getAngle(){
-        return (float) Math.toRadians(Math.min(Math.max(Math.abs(config.angle), 5), 90));
+        return (float) Math.toRadians(Math.min(Math.max(Math.abs(config.size), 10), 90));
     }
     public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
         EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);

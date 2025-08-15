@@ -53,16 +53,19 @@ public class PistonGameObject extends GameObject implements IGearJoinable {
         prismaticJoint.localAxisA.set(0, -1);
         prismaticJoint.maxMotorForce = 1000;
         prismaticJoint.lowerTranslation = 0;
-        prismaticJoint.upperTranslation = 5f;
+        prismaticJoint.upperTranslation = 2f * getLengthMultiple(config);
         prismaticJoint.enableLimit = true;
         prismaticJoint.enableMotor = true;
         this.motor = (PrismaticJoint) this.server.physics.createJoint(prismaticJoint);
         this.setBody("end", "piston_end", endBody);
     }
+    private static float getLengthMultiple(GameObjectConfig config){
+        return Math.max(Math.min(config.size, 3), 1);
+    }
     public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
         EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
         items.put(EItemType.Metal, 50f);
-        items.put(EItemType.Transmission, 10f);
+        items.put(EItemType.Transmission, 4f * getLengthMultiple(config));
         items.put(EItemType.Circuit, 10f);
         return items;
     }
@@ -87,7 +90,7 @@ public class PistonGameObject extends GameObject implements IGearJoinable {
     @Override
     public void tick() {
         super.tick();
-        float value = Math.max(Math.min(getValueOnInput(0),2.5f),0)*2;
+        float value = Math.max(Math.min(getValueOnInput(0),getLengthMultiple(config)),0)*2;
         motor.setMotorSpeed(-((motor.getJointTranslation())-value)*5);
         motor.enableMotor(gearConnections.isEmpty());
     }

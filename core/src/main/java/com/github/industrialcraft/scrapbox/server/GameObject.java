@@ -538,24 +538,20 @@ public abstract class GameObject {
         }
     }
     public static class GameObjectConfig{
-        public static GameObjectConfig DEFAULT = new GameObjectConfig(Material.Wood, 1, 45);
+        public static GameObjectConfig DEFAULT = new GameObjectConfig(Material.Wood, 1);
         public final Material material;
         public final float size;
-        public final float angle;
-        public GameObjectConfig(Material material, float size, float angle) {
+        public GameObjectConfig(Material material, float size) {
             this.material = material;
             this.size = size;
-            this.angle = angle;
         }
         public GameObjectConfig(DataInputStream stream) throws IOException {
             this.material = Material.byId(stream.readByte());
             this.size = stream.readFloat();
-            this.angle = stream.readFloat();
         }
         public void toStream(DataOutputStream stream) throws IOException {
             stream.writeByte(material.id);
             stream.writeFloat(size);
-            stream.writeFloat(angle);
         }
     }
 }
