@@ -7,6 +7,7 @@ import clipper2.core.PathsD;
 import clipper2.core.PointD;
 import clipper2.offset.EndType;
 import clipper2.offset.JoinType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import micycle.jsimplex.generator.NoiseSurface;
 
@@ -14,11 +15,20 @@ import java.util.*;
 
 public class WorldGenerator {
     public static PathsD generateMap(){
-        float frequency = 0.07f;
-        int width = 256;
-        int height = 192;
-        float scale = 4;
-        float[][] densityMap = unPack2D(NoiseSurface.generate2dRaw(0, 0, width, height, frequency, true), width, height);
+        float resolution = 2;
+        float frequency = 0.07f/resolution;
+        int width = (int) (256*resolution);
+        int height = (int) (192*resolution);
+        float scale = 4/resolution;
+        float stretch = 2f;
+        int stretchedHeight = (int) (height * stretch);
+        float[][] densityMapRaw = unPack2D(NoiseSurface.generate2dRaw(0, 0, width, stretchedHeight, frequency / stretch, true), width, stretchedHeight);
+        float[][] densityMap = new float[height][width];
+        for(int x = 0;x < width;x++){
+            for(int y = 0;y < height;y++){
+                densityMap[y][x] = MathUtils.lerp(densityMapRaw[(int) Math.floor(y*stretch)][x], densityMapRaw[(int) Math.floor((y+0.99)*stretch)][x], (y*stretch)%1);
+            }
+        }
         for(int x = 1;x < width - 1;x++){
             for(int y = 1;y < height - 1;y++){
                 float squircleVal = (float) (Math.pow(((x-width/2f)/width)*2f, 4) + Math.pow(((y-height/2f)/height)*2f, 4));
