@@ -81,6 +81,5 @@ public class ConnectingScene extends StageBasedScreen {
     @Override
     public void dispose() {
         super.dispose();
-        netXClient.disconnect();
     }
 }
