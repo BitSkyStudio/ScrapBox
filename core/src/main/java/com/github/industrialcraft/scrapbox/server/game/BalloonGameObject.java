@@ -62,7 +62,7 @@ public class BalloonGameObject extends GameObject implements IPairObject {
         getBaseBody().applyLinearImpulse(new Vector2(0, 15/6f), getBaseBody().getWorldPoint(new Vector2(0, 1)), true);
 
         if(other == null){
-            RopeGameObject other = server.spawnGameObject(getBaseBody().getPosition(), getBaseBody().getAngle(), RopeGameObject::new, UUID.randomUUID(), GameObjectConfig.DEFAULT);
+            RopeGameObject other = server.spawnGameObject(getBaseBody().getPosition(), getBaseBody().getAngle(), RopeGameObject::new, UUID.randomUUID(), new GameObjectConfig());
             other.setMode(EObjectInteractionMode.Ghost);
             other.other = this;
             this.other = other;

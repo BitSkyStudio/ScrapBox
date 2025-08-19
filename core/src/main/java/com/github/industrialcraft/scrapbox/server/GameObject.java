@@ -7,6 +7,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.GearJoint;
 import com.badlogic.gdx.physics.box2d.joints.GearJointDef;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.github.industrialcraft.scrapbox.client.ScrapBox;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
 import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIRow;
@@ -17,6 +22,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class GameObject {
     public static final double HALF_PI = Math.PI / 2;
@@ -261,7 +269,7 @@ public abstract class GameObject {
         return true;
     }
     public String getImpactSound(){
-        return config.material.collisionSound;
+        return config.<Material>getProperty(GameObjectConfig.Property.OMaterial).collisionSound;
     }
     public void onCollision(Fixture thisFixture, Fixture other, WorldManifold worldManifold) {
         String impactSound = getImpactSound();
@@ -538,20 +546,91 @@ public abstract class GameObject {
         }
     }
     public static class GameObjectConfig{
-        public static GameObjectConfig DEFAULT = new GameObjectConfig(Material.Wood, 1);
-        public final Material material;
-        public final float size;
-        public GameObjectConfig(Material material, float size) {
-            this.material = material;
-            this.size = size;
+        public final EnumMap<Property, Object> properties;
+        public GameObjectConfig() {
+            this.properties = new EnumMap<>(Property.class);
         }
         public GameObjectConfig(DataInputStream stream) throws IOException {
-            this.material = Material.byId(stream.readByte());
-            this.size = stream.readFloat();
+            this.properties = new EnumMap<>(Property.class);
+            int propertyCount = stream.readInt();
+            for(int i = 0;i < propertyCount;i++){
+                Property property = Property.byId(stream.readByte());
+                properties.put(property, property.deserializer.deserialize(stream));
+            }
         }
         public void toStream(DataOutputStream stream) throws IOException {
-            stream.writeByte(material.id);
-            stream.writeFloat(size);
+            stream.writeInt(properties.size());
+            for(Map.Entry<Property, Object> entry : properties.entrySet()){
+                stream.writeByte(entry.getKey().id);
+                entry.getKey().serializer.serialize(entry.getValue(), stream);
+            }
+        }
+        public GameObjectConfig clone(){
+            GameObjectConfig config1 = new GameObjectConfig();
+            config1.properties.putAll(this.properties);
+            return config1;
+        }
+        public <T> T getProperty(Property property){
+            return (T) this.properties.getOrDefault(property, property.defaultValue);
+        }
+        public enum Property{
+            OMaterial(0, "Material", Material.Wood,
+                (stream) -> Material.byId(stream.readByte()),
+                (o, stream) -> stream.writeByte(((Material) o).id),
+                (skin, current) -> {
+                    SelectBox<String> materials = new SelectBox<>(ScrapBox.getInstance().getSkin());
+                    materials.setItems(Arrays.stream(Material.values()).map((mat) -> mat.name).toArray(String[]::new));
+                    materials.setSelected(((Material)current).name);
+                    return materials;
+                }, (actor)->Material.byId((byte) ((SelectBox)actor).getSelectedIndex())
+            ),
+            Size(1, "Size", 1F,
+                DataInputStream::readFloat,
+                (o, stream) -> stream.writeFloat((Float) o),
+                (skin, current) -> {
+                    TextField sizeField = new TextField(String.valueOf((float)current), ScrapBox.getInstance().getSkin());
+                    sizeField.setTextFieldFilter((textField, c) -> Character.isDigit(c) || c == '.');
+                    return sizeField;
+                },
+                (actor)->{
+                    try{
+                        return Float.parseFloat(((TextField)actor).getText());
+                    } catch (NumberFormatException e){
+                        return null;
+                    }
+                }
+            );
+            public final byte id;
+            public final String displayName;
+            public final Object defaultValue;
+            public final Deserializer deserializer;
+            public final Serializer serializer;
+            public final BiFunction<Skin, Object, Actor> actorSpawner;
+            public final Function<Actor, Object> actorValueLoader;
+            Property(int id, String displayName, Object defaultValue, Deserializer deserializer, Serializer serializer, BiFunction<Skin, Object, Actor> actorSpawner, Function<Actor, Object> actorValueLoader) {
+                this.id = (byte) id;
+                this.displayName = displayName;
+                this.defaultValue = defaultValue;
+                this.deserializer = deserializer;
+                this.serializer = serializer;
+                this.actorSpawner = actorSpawner;
+                this.actorValueLoader = actorValueLoader;
+            }
+            public static Property byId(byte id){
+                for(Property property : values()){
+                    if(property.id == id)
+                        return property;
+                }
+                return null;
+            }
+            @FunctionalInterface
+            public interface Serializer{
+                void serialize(Object property, DataOutputStream stream) throws IOException;
+            }
+            @FunctionalInterface
+            public interface Deserializer{
+                Object deserialize(DataInputStream stream) throws IOException;
+            }
         }
     }
 }

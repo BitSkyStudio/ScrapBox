@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.server.game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
@@ -14,6 +15,8 @@ public class TriangleGameObject extends GameObject {
     public TriangleGameObject(Vector2 position, float rotation, Server server, GameObjectConfig config) {
         super(position, rotation, server, config);
 
+        Material material = config.getProperty(GameObjectConfig.Property.OMaterial);
+
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
         bodyDef.angle = rotation;
@@ -24,7 +27,7 @@ public class TriangleGameObject extends GameObject {
         //shape.set(new Vector2[]{new Vector2(-1, -1), new Vector2(1, -1), getEndpoint(2)});
         shape.setAsBox(1, 0.1f);
         fixtureDef.shape = shape;
-        fixtureDef.density = config.material.density;
+        fixtureDef.density = material.density;
         base.createFixture(fixtureDef);
         this.setBody("base", "triangle_arm", base);
 
@@ -34,7 +37,7 @@ public class TriangleGameObject extends GameObject {
         endBodyDef.type = BodyDef.BodyType.DynamicBody;
         Body end = server.physics.createBody(endBodyDef);
         fixtureDef.shape = shape;
-        fixtureDef.density = config.material.density;
+        fixtureDef.density = material.density;
         end.createFixture(fixtureDef);
         this.setBody("end", "triangle_arm", end, true);
 
@@ -43,16 +46,16 @@ public class TriangleGameObject extends GameObject {
         server.physics.createJoint(joint);
     }
     private float getAngle(){
-        return (float) Math.toRadians(Math.min(Math.max(Math.abs(config.size), 10), 90));
+        return (float) Math.toRadians(Math.min(Math.max(Math.abs(config.<Float>getProperty(GameObjectConfig.Property.Size)), 10), 90));
     }
     public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
         EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
-        items.put(config.material.materialItem, 50f);
+        items.put(config.<Material>getProperty(GameObjectConfig.Property.OMaterial).materialItem, 50f);
         return items;
     }
     @Override
     public float getMaxHealth() {
-        return 100*config.material.baseHealthMultiplier;
+        return 100*config.<Material>getProperty(GameObjectConfig.Property.OMaterial).baseHealthMultiplier;
     }
 
     @Override

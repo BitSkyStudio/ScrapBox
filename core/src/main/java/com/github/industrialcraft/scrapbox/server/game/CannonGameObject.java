@@ -58,7 +58,7 @@ public class CannonGameObject extends GameObject {
             if (this.vehicle.countItem(EItemType.Metal) > 5 && this.vehicle.countItem(EItemType.Explosive) > 5) {
                 this.vehicle.removeItem(EItemType.Metal, 5);
                 this.vehicle.removeItem(EItemType.Explosive, 5);
-                BulletGameObject bullet = server.spawnGameObject(getBaseBody().getPosition(), 0, BulletGameObject::new, null, GameObjectConfig.DEFAULT);
+                BulletGameObject bullet = server.spawnGameObject(getBaseBody().getPosition(), 0, BulletGameObject::new, null, new GameObjectConfig());
                 bullet.parent = this;
                 float speed = 100f;
                 float angle = -getBaseBody().getAngle();

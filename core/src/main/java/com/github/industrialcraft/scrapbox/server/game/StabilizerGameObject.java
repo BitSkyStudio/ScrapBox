@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
@@ -31,7 +32,7 @@ public class StabilizerGameObject extends GameObject {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(1, 0.6f);
         fixtureDef.shape = shape;
-        fixtureDef.density = config.material.density;
+        fixtureDef.density = config.<Material>getProperty(GameObjectConfig.Property.OMaterial).density;
         base.createFixture(fixtureDef);
         this.setBody("base", "stabilizer", base);
     }

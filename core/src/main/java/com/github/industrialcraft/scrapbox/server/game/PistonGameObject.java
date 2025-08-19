@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
@@ -60,7 +61,7 @@ public class PistonGameObject extends GameObject implements IGearJoinable {
         this.setBody("end", "piston_end", endBody);
     }
     private static float getLengthMultiple(GameObjectConfig config){
-        return Math.max(Math.min(config.size, 3), 1);
+        return Math.max(Math.min(config.<Float>getProperty(GameObjectConfig.Property.Size), 3), 1);
     }
     public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
         EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);

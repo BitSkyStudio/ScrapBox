@@ -2,6 +2,7 @@ package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
@@ -24,18 +25,18 @@ public class FrameGameObject extends GameObject {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(1, 1);
         fixtureDef.shape = shape;
-        fixtureDef.density = config.material.density;
+        fixtureDef.density = config.<Material>getProperty(GameObjectConfig.Property.OMaterial).density;
         base.createFixture(fixtureDef);
         this.setBody("base", "frame", base);
     }
     public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
         EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
-        items.put(config.material.materialItem, 50f);
+        items.put(config.<Material>getProperty(GameObjectConfig.Property.OMaterial).materialItem, 50f);
         return items;
     }
     @Override
     public float getMaxHealth() {
-        return 100*config.material.baseHealthMultiplier;
+        return 100*config.<Material>getProperty(GameObjectConfig.Property.OMaterial).baseHealthMultiplier;
     }
 
     @Override

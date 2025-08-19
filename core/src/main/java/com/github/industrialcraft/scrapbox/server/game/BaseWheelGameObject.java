@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUIElement;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILabel;
 import com.github.industrialcraft.scrapbox.common.editui.EditorUILink;
@@ -28,6 +29,9 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
 
         this.adhesion = adhesion;
 
+        float size = config.getProperty(GameObject.GameObjectConfig.Property.Size);
+        Material material = config.getProperty(GameObjectConfig.Property.OMaterial);
+
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(position);
         bodyDef.angle = rotation;
@@ -35,9 +39,9 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
         Body base = server.physics.createBody(bodyDef);
         FixtureDef baseFixtureDef = new FixtureDef();
         PolygonShape baseShape = new PolygonShape();
-        baseShape.set(new Vector2[]{new Vector2(0, 0), new Vector2(1, 1 * config.size), new Vector2(-1, 1 * config.size)});
+        baseShape.set(new Vector2[]{new Vector2(0, 0), new Vector2(1, 1 * size), new Vector2(-1, 1 * size)});
         baseFixtureDef.shape = baseShape;
-        baseFixtureDef.density = config.material.density;
+        baseFixtureDef.density = material.density;
         base.createFixture(baseFixtureDef);
         this.setBody("base", joinType, base, false);
 
@@ -46,9 +50,9 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
         this.wheelBody = server.physics.createBody(bodyDef);
         FixtureDef wheelFixtureDef = new FixtureDef();
         CircleShape wheelShape = new CircleShape();
-        wheelShape.setRadius(0.95f * config.size);
+        wheelShape.setRadius(0.95f * size);
         wheelFixtureDef.shape = wheelShape;
-        wheelFixtureDef.density = config.material.density;
+        wheelFixtureDef.density = material.density;
         wheelFixtureDef.friction = getWheelFriction();
         wheelFixtureDef.restitution = 0;
         Fixture wheelFixture = wheelBody.createFixture(wheelFixtureDef);
@@ -65,7 +69,7 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
 
     @Override
     public float getMaxHealth() {
-        return 100 * config.material.baseHealthMultiplier;
+        return 100 * config.<Material>getProperty(GameObjectConfig.Property.OMaterial).baseHealthMultiplier;
     }
 
     public float getWheelFriction(){
@@ -141,12 +145,13 @@ public abstract class BaseWheelGameObject extends GameObject implements IGearJoi
 
     @Override
     public HashMap<String, ConnectionEdge> getConnectionEdges() {
+        float size = config.getProperty(GameObject.GameObjectConfig.Property.Size);
         HashMap<String, ConnectionEdge> edges = new HashMap<>();
-        edges.put("up", new ConnectionEdge(new Vector2(0, 1 * config.size), ConnectionEdgeType.Normal));
-        edges.put("connector_up", new ConnectionEdge(new Vector2(0, 0.9f * config.size), ConnectionEdgeType.WheelConnector, "wheel"));
-        edges.put("connector_down", new ConnectionEdge(new Vector2(0, -0.9f * config.size), ConnectionEdgeType.WheelConnector, "wheel"));
-        edges.put("connector_left", new ConnectionEdge(new Vector2(-0.9f * config.size, 0), ConnectionEdgeType.WheelConnector, "wheel"));
-        edges.put("connector_right", new ConnectionEdge(new Vector2(0.9f * config.size, 0), ConnectionEdgeType.WheelConnector, "wheel"));
+        edges.put("up", new ConnectionEdge(new Vector2(0, 1 * size), ConnectionEdgeType.Normal));
+        edges.put("connector_up", new ConnectionEdge(new Vector2(0, 0.9f * size), ConnectionEdgeType.WheelConnector, "wheel"));
+        edges.put("connector_down", new ConnectionEdge(new Vector2(0, -0.9f * size), ConnectionEdgeType.WheelConnector, "wheel"));
+        edges.put("connector_left", new ConnectionEdge(new Vector2(-0.9f * size, 0), ConnectionEdgeType.WheelConnector, "wheel"));
+        edges.put("connector_right", new ConnectionEdge(new Vector2(0.9f * size, 0), ConnectionEdgeType.WheelConnector, "wheel"));
         return edges;
     }
 }

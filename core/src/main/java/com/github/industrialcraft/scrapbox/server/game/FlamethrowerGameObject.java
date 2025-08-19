@@ -57,7 +57,7 @@ public class FlamethrowerGameObject extends GameObject {
             if(vehicle.countItem(EItemType.Explosive) >= explosiveCost) {
                 vehicle.removeItem(EItemType.Explosive, explosiveCost);
                 for (int i = 0; i < 3; i++) {
-                    FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getWorldPoint(Vector2.Y).cpy(), 0, FireParticleGameObject::new, null, GameObjectConfig.DEFAULT);
+                    FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getWorldPoint(Vector2.Y).cpy(), 0, FireParticleGameObject::new, null, new GameObjectConfig());
                     fireParticle.parent = this;
                     fireParticle.ttl = (int) (8 + Math.random() * 3);
                     fireParticle.damage = 1;

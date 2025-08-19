@@ -59,7 +59,7 @@ public class JetEngineGameObject extends GameObject {
         getBaseBody().setLinearDamping(Math.abs(speed*3));
         if(speed != 0) {
             for (int i = 0; i < 3; i++) {
-                FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getWorldPoint(new Vector2(0, -1)).cpy(), 0, FireParticleGameObject::new, null, GameObjectConfig.DEFAULT);
+                FireParticleGameObject fireParticle = server.spawnGameObject(getBaseBody().getWorldPoint(new Vector2(0, -1)).cpy(), 0, FireParticleGameObject::new, null, new GameObjectConfig());
                 fireParticle.parent = this;
                 fireParticle.ttl = (int) (8 + Math.random() * 3);
                 float speed = 15f / 10f;

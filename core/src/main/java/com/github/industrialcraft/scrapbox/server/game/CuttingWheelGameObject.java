@@ -2,6 +2,7 @@ package com.github.industrialcraft.scrapbox.server.game;
 
 import com.badlogic.gdx.math.Vector2;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.common.Material;
 import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
@@ -15,14 +16,14 @@ public class CuttingWheelGameObject extends BaseWheelGameObject{
     }
     public static EnumMap<EItemType, Float> getItemCost(GameObjectConfig config){
         EnumMap<EItemType, Float> items = new EnumMap<>(EItemType.class);
-        items.put(config.material.materialItem, 50f);
+        items.put(config.<Material>getProperty(GameObjectConfig.Property.OMaterial).materialItem, 50f);
         return items;
     }
     @Override
     public void tick() {
         super.tick();
         if(motor.isMotorEnabled() && getLocalMode() != EObjectInteractionMode.Ghost)
-            server.terrain.place("", getBody("wheel").getWorldCenter(), config.size + .03f, false);
+            server.terrain.place("", getBody("wheel").getWorldCenter(), config.<Float>getProperty(GameObjectConfig.Property.Size) + .03f, false);
     }
 
     @Override

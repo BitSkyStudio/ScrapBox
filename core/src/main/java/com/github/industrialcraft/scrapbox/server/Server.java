@@ -147,7 +147,7 @@ public class Server {
     public LocalConnection joinLocalPlayer(){
         ConcurrentLinkedQueue<Object> write = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Object> read = new ConcurrentLinkedQueue<>();
-        this.addPlayer(new Player(this, new LocalConnection(write, read), GameObject.GameObjectConfig.DEFAULT));
+        this.addPlayer(new Player(this, new LocalConnection(write, read), new GameObject.GameObjectConfig()));
         return new LocalConnection(read, write);
     }
     public  <T extends GameObject> T spawnGameObject(Vector2 position, float rotation, GameObject.GameObjectSpawner<T> spawner, UUID uuid, GameObject.GameObjectConfig config){
@@ -281,7 +281,7 @@ public class Server {
             terrain.addExplosionBreak(position, explosion.z*2);
             Random random = new Random();
             for(int i = 0;i < 40;i++){
-                ExplosionParticleGameObject go = spawnGameObject(position, 0f, ExplosionParticleGameObject::new, null, GameObject.GameObjectConfig.DEFAULT);
+                ExplosionParticleGameObject go = spawnGameObject(position, 0f, ExplosionParticleGameObject::new, null, new GameObject.GameObjectConfig());
                 go.power = explosion.z;
                 go.getBaseBody().applyLinearImpulse(Vector2.Y.cpy().setAngleRad((float) (random.nextFloat()*Math.PI*2f)).scl(explosion.z*10*random.nextFloat()), go.getBaseBody().getWorldCenter(), true);
             }
@@ -295,7 +295,7 @@ public class Server {
                 public void connect(SocketUser user) {
                     if (password == null) {
                         user.send(new SetGameState(SetGameState.GameState.PLAY));
-                        Player player = new Player(Server.this, new ServerNetXConnection(user), GameObject.GameObjectConfig.DEFAULT);
+                        Player player = new Player(Server.this, new ServerNetXConnection(user), new GameObject.GameObjectConfig());
                         addPlayer(player);
                         user.setUserData(player);
                     } else {
@@ -316,7 +316,7 @@ public class Server {
                             SubmitPassword submitPasswordMessage = (SubmitPassword) msg;
                             if (password == null || submitPasswordMessage.password.equals(password)) {
                                 user.send(new SetGameState(SetGameState.GameState.PLAY));
-                                Player player = new Player(Server.this, new ServerNetXConnection(user), GameObject.GameObjectConfig.DEFAULT);
+                                Player player = new Player(Server.this, new ServerNetXConnection(user), new GameObject.GameObjectConfig());
                                 addPlayer(player);
                                 user.setUserData(player);
                             } else {

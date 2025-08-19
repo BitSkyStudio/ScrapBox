@@ -3,6 +3,7 @@ package com.github.industrialcraft.scrapbox.client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.github.industrialcraft.scrapbox.server.GameObject;
 
 import java.util.function.Predicate;
 
@@ -24,8 +25,9 @@ public class MouseSelector {
             float yDiff = mouse.y - gameObject.position.y;
             float angle = (float) Math.atan2(xDiff, yDiff) + gameObject.rotation;
             float distance = (float) Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
-            float widthScale = renderData.configScalingW?gameObject.config.size:1;
-            float heightScale = renderData.configScalingH?gameObject.config.size:1;
+            float size = gameObject.config.getProperty(GameObject.GameObjectConfig.Property.Size);
+            float widthScale = renderData.configScalingW?size:1;
+            float heightScale = renderData.configScalingH?size:1;
             if((Math.abs(Math.sin(angle)) * distance < renderData.width * widthScale) && (Math.abs(Math.cos(angle)) * distance < renderData.height * heightScale)){
                 Selection newSelection = new Selection(i, gameObject.selectionId, xDiff, yDiff, renderData.width * renderData.height);
                 if(selection == null || (newSelection.size < selection.size)){

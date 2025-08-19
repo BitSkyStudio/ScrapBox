@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
@@ -18,10 +19,7 @@ import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.tommyettinger.colorful.rgb.ColorfulBatch;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.*;
 
 public class ToolBox {
     public final InGameScene game;
@@ -98,7 +96,7 @@ public class ToolBox {
                 Part part = this.parts.get(i);
                 float maxLength = Math.max(part.renderData.width, part.renderData.height);
                 if(part.renderData.materialTexture != null) {
-                    Color color = this.partsConfig.get(i).material.color;
+                    Color color = this.partsConfig.get(i).<Material>getProperty(GameObject.GameObjectConfig.Property.OMaterial).color;
                     ((ColorfulBatch)batch).setTweak(color.r, color.g, color.b, 0.5f);
                     batch.draw(part.renderData.materialTexture, leftOffset, Gdx.graphics.getHeight() - (i + 1) * width - partScroll - toolHeight, width * (part.renderData.width / maxLength), width * (part.renderData.height / maxLength));
                     ((ColorfulBatch)batch).setTweak(ColorfulBatch.TWEAK_RESET);
@@ -169,36 +167,32 @@ public class ToolBox {
             if (this.parts.size() > (int) y) {
                 Part part = this.parts.get((int) y);
                 GameObject.GameObjectConfig config = partsConfig.get((int)y);
-                if (rightButton) {
-                    SelectBox<String> materials = new SelectBox<>(ScrapBox.getInstance().getSkin());
-                    materials.setItems(Arrays.stream(Material.values()).map((mat) -> mat.name).toArray(String[]::new));
-                    materials.setSelected(config.material.name);
-                    materials.setDisabled(!part.materialModification);
-                    TextField sizeField = new TextField(""+config.size, ScrapBox.getInstance().getSkin());
-                    sizeField.setTextFieldFilter((textField, c) -> Character.isDigit(c) || c == '.');
-                    sizeField.setDisabled(part.sizeModName == null);
+                if (rightButton && part.properties.length > 0) {
+                    HashMap<GameObject.GameObjectConfig.Property, Actor> actorProperties = new HashMap<>();
                     Dialog dialog = new Dialog("Object Config", ScrapBox.getInstance().getSkin(), "dialog") {
                         @Override
                         protected void result(Object object) {
                             if(object instanceof String){
-                                float newSize = config.size;
-                                try{
-                                    newSize = Float.parseFloat(sizeField.getText());
-                                } catch (Exception e){}
-                                GameObject.GameObjectConfig newConfig = new GameObject.GameObjectConfig(Material.byId((byte) materials.getSelectedIndex()), newSize);
-                                partsConfig.set((int)y, newConfig);
+                                for(Map.Entry<GameObject.GameObjectConfig.Property, Actor> entry : actorProperties.entrySet()){
+                                    Object newValue = entry.getKey().actorValueLoader.apply(entry.getValue());
+                                    if(newValue != null){
+                                        config.properties.put(entry.getKey(), newValue);
+                                    }
+                                }
                             }
                         }
                     };
-                    dialog.getContentTable().add(new Label("material: ", ScrapBox.getInstance().getSkin()));
-                    dialog.getContentTable().add(materials).row();
-                    dialog.getContentTable().add(new Label(part.sizeModName + ": ", ScrapBox.getInstance().getSkin()));
-                    dialog.getContentTable().add(sizeField).row();
+                    for(GameObject.GameObjectConfig.Property property : part.properties){
+                        dialog.getContentTable().add(new Label(property.displayName + ": ", ScrapBox.getInstance().getSkin()));
+                        Actor actor = property.actorSpawner.apply(ScrapBox.getInstance().getSkin(), config.getProperty(property));
+                        dialog.getContentTable().add(actor).row();
+                        actorProperties.put(property, actor);
+                    }
                     dialog.button("Ok", "");
                     dialog.button("Cancel");
                     dialog.show(game.stage);
                 } else {
-                    game.connection.send(new TakeObject(part.type, game.mouseSelector.getWorldMousePosition(), new Vector2(x * part.renderData.width, (((y % 1) * 2) - 1) * part.renderData.height), config));
+                    game.connection.send(new TakeObject(part.type, game.mouseSelector.getWorldMousePosition(), new Vector2(x * part.renderData.width, (((y % 1) * 2) - 1) * part.renderData.height), config.clone()));
                 }
             }
         }
@@ -216,9 +210,9 @@ public class ToolBox {
         this.background.dispose();
         this.tools.forEach(toolType -> toolType.texture.dispose());
     }
-    public void addPart(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, boolean materialModification, String sizeModName){
-        this.parts.add(new Part(type, renderData, costCalculator, materialModification, sizeModName));
-        this.partsConfig.add(GameObject.GameObjectConfig.DEFAULT);
+    public void addPart(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, GameObject.GameObjectConfig.Property... properties){
+        this.parts.add(new Part(type, renderData, costCalculator, properties));
+        this.partsConfig.add(new GameObject.GameObjectConfig());
     }
     public void scroll(int value){
         this.scrollVelocity += value;
@@ -228,14 +222,12 @@ public class ToolBox {
         public final String type;
         public final RenderData renderData;
         public final GameObject.GameObjectCostCalculator costCalculator;
-        public final boolean materialModification;
-        public final String sizeModName;
-        public Part(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, boolean materialModification, String sizeModName) {
+        public final GameObject.GameObjectConfig.Property[] properties;
+        public Part(String type, RenderData renderData, GameObject.GameObjectCostCalculator costCalculator, GameObject.GameObjectConfig.Property... properties) {
             this.type = type;
             this.renderData = renderData;
             this.costCalculator = costCalculator;
-            this.materialModification = materialModification;
-            this.sizeModName = sizeModName;
+            this.properties = properties;
         }
     }
     public static class ToolType{
