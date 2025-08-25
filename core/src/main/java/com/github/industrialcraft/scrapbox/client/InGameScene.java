@@ -623,11 +623,12 @@ public class InGameScene implements IScene {
             ClientGameObject gameObject = gameObjects.get(controllingData.controllingId);
             if(gameObject == null){
                 controllingData = null;
-            } else {
+            } else if(controllingData.lockCamera){
                 Vector2 lerpedPosition = gameObject.getRealPosition();
                 cameraController.camera.position.set(lerpedPosition.x * BOX_TO_PIXELS_RATIO, lerpedPosition.y * BOX_TO_PIXELS_RATIO, 0);
             }
-        } else {
+        }
+        if(controllingData == null || !controllingData.lockCamera){
             cameraController.tick();
         }
         soundInstances.values().forEach(clientSoundInstance -> clientSoundInstance.tick(cameraController));
@@ -1001,10 +1002,14 @@ public class InGameScene implements IScene {
             }
         }
         if(ScrapBox.getSettings().OPEN_CONTROLLER.isJustDown()){
+            MouseSelector.Selection selection = mouseSelector.getSelected();
             if(controllingData != null){
-                controllingData = null;
+                if(controllingData.controllingId == selection.selectionId){
+                    controllingData.lockCamera = !controllingData.lockCamera;
+                } else {
+                    controllingData = null;
+                }
             } else {
-                MouseSelector.Selection selection = mouseSelector.getSelected();
                 if (selection != null && gameObjects.get(selection.selectionId).type.equals("controller")) {
                     controllingData = new ControllingData(selection.selectionId);
                 }
@@ -1053,8 +1058,10 @@ public class InGameScene implements IScene {
     }
     private static class ControllingData{
         public final int controllingId;
+        public boolean lockCamera;
         private ControllingData(int controllingId) {
             this.controllingId = controllingId;
+            this.lockCamera = true;
         }
     }
 }
