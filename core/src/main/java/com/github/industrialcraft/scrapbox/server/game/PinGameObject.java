@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.github.industrialcraft.scrapbox.common.EObjectInteractionMode;
+import com.github.industrialcraft.scrapbox.server.EDamageType;
 import com.github.industrialcraft.scrapbox.server.EItemType;
 import com.github.industrialcraft.scrapbox.server.GameObject;
 import com.github.industrialcraft.scrapbox.server.Server;
@@ -50,5 +51,9 @@ public class PinGameObject extends GameObject {
         edges.put("left", new ConnectionEdge(new Vector2(-1, 0), ConnectionEdgeType.Normal));
         edges.put("right", new ConnectionEdge(new Vector2(1, 0), ConnectionEdgeType.Normal));
         return edges;
+    }
+    @Override
+    public void damage(float amount, EDamageType damageType) {
+
     }
 }
